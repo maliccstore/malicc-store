@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@radix-ui/themes/styles.css";
 import { Theme, ThemePanel  } from "@radix-ui/themes";
+import { Provider,useAtom } from "jotai";
+import { myStore, themeColor } from "./store/store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +26,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  
   return (
     <html lang="en">
       <body
@@ -36,10 +40,13 @@ export default function RootLayout({
           radius="large" 
           scaling="95%"
           appearance="dark">
-            <main>
-            {children}
-            </main>
-          <ThemePanel/>
+            <Provider store={myStore}>
+              <main>
+                {children}
+              </main>
+            </Provider>
+            
+          
         </Theme>
         
       </body>
