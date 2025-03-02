@@ -10,3 +10,5 @@ myStore.set(countAtom, 1);
 const unsub = myStore.sub(countAtom, () => {
   console.log("countAtom value is changed to", myStore.get(countAtom));
 });
+
+export { unsub };
