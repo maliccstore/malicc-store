@@ -17,6 +17,11 @@
 /.next/
 /out/
 
+# development
+.vscode
+.prettierrc
+.prettierignore
+eslint.config.mjs
 # production
 /build
 
