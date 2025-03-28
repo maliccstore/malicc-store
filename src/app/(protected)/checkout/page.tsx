@@ -1,7 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/store/slices/cartStore';
-import Stripe from 'stripe';
+
 import { Button } from '@/components/ui/button';
 
 export default function CheckoutPage() {

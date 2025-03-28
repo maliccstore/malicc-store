@@ -1,5 +1,5 @@
 'use client';
-import { Flex, Text, Button } from '@radix-ui/themes';
+import { Flex } from '@radix-ui/themes';
 
 export default function BlogPage() {
   return (
