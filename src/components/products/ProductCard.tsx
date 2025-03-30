@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Product } from '@/types/product';
@@ -7,7 +8,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const addToCart = useCartStore((state) => state.addItem);
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="w-64 border rounded-lg overflow-hidden">
       <Image
         src={product.image}
         alt={product.name}
