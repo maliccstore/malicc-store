@@ -22,6 +22,7 @@
 .prettierrc
 .prettierignore
 eslint.config.mjs
+malicc-store.code-workspace
 # production
 /build
 
