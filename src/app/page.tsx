@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import BlogPage from './(public)/blog/page';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <Link href="/explore" style={{ color: 'blue' }}>
           Explore
         </Link>
+        <ThemeToggle />
         <BlogPage />
       </main>
     </div>

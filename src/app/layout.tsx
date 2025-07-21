@@ -2,9 +2,12 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import '@radix-ui/themes/styles.css';
-import { Theme } from '@radix-ui/themes';
+
 import Header from '@/components/common/Header';
 import BottomNavigation from '@/components/common/BottomNavigation';
+import ReduxProvider from '@/provider/ReduxProvider';
+import { useAppSelector } from '@/store/hooks';
+import { Providers } from '@/provider/app/Provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,19 +34,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Theme
-          accentColor="crimson"
-          grayColor="sand"
-          radius="large"
-          scaling="95%"
-          appearance="light"
-        >
+        <Providers>
           <Header />
           <main>{children}</main>
           <div className="">
             <BottomNavigation />
           </div>
-        </Theme>
+        </Providers>
       </body>
     </html>
   );
