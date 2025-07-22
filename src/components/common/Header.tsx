@@ -2,10 +2,10 @@
 
 import { Container, Flex } from '@radix-ui/themes';
 
-import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdaptiveLogo from '../ui/AdaptiveLogo';
+import ThemeToggle from '../ui/ThemeToggle';
 
 export default function Header() {
   // Hydration
@@ -18,10 +18,6 @@ export default function Header() {
 
   if (!isMounted) return null;
 
-  const handleOnUserClick = () => {
-    localStorage.setItem('user', 'Shahzer');
-    console.log(localStorage.getItem('user'));
-  };
   return (
     <header>
       <Container style={{ margin: '10px' }}>
@@ -29,9 +25,7 @@ export default function Header() {
           <Link href={'/'}>
             <AdaptiveLogo />
           </Link>
-          <Link href={'/auth/login'}>
-            <User onClick={handleOnUserClick} />
-          </Link>
+          <ThemeToggle />
         </Flex>
       </Container>
     </header>
