@@ -5,8 +5,6 @@ import '@radix-ui/themes/styles.css';
 
 import Header from '@/components/common/Header';
 import BottomNavigation from '@/components/common/BottomNavigation';
-import ReduxProvider from '@/provider/ReduxProvider';
-import { useAppSelector } from '@/store/hooks';
 import { Providers } from '@/provider/app/Provider';
 
 const geistSans = Geist({
