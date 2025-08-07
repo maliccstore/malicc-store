@@ -4,7 +4,8 @@
 import { useCartStore } from '@/store/slices/cartStore';
 
 export default function CartIcon() {
-  const items = useCartStore((state) => state.items);
+  // const items = useCartStore((state) => state.items);
+  const items = useCartStore();
 
   return (
     <div className="relative">

@@ -1,11 +1,10 @@
 'use client';
 
-import { useCartStore } from '@/store/slices/cartStore';
-
 import { Button } from '@/components/ui/button';
+import { useAppSelector } from '@/store/hooks';
 
 export default function CheckoutPage() {
-  const { items } = useCartStore();
+  const items = useAppSelector((state) => state.cart.items);
 
   const handleCheckout = async () => {
     const response = await fetch('/api/checkout', {

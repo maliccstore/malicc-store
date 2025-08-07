@@ -1,4 +1,4 @@
-// import { Product } from '@/types/product';
+import { Product } from '@/types/product';
 // import { create } from 'zustand';
 
 // interface CartState {
@@ -17,3 +17,8 @@
 //     })),
 //   clearCart: () => set({ items: [] }),
 // }));
+
+export function useCartStore() {
+  const items: Product[] = [];
+  return items;
+}
