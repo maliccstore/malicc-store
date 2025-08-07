@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header>
-      <Container style={{ margin: '10px' }}>
+      <Container style={{ margin: '5px' }}>
         <Flex justify={'between'} align={'center'}>
           <Link href={'/'}>
             <AdaptiveLogo />

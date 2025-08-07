@@ -31,13 +31,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
   const theme = useAppSelector((state) => state.app.theme);
 
   return (
-    <Theme
-      accentColor="crimson"
-      grayColor="sand"
-      radius="large"
-      scaling="95%"
-      appearance={theme}
-    >
+    <Theme grayColor="olive" radius="full" appearance={theme}>
       {children}
     </Theme>
   );

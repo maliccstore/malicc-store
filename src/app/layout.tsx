@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import '@radix-ui/themes/styles.css';
@@ -6,6 +6,7 @@ import '@radix-ui/themes/styles.css';
 import Header from '@/components/common/Header';
 import BottomNavigation from '@/components/common/BottomNavigation';
 import { Providers } from '@/provider/app/Provider';
+import { Box, Container } from '@radix-ui/themes';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,7 +22,12 @@ export const metadata: Metadata = {
   title: 'Malicc Store',
   description: 'An Ecommerce Store for all',
 };
-
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,15 +36,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-slate-200 `}
       >
-        <Providers>
-          <Header />
-          <main>{children}</main>
-          <div className="">
+        <Container className="mobile-only  pb-20   max-h-screen z-10">
+          <Providers>
+            <Header />
+
+            <Container>
+              <Box>{children}</Box>
+            </Container>
+
             <BottomNavigation />
-          </div>
-        </Providers>
+          </Providers>
+        </Container>
       </body>
     </html>
   );
