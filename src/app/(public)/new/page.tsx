@@ -3,7 +3,7 @@ import ProductCard from '@/components/products/ProductCard';
 import { useAppSelector } from '@/store/hooks';
 // import products from '@/data/products';
 import { Box, Container, Flex } from '@radix-ui/themes';
-export default function ProductPage() {
+export default function NewPage() {
   const { products, loading, error } = useAppSelector(
     (state) => state.products
   );
