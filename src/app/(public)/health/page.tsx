@@ -1,7 +1,15 @@
 'use client';
 
+import {
+  Box,
+  Container,
+  Flex,
+  Text,
+  Heading,
+  Button,
+  Card,
+} from '@radix-ui/themes';
 import { useHealth } from '@/features/health/hooks/useHealth';
-import { Button } from '@/components/ui/Button';
 
 export default function HealthPage() {
   const {
@@ -24,107 +32,152 @@ export default function HealthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Server Health Status
-        </h1>
+    <Flex direction="column" gap="4" className="min-h-screen  py-8">
+      <Container size="4">
+        <Heading size="8" weight="bold">
+          <Text>Server Health Status</Text>
+        </Heading>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Health Check</h2>
-            <div className="flex space-x-3">
-              <Button onClick={handleRefresh} disabled={loading}>
+        <Card className="p-6 mb-6">
+          <Flex justify="between" align="center" mb="4">
+            <Heading size="6" weight="bold">
+              Health Check
+            </Heading>
+            <Flex gap="3">
+              <Button
+                onClick={handleRefresh}
+                disabled={loading}
+                variant="solid"
+              >
                 {loading ? 'Checking...' : 'Refresh'}
               </Button>
-              <Button onClick={handlePing}>Ping</Button>
-            </div>
-          </div>
+              <Button onClick={handlePing} variant="outline">
+                Ping
+              </Button>
+            </Flex>
+          </Flex>
 
           {lastChecked && (
-            <p className="text-sm text-gray-600 mb-4">
+            <Text size="2" mb="4">
               Last checked: {new Date(lastChecked).toLocaleString()}
-            </p>
+            </Text>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <span className="text-red-400">⚠️</span>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Error</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                </div>
-              </div>
-            </div>
+            <Card
+              variant="surface"
+              className="bg-red-50 border-red-200 p-4 mb-4"
+            >
+              <Flex gap="3">
+                <Text color="red">⚠️</Text>
+                <Box>
+                  <Heading size="3" weight="medium" color="red">
+                    Error
+                  </Heading>
+                  <Text size="2" color="red" mt="1">
+                    {error}
+                  </Text>
+                </Box>
+              </Flex>
+            </Card>
           )}
 
           {status && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                <h4 className="text-sm font-medium text-green-800">Status</h4>
-                <p className="text-2xl font-bold text-green-900 mt-1">
+            <Flex direction="column" gap="4" className="md:grid md:grid-cols-2">
+              <Card
+                variant="surface"
+                className="bg-green-50 border-green-200 p-4"
+              >
+                <Heading size="3" weight="medium" color="green">
+                  Status
+                </Heading>
+                <Text size="8" weight="bold" color="green" mt="1">
                   {status.status}
-                </p>
-              </div>
+                </Text>
+              </Card>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                <h4 className="text-sm font-medium text-blue-800">Uptime</h4>
-                <p className="text-lg text-blue-900 mt-1">
+              <Card
+                variant="surface"
+                className="bg-blue-50 border-blue-200 p-4"
+              >
+                <Heading size="3" weight="medium" color="blue">
+                  Uptime
+                </Heading>
+                <Text size="6" color="blue" mt="1">
                   {Math.floor(status.uptime)} seconds
-                </p>
-              </div>
+                </Text>
+              </Card>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-4 md:col-span-2">
-                <h4 className="text-sm font-medium text-gray-800">Message</h4>
-                <p className="text-gray-900 mt-1">{status.message}</p>
-              </div>
+              <Card
+                variant="surface"
+                className="bg-gray-50 border-gray-200 p-4 md:col-span-2"
+              >
+                <Heading size="3" weight="medium" color="green">
+                  Message
+                </Heading>
+                <Text mt="1" color="green">
+                  {status.message}
+                </Text>
+              </Card>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <h4 className="text-sm font-medium text-yellow-800">
+              <Card
+                variant="surface"
+                className="bg-yellow-50 border-yellow-200 p-4"
+              >
+                <Heading size="3" weight="medium" color="yellow">
                   Timestamp
-                </h4>
-                <p className="text-sm text-yellow-900 mt-1">
+                </Heading>
+                <Text size="2" color="yellow" mt="1">
                   {new Date(status.timestamp).toLocaleString()}
-                </p>
-              </div>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <h4 className="text-sm font-medium text-yellow-800">Ping</h4>
-                <p className="text-sm text-yellow-900 mt-1">
+                </Text>
+              </Card>
+
+              <Card
+                variant="surface"
+                className="bg-yellow-50 border-yellow-200 p-4"
+              >
+                <Heading size="3" weight="medium" color="yellow">
+                  Ping
+                </Heading>
+                <Text size="2" color="yellow" mt="1">
                   {lastChecked || 'No ping response'}
-                </p>
-              </div>
-            </div>
+                </Text>
+              </Card>
+            </Flex>
           )}
 
           {!status && !error && !loading && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">
+            <Flex justify="center" py="8">
+              <Text color="gray">
                 No health data available. Click refresh to check.
-              </p>
-            </div>
+              </Text>
+            </Flex>
           )}
-        </div>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">API Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Endpoint:</span>
-              <p className="text-gray-600">/graphql</p>
-            </div>
-            <div>
-              <span className="font-medium">Query:</span>
-              <code className="bg-gray-100 p-1 rounded text-xs block mt-1">
-                query HealthCheck &#123; healthCheck &#123; status timestamp
-                uptime message database &#125; &#125;
-              </code>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Card className="p-6">
+          <Heading size="5" weight="bold" mb="4">
+            API Information
+          </Heading>
+          <Flex direction="column" gap="4" className="md:grid md:grid-cols-2">
+            <Box>
+              <Text weight="medium">Endpoint:</Text>
+              <Text color="gray" size="2">
+                /graphql
+              </Text>
+            </Box>
+            <Box>
+              <Text weight="medium">Query:</Text>
+              <Box className="bg-gray-100 p-1 rounded mt-1">
+                <Text size="1" className="font-mono">
+                  query HealthCheck &#123; healthCheck &#123; status timestamp
+                  uptime message database &#125; &#125;
+                </Text>
+              </Box>
+            </Box>
+          </Flex>
+        </Card>
+      </Container>
+    </Flex>
   );
 }

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { HealthStatus, healthAPI } from '../../services/healthAPI.service';
+import { HealthStatus, healthAPI } from '../service/healthAPI.service';
 
 interface HealthState {
   status: HealthStatus | null;
