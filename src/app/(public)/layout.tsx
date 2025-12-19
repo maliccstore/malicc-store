@@ -1,4 +1,5 @@
 // src/app/layout.tsx
+
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../globals.css';
@@ -39,7 +40,7 @@ export default function PublicRootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-slate-200 `}
       >
-        <Container className="mobile-only  pb-20   max-h-screen z-10">
+        <Container className="mobile-only overflow-scroll pb-20   max-h-screen z-10">
           <Header />
 
           <Container>
