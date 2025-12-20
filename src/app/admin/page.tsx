@@ -1,3 +1,5 @@
+import { Container } from '@radix-ui/themes';
+
 export default function AdminPage() {
-  return;
+  return <Container>Admin Dashboard</Container>;
 }

@@ -12,6 +12,7 @@ import {
   HamburgerMenuIcon,
   Cross1Icon,
 } from '@radix-ui/react-icons';
+import Link from 'next/link';
 
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,29 +23,44 @@ export default function AdminSidebar() {
       id: 'dashboard',
       label: 'Dashboard',
       icon: <DashboardIcon />,
+      link: '/admin/dashboard',
     },
     {
       id: 'users',
       label: 'Users',
       icon: <UsersIcon />,
       items: [
-        { id: 'all-users', label: 'All Users' },
-        { id: 'roles', label: 'Roles' },
+        { id: 'all-users', label: 'All Users', link: '/admin/users' },
+        { id: 'customers', label: 'Customers', link: '/admin/users/customers' },
       ],
+      link: '/admin/users',
     },
     {
-      id: 'content',
-      label: 'Content',
+      id: 'Orders',
+      label: 'orders',
+      icon: <UsersIcon />,
+
+      link: '/admin/orders',
+    },
+    {
+      id: 'products',
+      label: 'products',
       icon: <FileTextIcon />,
       items: [
-        { id: 'posts', label: 'Posts' },
-        { id: 'pages', label: 'Pages' },
+        { id: 'new', label: 'new', link: '/admin/catalog/products/new' },
+        {
+          id: 'Edit Product',
+          label: 'edit-product',
+          link: '/admin/catalog/products/editproduct',
+        },
       ],
+      link: '/admin/content',
     },
     {
       id: 'settings',
       label: 'Settings',
       icon: <GearIcon />,
+      link: '/admin/settings',
     },
   ];
 
@@ -110,20 +126,21 @@ export default function AdminSidebar() {
 
                   <Collapsible.Content className="ml-8">
                     {item.items.map((subItem) => (
-                      <button
-                        key={subItem.id}
-                        className="w-full text-left p-2 hover:bg-gray-100 rounded"
-                      >
-                        {subItem.label}
-                      </button>
+                      <Link key={subItem.id} href={subItem.link}>
+                        <button className="w-full text-left p-2 hover:bg-gray-100 rounded">
+                          {subItem.label}
+                        </button>
+                      </Link>
                     ))}
                   </Collapsible.Content>
                 </Collapsible.Root>
               ) : (
-                <button className="w-full flex items-center gap-3 p-3 hover:bg-gray-100 rounded">
-                  {item.icon}
-                  <span>{item.label}</span>
-                </button>
+                <Link href={item.link} passHref={true}>
+                  <button className="w-full flex items-center gap-3 p-3 hover:bg-gray-100 rounded">
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </button>
+                </Link>
               )}
             </div>
           ))}
