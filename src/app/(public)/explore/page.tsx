@@ -7,7 +7,7 @@ export default function ProductPage() {
   const { products } = useAppSelector((state) => state.products);
   return (
     <Flex gap={'2'} align={'center'} direction={{ initial: 'column' }}>
-      <h1>Product Page</h1>
+      <h1>Product Pages</h1>
       <Container size={'2'}>
         <Box className="mb-16  w-fit  ">
           <Flex
