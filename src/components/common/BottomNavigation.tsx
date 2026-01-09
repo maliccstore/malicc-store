@@ -40,7 +40,7 @@ export default function BottomNavigation() {
           </IconButton>
         </Link>
 
-        <Link href="/profile" passHref>
+        <Link href="/account" passHref>
           <IconButton size="3" variant="ghost" color="gray" highContrast>
             <User size={20} />
           </IconButton>
