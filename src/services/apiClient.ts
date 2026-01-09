@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from "js-cookie";
 
 const apiClient = axios.create({
   // baseURL: 'https://api.malicc.store',
@@ -9,7 +10,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth-token');
+  const token = Cookies.get('auth-token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

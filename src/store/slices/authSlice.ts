@@ -8,6 +8,7 @@ import {
     // updateUserAPI,
 } from "../../services/auth.service";
 import { User, SignupInput, AuthPayload } from "../../types/user";
+import Cookies from "js-cookie";
 
 interface AuthState {
     user: User | null;
@@ -21,7 +22,7 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
-    token: typeof window !== "undefined" ? localStorage.getItem("auth-token") : null,
+    token: typeof window !== "undefined" ? Cookies.get("auth-token") || null : null,
     isAuthenticated: false,
     loading: false,
     error: null,
@@ -35,6 +36,7 @@ export const signupThunk = createAsyncThunk(
     async (input: SignupInput, { rejectWithValue }) => {
         try {
             const response = await signupAPI(input);
+            if (!response) throw new Error("No response from server");
             return { user: response.data.data.signup.user, input };
         } catch (error: any) {
             return rejectWithValue(error.message || "Signup failed");
@@ -47,6 +49,7 @@ export const loginStartThunk = createAsyncThunk(
     async (phoneNumber: string, { rejectWithValue }) => {
         try {
             const response = await requestLoginOTPAPI(phoneNumber);
+            if (!response) throw new Error("No response from server");
             return phoneNumber;
         } catch (error: any) {
             return rejectWithValue(error.message || "Login failed");
@@ -62,6 +65,7 @@ export const verifyOTPThunk = createAsyncThunk(
     ) => {
         try {
             const response = await verifyOTPAPI(phoneNumber, otp);
+            if (!response) throw new Error("No response from server");
             return response.data.data.verifyOTP;
         } catch (error: any) {
             return rejectWithValue(error.message || "Verification failed");
@@ -74,6 +78,7 @@ export const loadUserThunk = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await getMeAPI();
+            if (!response) throw new Error("No response from server");
             return response.data.data.user;
         } catch (error: any) {
             return rejectWithValue(error.message || "Failed to load user");
@@ -118,7 +123,7 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.otpSent = false;
             state.verificationPhone = null;
-            localStorage.removeItem("auth-token");
+            Cookies.remove("auth-token");
         },
         resetError: (state) => {
             state.error = null;
@@ -167,7 +172,7 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.otpSent = false;
             state.verificationPhone = null;
-            localStorage.setItem("auth-token", action.payload.token);
+            Cookies.set("auth-token", action.payload.token, { expires: 7 });
         });
         builder.addCase(verifyOTPThunk.rejected, (state, action) => {
             state.loading = false;
@@ -175,15 +180,19 @@ const authSlice = createSlice({
         });
 
         // Load User
+        builder.addCase(loadUserThunk.pending, (state) => {
+            state.loading = true;
+        });
         builder.addCase(loadUserThunk.fulfilled, (state, action) => {
+            state.loading = false;
             state.user = action.payload;
             state.isAuthenticated = true;
         });
         builder.addCase(loadUserThunk.rejected, (state) => {
+            state.loading = false;
             state.isAuthenticated = false;
             state.user = null;
-            localStorage.removeItem("auth-token");
-            localStorage.removeItem("auth-token");
+            Cookies.remove("auth-token");
         });
 
         // Update User
