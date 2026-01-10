@@ -48,13 +48,13 @@ const handleApiError = (error: any, context: string): never => {
  */
 export const signupAPI = async (input: SignupInput) => {
   try {
+    console.log("signupAPI called with:", input); // DEBUG LOG
+
     const query = `
       mutation Signup($input: SignupInput!) {
         signup(input: $input) {
           user {
             id
-            username
-            email
             phoneNumber
             role
             isPhoneVerified
@@ -68,13 +68,17 @@ export const signupAPI = async (input: SignupInput) => {
       variables: { input },
     });
 
+    console.log("signupAPI raw response:", response.data); // DEBUG LOG
+
     const graphQLError = response.data?.errors?.[0];
     if (graphQLError) {
+      console.error("signupAPI GraphQL Error:", graphQLError); // DEBUG LOG
       throw new Error(graphQLError.message);
     }
 
     return response;
   } catch (error) {
+    console.error("signupAPI caught error:", error); // DEBUG LOG
     handleApiError(error, "Signup");
   }
 };
@@ -111,14 +115,14 @@ export const requestLoginOTPAPI = async (phoneNumber: string) => {
  */
 export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
   try {
+    console.log("verifyOTPAPI called with:", { phoneNumber, otp }); // DEBUG LOG
+
     const query = `
       mutation VerifyOTP($phoneNumber: String!, $otp: String!) {
         verifyOTP(phoneNumber: $phoneNumber, otp: $otp) {
           token
           user {
             id
-            username
-            email
             phoneNumber
             role
             isPhoneVerified
@@ -132,13 +136,17 @@ export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
       variables: { phoneNumber, otp },
     });
 
+    console.log("verifyOTPAPI raw response:", response.data); // DEBUG LOG
+
     const graphQLError = response.data?.errors?.[0];
     if (graphQLError) {
+      console.error("verifyOTPAPI GraphQL Error:", graphQLError); // DEBUG LOG
       throw new Error(graphQLError.message);
     }
 
     return response;
   } catch (error) {
+    console.error("verifyOTPAPI caught error:", error); // DEBUG LOG
     handleApiError(error, "VerifyOTP");
   }
 };
@@ -179,8 +187,6 @@ export const getMeAPI = async () => {
       query Me {
         user {
           id
-          username
-          email
           phoneNumber
           role
           isPhoneVerified
