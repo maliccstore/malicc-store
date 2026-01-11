@@ -1,10 +1,9 @@
 "use client";
 
-import { Button, Card, Flex, Heading, Text, Grid, Badge } from "@radix-ui/themes";
+import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image";
 
 // Dummy data
 const INITIAL_WISHLIST = [

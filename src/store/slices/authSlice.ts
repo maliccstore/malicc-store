@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     signupAPI,
     requestLoginOTPAPI,
@@ -7,7 +7,7 @@ import {
     resendOTPAPI,
     // updateUserAPI,
 } from "../../services/auth.service";
-import { User, SignupInput, AuthPayload } from "../../types/user";
+import { User, SignupInput } from "../../types/user";
 import Cookies from "js-cookie";
 
 interface AuthState {
@@ -38,8 +38,8 @@ export const signupThunk = createAsyncThunk(
             const response = await signupAPI(input);
             if (!response) throw new Error("No response from server");
             return { user: response.data.data.signup.user, input };
-        } catch (error: any) {
-            return rejectWithValue(error.message || "Signup failed");
+        } catch (error) {
+            return rejectWithValue((error as Error).message || "Signup failed");
         }
     }
 );
@@ -51,8 +51,8 @@ export const loginStartThunk = createAsyncThunk(
             const response = await requestLoginOTPAPI(phoneNumber);
             if (!response) throw new Error("No response from server");
             return phoneNumber;
-        } catch (error: any) {
-            return rejectWithValue(error.message || "Login failed");
+        } catch (error) {
+            return rejectWithValue((error as Error).message || "Login failed");
         }
     }
 );
@@ -67,8 +67,8 @@ export const verifyOTPThunk = createAsyncThunk(
             const response = await verifyOTPAPI(phoneNumber, otp);
             if (!response) throw new Error("No response from server");
             return response.data.data.verifyOTP;
-        } catch (error: any) {
-            return rejectWithValue(error.message || "Verification failed");
+        } catch (error) {
+            return rejectWithValue((error as Error).message || "Verification failed");
         }
     }
 );
@@ -80,8 +80,8 @@ export const loadUserThunk = createAsyncThunk(
             const response = await getMeAPI();
             if (!response) throw new Error("No response from server");
             return response.data.data.user;
-        } catch (error: any) {
-            return rejectWithValue(error.message || "Failed to load user");
+        } catch (error) {
+            return rejectWithValue((error as Error).message || "Failed to load user");
         }
     }
 
@@ -93,8 +93,8 @@ export const resendOTPThunk = createAsyncThunk(
         try {
             await resendOTPAPI(phoneNumber);
             return phoneNumber;
-        } catch (error: any) {
-            return rejectWithValue(error.message || "Failed to resend OTP");
+        } catch (error) {
+            return rejectWithValue((error as Error).message || "Failed to resend OTP");
         }
     }
 );

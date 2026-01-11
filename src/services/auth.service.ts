@@ -1,4 +1,4 @@
-import axios from "axios";
+
 import apiClient from "./apiClient";
 import { SignupInput } from "../types/user";
 
@@ -6,7 +6,7 @@ import { SignupInput } from "../types/user";
  * Centralized API error handler
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleApiError = (error: any, context: string): never => {
+const handleApiError = (error: any): never => {
   let errorMessage = "Something went wrong";
 
   // Axios response error
@@ -79,7 +79,7 @@ export const signupAPI = async (input: SignupInput) => {
     return response;
   } catch (error) {
     console.error("signupAPI caught error:", error); // DEBUG LOG
-    handleApiError(error, "Signup");
+    handleApiError(error);
   }
 };
 
@@ -106,7 +106,7 @@ export const requestLoginOTPAPI = async (phoneNumber: string) => {
 
     return response;
   } catch (error) {
-    handleApiError(error, "RequestLoginOTP");
+    handleApiError(error);
   }
 };
 
@@ -147,7 +147,7 @@ export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
     return response;
   } catch (error) {
     console.error("verifyOTPAPI caught error:", error); // DEBUG LOG
-    handleApiError(error, "VerifyOTP");
+    handleApiError(error);
   }
 };
 
@@ -174,7 +174,7 @@ export const resendOTPAPI = async (phoneNumber: string) => {
 
     return response;
   } catch (error) {
-    handleApiError(error, "ResendOTP");
+    handleApiError(error);
   }
 };
 
@@ -203,6 +203,6 @@ export const getMeAPI = async () => {
 
     return response;
   } catch (error) {
-    handleApiError(error, "GetMe");
+    handleApiError(error);
   }
 };

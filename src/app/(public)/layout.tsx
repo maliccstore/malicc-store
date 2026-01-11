@@ -47,8 +47,9 @@ export default function PublicRootLayout({
             <Box>{children}</Box>
           </Container>
 
-          <BottomNavigation />
+          
         </Container>
+        <BottomNavigation />
       </body>
     </html>
   );

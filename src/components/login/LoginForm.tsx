@@ -47,7 +47,7 @@ export default function LoginForm() {
           router.push(
             `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
           );
-        } catch (e) {
+        } catch {
           toast.error('Failed to resend OTP for verification.');
         }
       } else {
