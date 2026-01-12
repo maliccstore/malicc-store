@@ -8,6 +8,9 @@ const products: Product[] = [
     image: 'https://picsum.photos/id/1084/200/300',
     price: 199.99,
     rating: '4',
+    category: 'Electronics',
+    inStock: true,
+    createdAt: '2023-01-01',
   },
   {
     id: 2,
@@ -16,6 +19,9 @@ const products: Product[] = [
     image: 'https://picsum.photos/id/367/200/300',
     price: 149.95,
     rating: '4',
+    category: 'Fitness',
+    inStock: true,
+    createdAt: '2023-02-15',
   },
   {
     id: 3,
@@ -24,6 +30,9 @@ const products: Product[] = [
     image: 'https://picsum.photos/id/160/200/300',
     price: 899,
     rating: '4',
+    category: 'Electronics',
+    inStock: false,
+    createdAt: '2023-03-10',
   },
   {
     id: 4,
@@ -32,6 +41,9 @@ const products: Product[] = [
     image: 'https://picsum.photos/id/431/200/300',
     price: 49.99,
     rating: '4',
+    category: 'Home',
+    inStock: true,
+    createdAt: '2023-04-05',
   },
   {
     id: 5,
@@ -40,6 +52,9 @@ const products: Product[] = [
     image: 'https://picsum.photos/id/219/200/300',
     price: 79.5,
     rating: '4',
+    category: 'Electronics',
+    inStock: true,
+    createdAt: '2023-05-20',
   },
 ];
 

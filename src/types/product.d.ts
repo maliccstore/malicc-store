@@ -7,4 +7,7 @@ export type Product = {
   image: string;
   price: number;
   rating: Rating;
+  category: string;
+  inStock: boolean;
+  createdAt: string;
 };
