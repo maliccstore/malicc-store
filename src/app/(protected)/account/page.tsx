@@ -4,11 +4,12 @@ import { RootState } from "@/store";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import { Container, Flex, Heading, Text, Box, Card, Separator } from "@radix-ui/themes";
+import { Container, Flex, Heading, Text, Separator } from "@radix-ui/themes";
 
 export default function AccountPage() {
   const { user } = useSelector((state: RootState) => state.auth);
 
+  // Menu Items List
   const menuItems = [
     { label: "Profile", href: "/profile" },
     { label: "Orders", href: "/orders" },
@@ -24,7 +25,7 @@ export default function AccountPage() {
         <Heading size="6" weight="light" >
           Welcome, {user?.username || "User"}
         </Heading>
-
+        {/* Menu Items */}
         <Flex direction="column" gap="0">
           {menuItems.map((item, index) => (
             <React.Fragment key={item.label}>

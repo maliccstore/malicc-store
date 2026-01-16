@@ -3,8 +3,9 @@
 import React from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
-import { Container, Heading, Text, Flex, Box, Link } from "@radix-ui/themes";
+import { Container, Heading, Text, Flex, Link } from "@radix-ui/themes";
 
+// FAQs 
 const faqs = [
     {
         question: "How do I return an item?",
@@ -33,6 +34,8 @@ const faqs = [
     },
 ];
 
+// forwardRef is used to pass ref to the child component
+// Accordion Item 
 const AccordionItem = React.forwardRef<
     React.ElementRef<typeof Accordion.Item>,
     React.ComponentPropsWithoutRef<typeof Accordion.Item>
@@ -47,6 +50,7 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+// Accordion Trigger 
 const AccordionTrigger = React.forwardRef<
     React.ElementRef<typeof Accordion.Trigger>,
     React.ComponentPropsWithoutRef<typeof Accordion.Trigger>
@@ -73,6 +77,7 @@ const AccordionTrigger = React.forwardRef<
 ));
 AccordionTrigger.displayName = "AccordionTrigger";
 
+// Accordion Content 
 const AccordionContent = React.forwardRef<
     React.ElementRef<typeof Accordion.Content>,
     React.ComponentPropsWithoutRef<typeof Accordion.Content>
@@ -96,6 +101,7 @@ export default function HelpPage() {
         <Container size="2" p="4">
             <Heading size="8" mb="8" weight="light">Frequently Asked Questions</Heading>
 
+            {/* Accordion for FAQs */}
             <Accordion.Root
                 className="w-full rounded-md shadow-sm ring-1 ring-[var(--gray-a4)] bg-[var(--color-surface)]"
                 type="single"
@@ -110,6 +116,7 @@ export default function HelpPage() {
                 ))}
             </Accordion.Root>
 
+            {/* Contact Support */}
             <Flex direction="column" align="center" mt="8" gap="2">
                 <Text color="gray">Still have questions?</Text>
                 <Link href="mailto:support@malicc.store" color="ruby" underline="always">
