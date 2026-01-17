@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { Container, Heading, Flex, Card, Box, Text, TextField, Button } from "@radix-ui/themes";
 
 export default function SettingsPage() {
     const { user } = useSelector((state: RootState) => state.auth);
@@ -51,61 +52,62 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-md">
-            <h1 className="text-xl font-bold mb-6">Settings</h1>
+        <Container size="1" p="4" className="py-8">
+            <Heading size="6" mb="6">Settings</Heading>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-                <h2 className="text-lg font-medium mb-4">Profile Information</h2>
-                <form onSubmit={handleSave} className="space-y-4">
-                    <div>
-                        <label className="block text-sm text-gray-600 mb-1">Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 outline-none focus:border-black transition-colors"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm text-gray-600 mb-1">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 outline-none focus:border-black transition-colors"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm text-gray-600 mb-1">Phone Number</label>
-                        <input
-                            type="text"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                            className="w-full bg-gray-50 border border-gray-200 rounded px-3 py-2 outline-none focus:border-black transition-colors"
-                        />
-                    </div>
+            <Flex direction="column" gap="4">
+                <Card size="2">
+                    <Heading size="4" mb="4" weight="medium">Profile Information</Heading>
+                    <form onSubmit={handleSave}>
+                        <Flex direction="column" gap="4">
+                            <Box>
+                                <Text as="label" size="2" mb="1" weight="bold">Username</Text>
+                                <TextField.Root
+                                    name="username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    placeholder="Username"
+                                />
+                            </Box>
+                            <Box>
+                                <Text as="label" size="2" mb="1" weight="bold">Email</Text>
+                                <TextField.Root
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="Email"
+                                    type="email"
+                                />
+                            </Box>
+                            <Box>
+                                <Text as="label" size="2" mb="1" weight="bold">Phone Number</Text>
+                                <TextField.Root
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    placeholder="Phone Number"
+                                />
+                            </Box>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-black text-white py-2.5 rounded font-medium hover:bg-gray-800 transition-colors disabled:opacity-70"
+                            <Button type="submit" disabled={loading} size="3" variant="solid">
+                                {loading ? "Updating..." : "Save Changes"}
+                            </Button>
+                        </Flex>
+                    </form>
+                </Card>
+
+                <Card size="2">
+                    <Button
+                        onClick={handleLogout}
+                        color="red"
+                        variant="soft"
+                        size="3"
+                        style={{ width: '100%' }}
                     >
-                        {loading ? "Updating..." : "Save Changes"}
-                    </button>
-                </form>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                <button
-                    onClick={handleLogout}
-                    className="w-full border border-red-200 text-red-600 py-2.5 rounded font-medium hover:bg-red-50 transition-colors"
-                >
-                    Logout
-                </button>
-            </div>
-        </div>
+                        Logout
+                    </Button>
+                </Card>
+            </Flex>
+        </Container>
     );
 }
