@@ -3,7 +3,9 @@
 import React from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
+import { Container, Heading, Text, Flex, Link } from "@radix-ui/themes";
 
+// FAQs 
 const faqs = [
     {
         question: "How do I return an item?",
@@ -32,6 +34,8 @@ const faqs = [
     },
 ];
 
+// forwardRef is used to pass ref to the child component
+// Accordion Item 
 const AccordionItem = React.forwardRef<
     React.ElementRef<typeof Accordion.Item>,
     React.ComponentPropsWithoutRef<typeof Accordion.Item>
@@ -46,6 +50,7 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+// Accordion Trigger 
 const AccordionTrigger = React.forwardRef<
     React.ElementRef<typeof Accordion.Trigger>,
     React.ComponentPropsWithoutRef<typeof Accordion.Trigger>
@@ -53,7 +58,9 @@ const AccordionTrigger = React.forwardRef<
     <Accordion.Header className="flex">
         <Accordion.Trigger
             className={`
-        group flex flex-1 cursor-default items-center justify-between bg-white px-5 py-4 text-[15px] leading-none text-violet11 shadow-[0_1px_0] shadow-gray-200 outline-none hover:bg-gray-50 
+        group flex flex-1 cursor-default items-center justify-between px-5 py-4 text-[15px] leading-none outline-none 
+        bg-[var(--color-panel-solid)] text-[var(--gray-12)] shadow-[0_1px_0] shadow-[var(--gray-a4)]
+        hover:bg-[var(--gray-a2)] transition-colors
         ${className}
       `}
             {...props}
@@ -61,7 +68,7 @@ const AccordionTrigger = React.forwardRef<
         >
             {children}
             <ChevronDown
-                className="text-gray-500 ease-[cubic-bezier(0.87,_0,_0.13,_1)] transition-transform duration-300 group-data-[state=open]:rotate-180"
+                className="text-[var(--gray-11)] ease-[cubic-bezier(0.87,_0,_0.13,_1)] transition-transform duration-300 group-data-[state=open]:rotate-180"
                 aria-hidden
                 size={20}
             />
@@ -70,30 +77,33 @@ const AccordionTrigger = React.forwardRef<
 ));
 AccordionTrigger.displayName = "AccordionTrigger";
 
+// Accordion Content 
 const AccordionContent = React.forwardRef<
     React.ElementRef<typeof Accordion.Content>,
     React.ComponentPropsWithoutRef<typeof Accordion.Content>
 >(({ children, className, ...props }, forwardedRef) => (
     <Accordion.Content
         className={`
-      data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp overflow-hidden text-[15px] 
+      data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp overflow-hidden text-[15px]
+       bg-[var(--color-panel-solid)]
       ${className}
     `}
         {...props}
         ref={forwardedRef}
     >
-        <div className="px-5 py-4 text-gray-700">{children}</div>
+        <div className="px-5 py-4 text-[var(--gray-11)]">{children}</div>
     </Accordion.Content>
 ));
 AccordionContent.displayName = "AccordionContent";
 
 export default function HelpPage() {
     return (
-        <div className="container mx-auto max-w-2xl px-4 py-12">
-            <h1 className="mb-8 text-3xl font-light">Frequently Asked Questions</h1>
+        <Container size="2" p="4">
+            <Heading size="8" mb="8" weight="light">Frequently Asked Questions</Heading>
 
+            {/* Accordion for FAQs */}
             <Accordion.Root
-                className="w-full rounded-md bg-white shadow-sm ring-1 ring-gray-200"
+                className="w-full rounded-md shadow-sm ring-1 ring-[var(--gray-a4)] bg-[var(--color-surface)]"
                 type="single"
                 defaultValue="item-0"
                 collapsible
@@ -106,12 +116,13 @@ export default function HelpPage() {
                 ))}
             </Accordion.Root>
 
-            <div className="mt-12 text-center text-gray-600">
-                <p>Still have questions?</p>
-                <a href="mailto:support@malicc.store" className="text-black underline mt-2 inline-block">
+            {/* Contact Support */}
+            <Flex direction="column" align="center" mt="8" gap="2">
+                <Text color="gray">Still have questions?</Text>
+                <Link href="mailto:support@malicc.store" color="ruby" underline="always">
                     Contact Support
-                </a>
-            </div>
-        </div>
+                </Link>
+            </Flex>
+        </Container>
     );
 }

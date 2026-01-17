@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { Button, TextField, Flex, Card, Heading, Text } from '@radix-ui/themes';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 interface LoginFormData {
@@ -16,6 +16,8 @@ import { loginStartThunk, resendOTPThunk } from "@/store/slices/authSlice";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/explore';
 
   const dispatch = useDispatch<AppDispatch>();
   // const { loading, error } = useSelector((state: RootState) => state.auth);
@@ -30,9 +32,11 @@ export default function LoginForm() {
     try {
       // Login Start
       await dispatch(loginStartThunk(data.phoneNumber)).unwrap();
-      // Redirect to OTP verification page with phone number
+      // Redirect to OTP verification page with phone number AND returnUrl
       router.push(
-        `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
+        `/auth/verify-otp?phone=${encodeURIComponent(
+          data.phoneNumber
+        )}&returnUrl=${encodeURIComponent(returnUrl)}`
       );
       toast.success('OTP sent to your phone number');
     } catch (error) {
@@ -45,7 +49,9 @@ export default function LoginForm() {
           await dispatch(resendOTPThunk(data.phoneNumber)).unwrap();
           toast.success('Account exists. OTP resent!');
           router.push(
-            `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
+            `/auth/verify-otp?phone=${encodeURIComponent(
+              data.phoneNumber
+            )}&returnUrl=${encodeURIComponent(returnUrl)}`
           );
         } catch {
           toast.error('Failed to resend OTP for verification.');

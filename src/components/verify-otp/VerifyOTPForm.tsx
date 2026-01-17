@@ -16,6 +16,7 @@ export default function VerifyOTPForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const phoneNumber = searchParams.get("phone");
+    const returnUrl = searchParams.get("returnUrl") || "/";
 
     // Redux
     const dispatch = useDispatch<AppDispatch>();
@@ -36,9 +37,9 @@ export default function VerifyOTPForm() {
         // Verify OTP
         try {
             await dispatch(verifyOTPThunk({ phoneNumber, otp: data.otp })).unwrap();
-            alert("Verified successfully!");
+            // alert("Verified successfully!");
             toast.success("Verified successfully!");
-            router.push("/");
+            router.push(returnUrl);
         } catch (error) {
             toast.error(`Verification failed: ${error}`);
         }

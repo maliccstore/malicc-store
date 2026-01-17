@@ -1,8 +1,11 @@
 'use client';
 
-import { redirect } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuthActions';
+import Header from '@/components/common/Header';
+import BottomNavigation from '@/components/common/BottomNavigation';
+import { Flex, Container } from '@radix-ui/themes';
 
 export default function ProtectedLayout({
   children,
@@ -10,14 +13,29 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      redirect('/auth/login');
+      redirect(`/auth/login?returnUrl=${encodeURIComponent(pathname)}`);
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, pathname]);
 
-  if (isLoading) return <div>Loading...</div>;
+  return (
+    <Flex minHeight="100vh" direction="column">
+      <Header />
 
-  return <>{children}</>;
+      <Container p="4" flexGrow="1">
+        {isLoading ? (
+          <Flex align="center" justify="center" height="full">
+            Loading...
+          </Flex>
+        ) : (
+          children
+        )}
+      </Container>
+
+      <BottomNavigation />
+    </Flex>
+  );
 }
