@@ -39,7 +39,7 @@ export const signupThunk = createAsyncThunk(
             if (!response) throw new Error("No response from server");
             return { user: response.data.data.signup.user, input };
         } catch (error) {
-            return rejectWithValue((error as Error).message || "Signup failed");
+            return rejectWithValue(error);
         }
     }
 );

@@ -8,6 +8,7 @@ import { SignupInput } from "../types/user";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleApiError = (error: any): never => {
   let errorMessage = "Something went wrong";
+  let validationErrors = error?.validationErrors; // Preserve existing validation errors
 
   // Axios response error
   if (error?.response?.data) {
@@ -15,7 +16,14 @@ const handleApiError = (error: any): never => {
 
     // GraphQL error
     if (data.errors?.length) {
-      errorMessage = data.errors[0].message;
+      const gqlError = data.errors[0];
+      errorMessage = gqlError.message;
+
+      // Extract validation errors from extensions
+      if (gqlError.extensions?.validationErrors) {
+        validationErrors = gqlError.extensions.validationErrors;
+      }
+
     }
     // REST-style error
     else if (data.message) {
@@ -31,7 +39,7 @@ const handleApiError = (error: any): never => {
     errorMessage = error.message;
   }
 
-  // 🔥 Clean Sequelize noise
+  // Clean Sequelize noise (Legacy fallback)
   if (errorMessage.includes("SequelizeUniqueConstraintError")) {
     errorMessage = "Username, email, or phone number already exists";
   }
@@ -40,7 +48,14 @@ const handleApiError = (error: any): never => {
     errorMessage = errorMessage.replace("Validation error", "").trim();
   }
 
-  throw new Error(errorMessage);
+  // Throw an object with the message and validation errors
+  // We throw a custom object that mimics an Error but carries data
+  const errorObj = {
+    message: errorMessage,
+    validationErrors
+  };
+
+  throw errorObj;
 };
 
 /**
@@ -72,13 +87,18 @@ export const signupAPI = async (input: SignupInput) => {
 
     const graphQLError = response.data?.errors?.[0];
     if (graphQLError) {
-      console.error("signupAPI GraphQL Error:", JSON.stringify(graphQLError, null, 2)); // DEBUG LOG
-      throw new Error(graphQLError.message || "Unknown GraphQL Error");
+      // console.error("signupAPI GraphQL Error:", JSON.stringify(graphQLError, null, 2)); // DEBUG LOG
+
+      const errorObj = {
+        message: graphQLError.message || "Unknown GraphQL Error",
+        validationErrors: graphQLError.extensions?.validationErrors
+      };
+      throw errorObj;
     }
 
     return response;
   } catch (error) {
-    console.error("signupAPI caught error:", error); // DEBUG LOG
+    // console.error("signupAPI caught error:", error); // DEBUG LOG
     handleApiError(error);
   }
 };

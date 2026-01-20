@@ -18,6 +18,7 @@ export const SignupForm = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignupFormData>();
 
@@ -27,8 +28,6 @@ export const SignupForm = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      console.log("Form Data:", data);
-
       await dispatch(
         signupThunk({ phoneNumber: data.phoneNumber })
       ).unwrap();
@@ -37,15 +36,19 @@ export const SignupForm = () => {
       router.push(
         `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
       );
-    } catch (error) {
-      const errorMessage = typeof error === "string" ? error : (error instanceof Error ? error.message : "Signup failed");
-
-      if (errorMessage.toLowerCase().includes("already exists")) {
-        toast.error("Account already exists. Please Login.");
-        setTimeout(() => router.push('/auth/login'), 2000);
-      } else {
-        toast.error(errorMessage);
+    } catch (error: any) {
+      // Handle validation errors
+      if (error?.validationErrors && Array.isArray(error.validationErrors)) {
+        error.validationErrors.forEach((err: { field: string; message: string }) => {
+          // @ts-ignore - dynamic field setting
+          setError(err.field, { type: "server", message: err.message });
+        });
+        return;
       }
+
+      // Handle general error message
+      const errorMessage = error?.message || (typeof error === "string" ? error : "Signup failed");
+      toast.error(errorMessage);
     }
   };
 
