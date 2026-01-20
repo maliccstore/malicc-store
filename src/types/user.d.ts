@@ -14,8 +14,5 @@ export interface User {
 }
 
 export interface SignupInput {
-    username?: string;
-    email?: string;
     phoneNumber: string;
-    password?: string;
 }

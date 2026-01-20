@@ -72,8 +72,8 @@ export const signupAPI = async (input: SignupInput) => {
 
     const graphQLError = response.data?.errors?.[0];
     if (graphQLError) {
-      console.error("signupAPI GraphQL Error:", graphQLError); // DEBUG LOG
-      throw new Error(graphQLError.message);
+      console.error("signupAPI GraphQL Error:", JSON.stringify(graphQLError, null, 2)); // DEBUG LOG
+      throw new Error(graphQLError.message || "Unknown GraphQL Error");
     }
 
     return response;

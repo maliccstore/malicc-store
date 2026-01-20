@@ -11,9 +11,6 @@ import { signupThunk } from "@/store/slices/authSlice";
 import { AppDispatch, RootState } from "@/store";
 
 interface SignupFormData {
-  username?: string;
-  email?: string;
-  password?: string;
   phoneNumber: string;
 }
 
@@ -31,16 +28,9 @@ export const SignupForm = () => {
   const onSubmit = async (data: SignupFormData) => {
     try {
       console.log("Form Data:", data);
-      const payload = {
-        ...data,
-        username: data.username || undefined,
-        email: data.email || undefined,
-        password: data.password || undefined,
-      };
-      console.log("Sanitized Payload:", payload);
 
       await dispatch(
-        signupThunk(payload)
+        signupThunk({ phoneNumber: data.phoneNumber })
       ).unwrap();
 
       toast.success("Account created successfully!");
@@ -52,7 +42,6 @@ export const SignupForm = () => {
 
       if (errorMessage.toLowerCase().includes("already exists")) {
         toast.error("Account already exists. Please Login.");
-        // Optional: redirect to login after a delay or show a link
         setTimeout(() => router.push('/auth/login'), 2000);
       } else {
         toast.error(errorMessage);
@@ -69,58 +58,6 @@ export const SignupForm = () => {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="4">
-            <TextField.Root
-              size="3"
-              placeholder="Username"
-              {...register("username", {
-                // required: "Username is required",
-                minLength: {
-                  value: 3,
-                  message: "Username must be at least 3 characters",
-                },
-              })}
-            />
-            {errors.username && (
-              <Text color="red" size="2">
-                {errors.username.message}
-              </Text>
-            )}
-
-            <TextField.Root
-              size="3"
-              placeholder="Email"
-              type="email"
-              {...register("email", {
-                // required: "Email is required",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
-                },
-              })}
-            />
-            {errors.email && (
-              <Text color="red" size="2">
-                {errors.email.message}
-              </Text>
-            )}
-
-            <TextField.Root
-              size="3"
-              placeholder="Password"
-              type="password"
-              {...register("password", {
-                // required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-            />
-            {errors.password && (
-              <Text color="red" size="2">
-                {errors.password.message}
-              </Text>
-            )}
 
             <TextField.Root
               size="3"
