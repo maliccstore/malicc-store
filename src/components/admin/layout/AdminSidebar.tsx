@@ -37,24 +37,31 @@ export default function AdminSidebar() {
     },
     {
       id: 'Orders',
-      label: 'orders',
+      label: 'Orders',
       icon: <UsersIcon />,
 
       link: '/admin/orders',
     },
     {
       id: 'products',
-      label: 'products',
+      label: 'Products',
       icon: <FileTextIcon />,
       items: [
-        { id: 'new', label: 'new', link: '/admin/catalog/products/new' },
-        {
-          id: 'Edit Product',
-          label: 'edit-product',
-          link: '/admin/catalog/products/editproduct',
-        },
+        { id: 'all-products', label: 'All Products', link: '/admin/catalog/products' },
+        { id: 'new', label: 'New Product', link: '/admin/catalog/products/new' },
+        { id: 'Edit Product', label: 'Edit Product', link: '/admin/catalog/products/editproduct' },
       ],
-      link: '/admin/content',
+      link: '/admin/catalog/products',
+    },
+    {
+      id: 'category',
+      label: 'Categories',
+      icon: <FileTextIcon />,
+      items: [
+        { id: 'all-categories', label: 'All Categories', link: '/admin/catalog/categories' },
+        { id: 'new-category', label: 'New Category', link: '/admin/catalog/categories/new' },
+      ],
+      link: '/admin/catalog/categories',
     },
     {
       id: 'settings',

@@ -36,12 +36,15 @@ export const SignupForm = () => {
       router.push(
         `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
       );
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as {
+        validationErrors?: Array<{ field: string; message: string }>;
+        message?: string;
+      };
       // Handle validation errors
       if (error?.validationErrors && Array.isArray(error.validationErrors)) {
-        error.validationErrors.forEach((err: { field: string; message: string }) => {
-          // @ts-ignore - dynamic field setting
-          setError(err.field, { type: "server", message: err.message });
+        error.validationErrors.forEach((err_item: { field: string; message: string }) => {
+          setError(err_item.field as keyof SignupFormData, { type: "server", message: err_item.message });
         });
         return;
       }
