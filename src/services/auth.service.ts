@@ -72,6 +72,7 @@ export const signupAPI = async (input: SignupInput) => {
             id
             phoneNumber
             role
+            isAdmin
             isPhoneVerified
           }
         }
@@ -145,6 +146,7 @@ export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
             id
             phoneNumber
             role
+            isAdmin
             isPhoneVerified
           }
         }
@@ -209,6 +211,7 @@ export const getMeAPI = async () => {
           id
           phoneNumber
           role
+          isAdmin
           isPhoneVerified
         }
       }

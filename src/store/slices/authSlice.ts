@@ -188,10 +188,12 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.isAuthenticated = true;
         });
-        builder.addCase(loadUserThunk.rejected, (state) => {
+        builder.addCase(loadUserThunk.rejected, (state, action) => {
             state.loading = false;
             state.isAuthenticated = false;
             state.user = null;
+            state.token = null;
+            state.error = action.payload as string;
             Cookies.remove("auth-token");
         });
 
