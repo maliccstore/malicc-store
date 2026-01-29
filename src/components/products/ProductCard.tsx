@@ -7,6 +7,7 @@ import { Heading, Text, Card } from '@radix-ui/themes';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { addToCart as addToCartAction } from '@/store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
 import { useAuth } from '@/features/auth/hooks/useAuthActions';
 import { MouseEvent } from 'react';
@@ -84,7 +85,24 @@ export default function ProductCard({ product }: ProductCardProps) {
             ${product.price}
           </Text>
           <Button
-            onClick={() => console.log(product)}
+            onClick={async (e) => {
+              e.stopPropagation();
+              // Optimistic update (or keeping existing behavior)
+              dispatch(addToCartAction(product));
+
+              if (isAuthenticated) {
+                try {
+                  const { cartAPI } = await import('@/services/cart.service');
+                  await cartAPI.addToCart(String(product.id), 1);
+                  toast.success("Added to cart");
+                } catch (err) {
+                  console.error("Failed to sync cart", err);
+                  // toast.error("Failed to save to account"); // Optional
+                }
+              } else {
+                toast.success("Added to cart");
+              }
+            }}
             className="hover:bg-gray-900 hover:text-white transition-colors"
           >
             Add to Cart
