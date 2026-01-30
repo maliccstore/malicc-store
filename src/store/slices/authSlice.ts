@@ -125,6 +125,9 @@ const authSlice = createSlice({
             state.verificationPhone = null;
             Cookies.remove("auth-token");
         },
+        setUser: (state, action) => {
+            state.user = action.payload;
+        },
         resetError: (state) => {
             state.error = null;
         }
@@ -213,5 +216,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, resetError } = authSlice.actions;
+export const { logout, resetError, setUser } = authSlice.actions;
 export default authSlice.reducer;
