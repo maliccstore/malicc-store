@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { Provider } from 'react-redux';
 import { makeStore, AppStore } from '../store';
 import { useAppSelector } from '@/store/hooks';
+import { loadUserThunk } from '@/store/slices/authSlice';
 import { Theme } from '@radix-ui/themes';
 
 export default function ReduxProvider({
@@ -14,6 +15,15 @@ export default function ReduxProvider({
   const storeRef = useRef<AppStore | undefined>(undefined);
   if (!storeRef.current) {
     storeRef.current = makeStore();
+  }
+
+  // Initialize user session if token exists
+  if (!storeRef.current) {
+    storeRef.current = makeStore();
+    const state = storeRef.current.getState();
+    if (state.auth.token) {
+      storeRef.current.dispatch(loadUserThunk());
+    }
   }
 
   if (!storeRef.current) {

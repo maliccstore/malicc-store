@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../ui/Button';
 import { Product } from '@/types/product';
 import { Heading, Text, Card } from '@radix-ui/themes';
-import { Heart } from 'lucide-react';
+import { Heart, Image as ImageIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
+import { addToCart as addToCartAction } from '@/store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
 import { useAuth } from '@/features/auth/hooks/useAuthActions';
 import { MouseEvent } from 'react';
@@ -47,7 +48,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       className="m-2 w-full max-w-xs overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
     >
       {/* Wishlist Button */}
-      <div className="relative aspect-square overflow-hidden">
+      <div className="relative aspect-square overflow-hidden bg-gray-100 flex items-center justify-center">
         <button
           className="absolute top-2 right-2 z-20 p-2 bg-white/90 hover:bg-white transition-colors rounded-full shadow-md"
           onClick={handleWishlistClick}
@@ -58,13 +59,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             className={isInWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'}
           />
         </button>
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-500 hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <ImageIcon className="text-gray-400" size={48} />
+        )}
       </div>
       <div className="p-4 space-y-3">
         <div>
@@ -80,7 +85,24 @@ export default function ProductCard({ product }: ProductCardProps) {
             ${product.price}
           </Text>
           <Button
-            onClick={() => console.log(product)}
+            onClick={async (e) => {
+              e.stopPropagation();
+              // Optimistic update (or keeping existing behavior)
+              dispatch(addToCartAction(product));
+
+              if (isAuthenticated) {
+                try {
+                  const { cartAPI } = await import('@/services/cart.service');
+                  await cartAPI.addToCart(String(product.id), 1);
+                  toast.success("Added to cart");
+                } catch (err) {
+                  console.error("Failed to sync cart", err);
+                  // toast.error("Failed to save to account"); // Optional
+                }
+              } else {
+                toast.success("Added to cart");
+              }
+            }}
             className="hover:bg-gray-900 hover:text-white transition-colors"
           >
             Add to Cart

@@ -72,6 +72,7 @@ export const signupAPI = async (input: SignupInput) => {
             id
             phoneNumber
             role
+            isAdmin
             isPhoneVerified
           }
         }
@@ -145,6 +146,7 @@ export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
             id
             phoneNumber
             role
+            isAdmin
             isPhoneVerified
           }
         }
@@ -209,6 +211,7 @@ export const getMeAPI = async () => {
           id
           phoneNumber
           role
+          isAdmin
           isPhoneVerified
         }
       }
@@ -219,6 +222,45 @@ export const getMeAPI = async () => {
     const graphQLError = response.data?.errors?.[0];
     if (graphQLError) {
       throw new Error(graphQLError.message);
+    }
+
+    return response;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+/**
+ * Update User By Phone
+ */
+export const updateUserByPhoneAPI = async (input: { username?: string; email?: string }) => {
+  try {
+    const query = `
+      mutation UpdateUserByPhone($input: UpdateUserInput!) {
+        updateUserByPhone(input: $input) {
+          id
+          username
+          email
+          phoneNumber
+          role
+          isAdmin
+          isPhoneVerified
+        }
+      }
+    `;
+
+    const response = await apiClient.post("", {
+      query,
+      variables: { input },
+    });
+
+    const graphQLError = response.data?.errors?.[0];
+    if (graphQLError) {
+      const errorObj = {
+        message: graphQLError.message || "Unknown GraphQL Error",
+        validationErrors: graphQLError.extensions?.validationErrors
+      };
+      throw errorObj;
     }
 
     return response;

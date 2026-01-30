@@ -125,6 +125,9 @@ const authSlice = createSlice({
             state.verificationPhone = null;
             Cookies.remove("auth-token");
         },
+        setUser: (state, action) => {
+            state.user = action.payload;
+        },
         resetError: (state) => {
             state.error = null;
         }
@@ -188,10 +191,12 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.isAuthenticated = true;
         });
-        builder.addCase(loadUserThunk.rejected, (state) => {
+        builder.addCase(loadUserThunk.rejected, (state, action) => {
             state.loading = false;
             state.isAuthenticated = false;
             state.user = null;
+            state.token = null;
+            state.error = action.payload as string;
             Cookies.remove("auth-token");
         });
 
@@ -211,5 +216,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, resetError } = authSlice.actions;
+export const { logout, resetError, setUser } = authSlice.actions;
 export default authSlice.reducer;

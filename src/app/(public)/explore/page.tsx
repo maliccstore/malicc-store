@@ -1,7 +1,10 @@
 'use client';
 import ProductCard from '@/components/products/ProductCard';
-import { useAppSelector } from '@/store/hooks';
-import { Box, Container, Flex, Grid, Heading, Text, Dialog, Button } from '@radix-ui/themes';
+import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { fetchProducts } from '@/store/slices/productSlice';
+import { useEffect } from 'react';
+import { Box, Container, Flex, Grid, Heading, Text, Dialog, Button, Skeleton } from '@radix-ui/themes';
 import { MixerHorizontalIcon } from '@radix-ui/react-icons';
 import FilterSort from '@/components/shared/FilterSort';
 import { useSearchParams } from 'next/navigation';
@@ -10,7 +13,12 @@ import { Frown } from 'lucide-react';
 
 function ExploreContent() {
   const searchParams = useSearchParams();
-  const { products } = useAppSelector((state) => state.products);
+  const dispatch = useAppDispatch();
+  const { products, loading, error } = useAppSelector((state) => state.products);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   // Filter params
   const minPrice = Number(searchParams.get('minPrice')) || 0;
@@ -36,6 +44,61 @@ function ExploreContent() {
     filteredProducts.sort((a, b) => Number(b.rating) - Number(a.rating));
   } else if (sortBy === 'newest') {
     filteredProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  if (loading) {
+    return (
+      <Container size="4" p="4">
+        <Heading
+          size="8"
+          mb="6"
+          className="font-light tracking-tight text-center"
+        >
+          EXPLORE
+        </Heading>
+        <Flex direction="column" gap="4" align="start">
+          {/* Skeleton Filter Button */}
+          <Box width="100%" flexShrink="0" className="flex justify-end">
+            <Skeleton width="80px" height="32px" />
+          </Box>
+
+          <Box className="w-full">
+            <Grid columns="1" gap="4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </Grid>
+          </Box>
+        </Flex>
+      </Container>
+    );
+  }
+
+
+  if (error) {
+    return (
+      <Container size="4" p="4">
+        <Flex
+          direction="column"
+          align="center"
+          justify="center"
+          py="9"
+          gap="4"
+          className="bg-red-50 rounded-lg border border-dashed border-red-300"
+        >
+          <Frown size={48} className="text-red-400" />
+          <Heading size="4" color="red">
+            Failed to load products
+          </Heading>
+          <Text color="red" align="center">
+            {error}
+          </Text>
+          <Button onClick={() => dispatch(fetchProducts())} variant="soft" color="red">
+            Try Again
+          </Button>
+        </Flex>
+      </Container>
+    );
   }
 
   return (

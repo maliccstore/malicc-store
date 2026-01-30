@@ -10,6 +10,7 @@ export interface User {
     email?: string;
     phoneNumber: string;
     role: string;
+    isAdmin: boolean;
     isPhoneVerified: boolean;
 }
 

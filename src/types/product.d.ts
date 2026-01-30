@@ -11,3 +11,4 @@ export type Product = {
   inStock: boolean;
   createdAt: string;
 };
+

@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 const apiClient = axios.create({
   // baseURL: 'https://api.malicc.store',
   baseURL: 'http://localhost:8000/graphql',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

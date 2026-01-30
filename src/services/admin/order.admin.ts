@@ -2,11 +2,11 @@ import apiClient from "../apiClient";
 
 export const ORDER_STATUS = {
   CREATED: 'CREATED',
-  PROCESSING: 'PROCESSING',
-  SHIPPED: 'SHIPPED',
-  DELIVERED: 'DELIVERED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  PAID: 'PAID',
+  FULFILLED: 'FULFILLED',
   CANCELLED: 'CANCELLED',
-  REFUNDED: 'REFUNDED'
+  FAILED: 'FAILED'
 } as const;
 
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];

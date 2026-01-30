@@ -6,6 +6,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { ORDER_STATUS, OrderStatus } from "@/services/admin/order.admin";
 import Link from "next/link";
 import { formatCurrency } from "@/utils/format";
+import toast from "react-hot-toast";
 
 interface Order {
     id: string;
@@ -23,18 +24,23 @@ interface OrderTableProps {
 
 const statusColors: Record<string, "gray" | "blue" | "green" | "red" | "orange"> = {
     [ORDER_STATUS.CREATED]: "gray",
-    [ORDER_STATUS.PROCESSING]: "blue",
-    [ORDER_STATUS.SHIPPED]: "orange",
-    [ORDER_STATUS.DELIVERED]: "green",
+    [ORDER_STATUS.PAYMENT_PENDING]: "orange",
+    [ORDER_STATUS.PAID]: "blue",
+    [ORDER_STATUS.FULFILLED]: "green",
     [ORDER_STATUS.CANCELLED]: "red",
-    [ORDER_STATUS.REFUNDED]: "red",
+    [ORDER_STATUS.FAILED]: "red",
 };
 
 export default function OrderTable({ orders }: OrderTableProps) {
     const dispatch = useDispatch<AppDispatch>();
 
-    const handleStatusUpdate = (id: string, status: OrderStatus) => {
-        dispatch(updateAdminOrderStatus({ id, status }));
+    const handleStatusUpdate = async (id: string, status: OrderStatus) => {
+        try {
+            await dispatch(updateAdminOrderStatus({ id, status })).unwrap();
+            toast.success("Order status updated successfully");
+        } catch (error) {
+            toast.error(typeof error === "string" ? error : "Failed to update status");
+        }
     };
 
     return (
