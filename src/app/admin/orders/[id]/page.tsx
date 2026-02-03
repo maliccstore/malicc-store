@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { getOrderDetails, updateOrderStatus, ORDER_STATUS, OrderStatus } from '@/services/admin/order.admin';
+import { getOrderDetails, updateOrderStatus, updateFulfillmentStatus, ORDER_STATUS, OrderStatus, FULFILLMENT_STATUS, FulfillmentStatus } from '@/services/admin/order.admin';
 import { Box, Card, Flex, Grid, Heading, Table, Text, Select } from '@radix-ui/themes';
 import { formatCurrency } from '@/utils/format';
 import { toast } from 'react-hot-toast';
@@ -43,6 +43,21 @@ export default function OrderDetailPage() {
       if (data.success) {
         toast.success('Order status updated');
         setOrder(prev => prev ? ({ ...prev, status }) : null);
+      } else {
+        toast.error(data.message || 'Failed to update status');
+      }
+    } catch {
+      toast.error('Failed to update status');
+    }
+  };
+
+  // update fulfillment status
+  const handleFulfillmentUpdate = async (status: string) => {
+    try {
+      const data = await updateFulfillmentStatus(id, status as FulfillmentStatus);
+      if (data.success) {
+        toast.success('Fulfillment status updated');
+        setOrder(prev => prev ? ({ ...prev, fulfillmentStatus: status }) : null);
       } else {
         toast.error(data.message || 'Failed to update status');
       }
@@ -141,9 +156,9 @@ export default function OrderDetailPage() {
         </Card>
         {/* Status */}
         <Card size="3">
-          <Heading size="4" mb="4">Status</Heading>
+          <Heading size="4" mb="4">Payment Status</Heading>
           <Flex direction="column" gap="4">
-            <Select.Root value={order.status} onValueChange={handleStatusUpdate}>
+            <Select.Root value={order.status} onValueChange={handleStatusUpdate} disabled={true}>
               <Select.Trigger />
               <Select.Content>
                 {Object.values(ORDER_STATUS).map((status) => (
@@ -156,6 +171,22 @@ export default function OrderDetailPage() {
             <Text size="1" color="gray">
               Last updated: {new Date(order.updatedAt).toLocaleString()}
             </Text>
+          </Flex>
+        </Card>
+        {/* Fulfillment Status */}
+        <Card size="3">
+          <Heading size="4" mb="4">Fulfillment Status</Heading>
+          <Flex direction="column" gap="4">
+            <Select.Root value={order.fulfillmentStatus || FULFILLMENT_STATUS.UNFULFILLED} onValueChange={handleFulfillmentUpdate}>
+              <Select.Trigger />
+              <Select.Content>
+                {Object.values(FULFILLMENT_STATUS).map((status) => (
+                  <Select.Item key={status} value={status}>
+                    {status}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Root>
           </Flex>
         </Card>
       </Flex>

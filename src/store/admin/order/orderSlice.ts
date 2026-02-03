@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchAdminOrders, updateAdminOrderStatus } from './orderThunks';
+import { fetchAdminOrders, updateAdminOrderStatus, updateAdminFulfillmentStatus } from './orderThunks';
 import { OrderStatus } from '@/services/admin/order.admin';
 
 interface OrderItem {
@@ -11,6 +11,7 @@ interface OrderItem {
 interface Order {
     id: string;
     status: OrderStatus;
+    fulfillmentStatus?: string;
     totalAmount: number;
     currency: string;
     createdAt: string;
@@ -58,6 +59,13 @@ const orderSlice = createSlice({
                 const index = state.list.findIndex((order) => order.id === action.payload.id);
                 if (index !== -1) {
                     state.list[index].status = action.payload.status;
+                }
+            })
+            // Update Fulfillment Status
+            .addCase(updateAdminFulfillmentStatus.fulfilled, (state, action) => {
+                const index = state.list.findIndex((order) => order.id === action.payload.id);
+                if (index !== -1) {
+                    state.list[index].fulfillmentStatus = action.payload.fulfillmentStatus;
                 }
             });
     },
