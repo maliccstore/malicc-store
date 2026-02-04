@@ -1,9 +1,9 @@
 import { Badge, Table, Button, DropdownMenu } from "@radix-ui/themes";
-import { updateAdminOrderStatus } from "@/store/admin/order/orderThunks";
+import { updateAdminFulfillmentStatus } from "@/store/admin/order/orderThunks";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { ORDER_STATUS, OrderStatus } from "@/services/admin/order.admin";
+import { ORDER_STATUS, FULFILLMENT_STATUS, FulfillmentStatus } from "@/services/admin/order.admin";
 import Link from "next/link";
 import { formatCurrency } from "@/utils/format";
 import toast from "react-hot-toast";
@@ -15,6 +15,7 @@ interface Order {
     };
     totalAmount: number;
     status: string;
+    fulfillmentStatus?: string;
     createdAt: string;
 }
 
@@ -31,13 +32,21 @@ const statusColors: Record<string, "gray" | "blue" | "green" | "red" | "orange">
     [ORDER_STATUS.FAILED]: "red",
 };
 
+const fulfillmentColors: Record<string, "gray" | "blue" | "green" | "red" | "orange" | "purple"> = {
+    [FULFILLMENT_STATUS.UNFULFILLED]: "gray",
+    [FULFILLMENT_STATUS.PROCESSING]: "orange",
+    [FULFILLMENT_STATUS.SHIPPED]: "blue",
+    [FULFILLMENT_STATUS.DELIVERED]: "green",
+    [FULFILLMENT_STATUS.RETURNED]: "red",
+};
+
 export default function OrderTable({ orders }: OrderTableProps) {
     const dispatch = useDispatch<AppDispatch>();
 
-    const handleStatusUpdate = async (id: string, status: OrderStatus) => {
+    const handleFulfillmentUpdate = async (id: string, status: FulfillmentStatus) => {
         try {
-            await dispatch(updateAdminOrderStatus({ id, status })).unwrap();
-            toast.success("Order status updated successfully");
+            await dispatch(updateAdminFulfillmentStatus({ id, status })).unwrap();
+            toast.success("Fulfillment status updated successfully");
         } catch (error) {
             toast.error(typeof error === "string" ? error : "Failed to update status");
         }
@@ -50,7 +59,8 @@ export default function OrderTable({ orders }: OrderTableProps) {
                     <Table.ColumnHeaderCell>Order ID</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Customer</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Total</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell>Status</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell>Payment Status</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell>Fulfillment Status</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Date</Table.ColumnHeaderCell>
                     <Table.ColumnHeaderCell>Actions</Table.ColumnHeaderCell>
                 </Table.Row>
@@ -69,6 +79,11 @@ export default function OrderTable({ orders }: OrderTableProps) {
                         <Table.Cell>
                             <Badge color={statusColors[order.status]}>{order.status}</Badge>
                         </Table.Cell>
+                        <Table.Cell>
+                            <Badge color={fulfillmentColors[order.fulfillmentStatus || "UNFULFILLED"] || "gray"}>
+                                {order.fulfillmentStatus || "UNFULFILLED"}
+                            </Badge>
+                        </Table.Cell>
                         <Table.Cell>{new Date(order.createdAt).toLocaleDateString()}</Table.Cell>
                         <Table.Cell>
                             <DropdownMenu.Root>
@@ -78,12 +93,12 @@ export default function OrderTable({ orders }: OrderTableProps) {
                                     </Button>
                                 </DropdownMenu.Trigger>
                                 <DropdownMenu.Content>
-                                    <DropdownMenu.Label>Update Status</DropdownMenu.Label>
-                                    {Object.values(ORDER_STATUS).map((status) => (
+                                    <DropdownMenu.Label>Update Fulfillment</DropdownMenu.Label>
+                                    {Object.values(FULFILLMENT_STATUS).map((status) => (
                                         <DropdownMenu.Item
                                             key={status}
-                                            onClick={() => handleStatusUpdate(order.id, status)}
-                                            disabled={order.status === status}
+                                            onClick={() => handleFulfillmentUpdate(order.id, status)}
+                                            disabled={order.fulfillmentStatus === status}
                                         >
                                             {status}
                                         </DropdownMenu.Item>
