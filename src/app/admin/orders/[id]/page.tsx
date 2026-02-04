@@ -158,7 +158,7 @@ export default function OrderDetailPage() {
         <Card size="3">
           <Heading size="4" mb="4">Payment Status</Heading>
           <Flex direction="column" gap="4">
-            <Select.Root value={order.status} onValueChange={handleStatusUpdate} disabled={true}>
+            <Select.Root value={order.status} onValueChange={handleStatusUpdate}>
               <Select.Trigger />
               <Select.Content>
                 {Object.values(ORDER_STATUS).map((status) => (
@@ -177,7 +177,11 @@ export default function OrderDetailPage() {
         <Card size="3">
           <Heading size="4" mb="4">Fulfillment Status</Heading>
           <Flex direction="column" gap="4">
-            <Select.Root value={order.fulfillmentStatus || FULFILLMENT_STATUS.UNFULFILLED} onValueChange={handleFulfillmentUpdate}>
+            <Select.Root
+              value={order.fulfillmentStatus || FULFILLMENT_STATUS.UNFULFILLED}
+              onValueChange={handleFulfillmentUpdate}
+              disabled={order.status !== ORDER_STATUS.PAID}
+            >
               <Select.Trigger />
               <Select.Content>
                 {Object.values(FULFILLMENT_STATUS).map((status) => (
@@ -187,6 +191,11 @@ export default function OrderDetailPage() {
                 ))}
               </Select.Content>
             </Select.Root>
+            {order.status !== ORDER_STATUS.PAID && (
+              <Text size="1" color="red">
+                Order must be PAID before fulfillment can be updated.
+              </Text>
+            )}
           </Flex>
         </Card>
       </Flex>
