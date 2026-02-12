@@ -32,6 +32,10 @@ const productSlice = createSlice({
       })
       .addCase(fetchAdminProductById.fulfilled, (state, action) => {
         state.current = action.payload;
+      })
+      .addCase(fetchAdminProducts.rejected, (state, action) => {
+        state.loading = false;
+        console.error('Failed to fetch products:', action.error);
       });
   },
 });

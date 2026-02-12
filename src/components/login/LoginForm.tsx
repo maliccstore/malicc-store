@@ -2,15 +2,26 @@
 
 import { useForm } from 'react-hook-form';
 import { Button, TextField, Flex, Card, Heading, Text } from '@radix-ui/themes';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 interface LoginFormData {
   phoneNumber: string;
 }
 
+// Redux
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { loginStartThunk, resendOTPThunk } from "@/store/slices/authSlice";
+
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/explore';
+
+  const dispatch = useDispatch<AppDispatch>();
+  // const { loading, error } = useSelector((state: RootState) => state.auth);
+
   const {
     register,
     handleSubmit,
@@ -19,20 +30,39 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Here you would typically call your API to send OTP
-      // For now, we'll simulate a successful request
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Redirect to OTP verification page with phone number
+      // Login Start
+      await dispatch(loginStartThunk(data.phoneNumber)).unwrap();
+      // Redirect to OTP verification page with phone number AND returnUrl
       router.push(
-        `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
+        `/auth/verify-otp?phone=${encodeURIComponent(
+          data.phoneNumber
+        )}&returnUrl=${encodeURIComponent(returnUrl)}`
       );
       toast.success('OTP sent to your phone number');
     } catch (error) {
-      toast.error(`Failed to send OTP. Please try again : ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('User not found')) {
+        toast.error('User not found. Please Sign Up first.');
+      } else if (errorMessage.includes('User must verify their phone first')) {
+        // Auto-handle unverified user: Resend OTP and redirect
+        try {
+          await dispatch(resendOTPThunk(data.phoneNumber)).unwrap();
+          toast.success('Account exists. OTP resent!');
+          router.push(
+            `/auth/verify-otp?phone=${encodeURIComponent(
+              data.phoneNumber
+            )}&returnUrl=${encodeURIComponent(returnUrl)}`
+          );
+        } catch {
+          toast.error('Failed to resend OTP for verification.');
+        }
+      } else {
+        toast.error(`Failed to send OTP. Please try again : ${errorMessage}`);
+      }
     }
   };
 
+  // Handle Sign Up
   const handleSignUp = () => {
     router.push('/auth/signup');
   };

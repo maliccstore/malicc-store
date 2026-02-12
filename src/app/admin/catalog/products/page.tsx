@@ -9,6 +9,7 @@ import ProductTable from '@/components/admin/products/ProductTable';
 export default function AdminProductsPage() {
   const dispatch = useDispatch<AppDispatch>();
 
+  // Fetch products on mount
   useEffect(() => {
     dispatch(fetchAdminProducts());
   }, [dispatch]);

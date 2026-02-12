@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAdminProductById } from '@/store/admin/product/productThunks';
 import { RootState, AppDispatch } from '@/store';
 import ProductForm from '@/components/admin/products/ProductForm';
+import { useProductForm } from '@/features/admin/products/hooks/useProductForm';
 
 export default function EditProductPage({
   params,
@@ -32,7 +33,15 @@ export default function EditProductPage({
     }
   }, [id, dispatch]);
 
+  const productFormProps = useProductForm(product);
+
   if (!product) return <div>Loading…</div>;
 
-  return <ProductForm product={product} />;
+  return (
+    <ProductForm
+      {...productFormProps}
+      product={product}
+      onDiscard={() => productFormProps.router.back()}
+    />
+  );
 }

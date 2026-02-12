@@ -35,7 +35,7 @@ const cartSlice = createSlice({
       state.totalQuantity += 1;
       state.totalAmount += action.payload.price;
     },
-    removeFromCart: (state, action: PayloadAction<number>) => {
+    removeFromCart: (state, action: PayloadAction<string>) => {
       const existingItem = state.items.find(
         (item) => item.id === action.payload
       );
@@ -51,7 +51,7 @@ const cartSlice = createSlice({
         state.totalAmount -= existingItem.price;
       }
     },
-    removeItemCompletely: (state, action: PayloadAction<number>) => {
+    removeItemCompletely: (state, action: PayloadAction<string>) => {
       const existingItem = state.items.find(
         (item) => item.id === action.payload
       );

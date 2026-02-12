@@ -6,7 +6,10 @@ import productReducer from './slices/productSlice';
 // store/index.ts
 import adminProducts from './admin/product/productSlice';
 import adminOrders from './admin/order/orderSlice';
-
+import adminUsers from './admin/users/usersSlice';
+import authReducer from './slices/authSlice';
+import wishlistReducer from './slices/wishlistSlice';
+import orderReducer from './slices/orderSlice';
 import { loadState, saveState } from './cartPersist';
 const preloadedState = {
   cart: loadState() || undefined,
@@ -21,6 +24,10 @@ export const makeStore = () => {
       health: healthReducer,
       adminProducts: adminProducts,
       adminOrders: adminOrders,
+      adminUsers: adminUsers,
+      auth: authReducer,
+      wishlist: wishlistReducer,
+      orders: orderReducer,
       // Add other reducers here
     },
     preloadedState,

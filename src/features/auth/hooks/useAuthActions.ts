@@ -1,62 +1,40 @@
 'use client';
-// This directive marks this as a Client Component in Next.js
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { loadUserThunk } from '@/store/slices/authSlice';
 
 /**
- * Custom hook to manage and check user authentication state
- * Provides:
- * - Current authentication status
- * - Loading state while checking auth status
+ * Custom hook to manage and check user authentication state via Redux
  */
 export function useAuth() {
-  // State to track if user is authenticated
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated, loading, token, user } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  // State to track loading status during auth check
-  const [isLoading, setLoading] = useState(true);
-
-  /**
-   * useEffect hook runs once on component mount to check authentication status
-   * Empty dependency array ensures this only runs once
-   */
   useEffect(() => {
-    /**
-     * Async function to check user authentication status
-     * Called immediately when the component using this hook mounts
-     */
-    async function checkAuth() {
-      try {
-        // Make API call to check authentication status
-        // Replace with your actual authentication endpoint
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
-
-        // Update authentication state based on API response
-        if (data.authenticated) {
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        // Log and handle any errors during auth check
-        console.error('Error checking authentication:', error);
-
-        // Default to not authenticated if there's an error
-        setIsAuthenticated(false);
-      } finally {
-        // Always set loading to false when the check is complete
-        // (whether successful or failed)
-        setLoading(false);
-      }
+    // If we have a token but no user loaded, try to load the user
+    // We check !loading to avoid double dispatch if it's already in progress
+    if (token && !user) {
+      dispatch(loadUserThunk());
     }
+  }, [dispatch, token, user]);
 
-    // Execute the auth check when the hook is used
-    checkAuth();
+  // Determine if we are effectively loading.
+  // We are loading if:
+  // 1. Redux says we are loading (e.g. fetching user)
+  // 2. We have a token but haven't loaded the user yet (initial hydration state)
+  const isAuthCheckLoading = loading || (!!token && !user);
 
-    // Empty dependency array means this effect runs only once on mount
-  }, []);
+  // We return isLoading only if we are actually checking auth.
+  // If there is no token, we are definitively NOT authenticated and NOT loading.
+  const appIsLoading = isAuthCheckLoading && !!token;
 
-  // Return the authentication state and loading status
-  return { isAuthenticated, isLoading };
+  return {
+    isAuthenticated: isAuthenticated,
+    isLoading: appIsLoading,
+    user
+  };
 }

@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { Button, TextField, Flex, Card, Heading, Text } from '@radix-ui/themes';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+import { useForm } from "react-hook-form";
+import { Button, TextField, Flex, Card, Heading, Text } from "@radix-ui/themes";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { useDispatch, useSelector } from "react-redux";
+import { signupThunk } from "@/store/slices/authSlice";
+import { AppDispatch, RootState } from "@/store";
 
 interface SignupFormData {
-  username: string;
-  email: string;
-  password: string;
   phoneNumber: string;
 }
 
@@ -17,16 +18,40 @@ export const SignupForm = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignupFormData>();
-  const { signup, isLoading } = useAuth();
+
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const loading = useSelector((state: RootState) => state.auth.loading);
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      await signup(data);
-      toast.success('Account created successfully!');
-    } catch (error) {
-      toast.error(`Failed to create account. Please try again: ${error}`);
+      await dispatch(
+        signupThunk({ phoneNumber: data.phoneNumber })
+      ).unwrap();
+
+      toast.success("Account created successfully!");
+      router.push(
+        `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
+      );
+    } catch (err: unknown) {
+      const error = err as {
+        validationErrors?: Array<{ field: string; message: string }>;
+        message?: string;
+      };
+      // Handle validation errors
+      if (error?.validationErrors && Array.isArray(error.validationErrors)) {
+        error.validationErrors.forEach((err_item: { field: string; message: string }) => {
+          setError(err_item.field as keyof SignupFormData, { type: "server", message: err_item.message });
+        });
+        return;
+      }
+
+      // Handle general error message
+      const errorMessage = error?.message || (typeof error === "string" ? error : "Signup failed");
+      toast.error(errorMessage);
     }
   };
 
@@ -39,68 +64,16 @@ export const SignupForm = () => {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="4">
-            <TextField.Root
-              size="3"
-              placeholder="Username"
-              {...register('username', {
-                required: 'Username is required',
-                minLength: {
-                  value: 3,
-                  message: 'Username must be at least 3 characters',
-                },
-              })}
-            />
-            {errors.username && (
-              <Text color="red" size="2">
-                {errors.username.message}
-              </Text>
-            )}
-
-            <TextField.Root
-              size="3"
-              placeholder="Email"
-              type="email"
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address',
-                },
-              })}
-            />
-            {errors.email && (
-              <Text color="red" size="2">
-                {errors.email.message}
-              </Text>
-            )}
-
-            <TextField.Root
-              size="3"
-              placeholder="Password"
-              type="password"
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters',
-                },
-              })}
-            />
-            {errors.password && (
-              <Text color="red" size="2">
-                {errors.password.message}
-              </Text>
-            )}
 
             <TextField.Root
               size="3"
               placeholder="Phone Number"
               type="tel"
-              {...register('phoneNumber', {
-                required: 'Phone number is required',
+              {...register("phoneNumber", {
+                required: "Phone number is required",
                 pattern: {
                   value: /^[0-9]{10,15}$/,
-                  message: 'Invalid phone number',
+                  message: "Invalid phone number",
                 },
               })}
             />
@@ -110,14 +83,14 @@ export const SignupForm = () => {
               </Text>
             )}
 
-            <Button size="3" type="submit" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Sign Up'}
+            <Button size="3" type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Sign Up"}
             </Button>
           </Flex>
         </form>
 
         <Text align="center" size="2">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link href="/auth/login" className="text-blue-600 hover:underline">
             Log in
           </Link>

@@ -1,15 +1,15 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Use images.domains in development
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
+    domains: [
+      'picsum.photos',
+      'ecom.myitworld.com',
+      'm.media-amazon.com',
     ],
   },
 };
 
+//Switch to remotePatterns for production
 export default nextConfig;

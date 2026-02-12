@@ -1,0 +1,20 @@
+# Use a sane Node version
+FROM node:20-alpine
+
+# Where the app lives inside the container
+WORKDIR /app
+
+# Copy dependency manifests first (better caching, even in dev)
+COPY package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the frontend code
+COPY . .
+
+# Next.js dev server port
+EXPOSE 3000
+
+# Run Next.js in dev mode
+CMD ["npm", "run", "dev"]
