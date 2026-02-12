@@ -2,6 +2,7 @@
 export interface Order {
     id: string;
     status: string;
+    fulfillmentStatus?: string;
     subtotal: number;
     tax: number;
     shippingFee: number;

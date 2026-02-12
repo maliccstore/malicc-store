@@ -5,7 +5,7 @@ import { Box, Flex, Heading, Text, Button, Container } from '@radix-ui/themes';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 // import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+
 
 // TODO: Add dynamic slides
 const SLIDES = [
@@ -81,10 +81,8 @@ export default function HeroCarousel() {
                             align="center" // Center align for mobile focus
                             className="h-full max-w-2xl px-6 mx-auto text-center space-y-6 sm:items-start sm:text-left sm:mx-0 sm:px-8"
                         >
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
+                            <div
+                                className={`transition-all duration-500 ease-out ${index === currentSlide ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-5'}`}
                             >
                                 <Heading
                                     size="9"
@@ -93,7 +91,7 @@ export default function HeroCarousel() {
                                 >
                                     {slide.title}
                                 </Heading>
-                            </motion.div>
+                            </div>
 
                             <Text
                                 size="5"

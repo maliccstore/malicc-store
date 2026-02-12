@@ -11,6 +11,16 @@ export const ORDER_STATUS = {
 
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
+export const FULFILLMENT_STATUS = {
+  UNFULFILLED: "UNFULFILLED",
+  PROCESSING: "PROCESSING",
+  SHIPPED: "SHIPPED",
+  DELIVERED: "DELIVERED",
+  RETURNED: "RETURNED",
+} as const;
+
+export type FulfillmentStatus = typeof FULFILLMENT_STATUS[keyof typeof FULFILLMENT_STATUS];
+
 export interface OrderFilterInput {
   status?: OrderStatus;
   userId?: number;
@@ -28,6 +38,7 @@ export const getAllOrders = async (filters?: OrderFilterInput) => {
         orders {
           id
           status
+          fulfillmentStatus
           totalAmount
           currency
           createdAt
@@ -64,6 +75,24 @@ export const updateOrderStatus = async (id: string, status: OrderStatus) => {
   return response.data.data.updateOrderStatus;
 };
 
+export const updateFulfillmentStatus = async (id: string, status: FulfillmentStatus) => {
+  const mutation = `
+        mutation UpdateFulfillmentStatus($id: String!, $status: FulfillmentStatus!) {
+            updateFulfillmentStatus(id: $id, status: $status) {
+                success
+                message
+                order {
+                    id
+                    status
+                    fulfillmentStatus
+                }
+            }
+        }
+    `;
+  const response = await apiClient.post('', { query: mutation, variables: { id, status } });
+  return response.data.data.updateFulfillmentStatus;
+};
+
 export const getOrderDetails = async (id: string) => {
   const query = `
     query Order($id: String!) {
@@ -73,6 +102,7 @@ export const getOrderDetails = async (id: string) => {
         order {
           id
           status
+          fulfillmentStatus
           subtotal
           tax
           shippingFee
