@@ -84,7 +84,7 @@ export default function CheckoutPage() {
 
     try {
       setDeployingOrder(true);
-      const response = await orderAPI.checkout(Number(selectedAddressId), "COD");
+      const response = await orderAPI.checkout(Number(selectedAddressId), "Prepaid");
 
       if (response.success) {
         dispatch(clearCart());
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
             )}
           </Card>
 
-          {/* Payment Method Section (Fixed to COD for now) */}
+          {/* Payment Method Section (Fixed to Prepaid) */}
           {!isSelectingAddress && (
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
 
               <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-100">
                 <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                <span className="font-medium text-gray-900">Cash on Delivery (COD)</span>
+                <span className="font-medium text-gray-900">Prepaid</span>
               </div>
             </Card>
           )}
