@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       'picsum.photos',
       'ecom.myitworld.com',
       'm.media-amazon.com',
+      'images.unsplash.com',
     ],
   },
 };
