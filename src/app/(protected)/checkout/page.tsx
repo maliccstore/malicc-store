@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { addressAPI } from '@/services/address.service';
 import { orderAPI } from '@/services/orderAPI';
 import { Address } from '@/types/address';
+import { setSelectedAddressId } from '@/store/slices/checkoutSlice';
+import { clearCart } from '@/store/slices/cartSlice';
+import { AddressSelection } from '@/components/checkout/AddressSelection';
 import toast from 'react-hot-toast';
 import { Card, Heading, Text, Badge } from '@radix-ui/themes';
 import { MapPin, Truck, CreditCard } from 'lucide-react';
@@ -14,23 +17,52 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
   const totalAmount = useAppSelector((state) => state.cart.totalAmount);
+  const selectedAddressId = useAppSelector((state) => state.checkout.selectedAddressId);
 
   // State
   const [loading, setLoading] = useState(true);
   const [deployingOrder, setDeployingOrder] = useState(false);
-  const [defaultAddress, setDefaultAddress] = useState<Address | null>(null);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [isSelectingAddress, setIsSelectingAddress] = useState(false);
+  const hasFetched = useRef(false);
+
+  const selectedAddress = useMemo(() =>
+    addresses.find(addr => addr.id === selectedAddressId),
+    [addresses, selectedAddressId]
+  );
 
   useEffect(() => {
-    const fetchAddress = async () => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    const fetchAddresses = async () => {
       try {
         setLoading(true);
-        const addresses = await addressAPI.getUserAddresses();
+        const fetchedAddresses = await addressAPI.getUserAddresses();
+        setAddresses(fetchedAddresses);
 
-        // Find default address
-        const def = addresses.find(addr => addr.isDefault) || addresses[0] || null;
-        setDefaultAddress(def);
+        if (fetchedAddresses.length === 0) {
+          toast.error("Please add a delivery address to continue");
+          router.push('/address?redirect=checkout');
+          return;
+        }
+
+        // Check for newAddress in URL
+        const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const newAddressId = searchParams?.get('newAddress');
+
+        if (newAddressId && fetchedAddresses.find(a => a.id === newAddressId)) {
+          dispatch(setSelectedAddressId(newAddressId));
+          // Clear query param without refresh
+          window.history.replaceState({}, '', '/checkout');
+        } else if (!selectedAddressId || !fetchedAddresses.find(a => a.id === selectedAddressId)) {
+          // Auto-select logic
+          const defaultAddr = fetchedAddresses.find(addr => addr.isDefault) || fetchedAddresses[0];
+          dispatch(setSelectedAddressId(defaultAddr.id));
+        }
 
       } catch (error) {
         console.error("Failed to fetch addresses", error);
@@ -40,20 +72,22 @@ export default function CheckoutPage() {
       }
     };
 
-    fetchAddress();
-  }, []);
+    fetchAddresses();
+  }, [dispatch, router]); // selectedAddressId intentionally omitted — fetch runs once on mount only
 
   const handlePlaceOrder = async () => {
-    if (!defaultAddress) {
-      toast.error("Please add a delivery address first");
+    if (!selectedAddressId) {
+      toast.error("Please select a delivery address");
+      setIsSelectingAddress(true);
       return;
     }
 
     try {
       setDeployingOrder(true);
-      const response = await orderAPI.checkout(Number(defaultAddress.id), "COD");
+      const response = await orderAPI.checkout(Number(selectedAddressId), "COD");
 
       if (response.success) {
+        dispatch(clearCart());
         toast.success("Order placed successfully!");
         router.push('/orders'); // Redirect to orders page
       } else {
@@ -96,81 +130,95 @@ export default function CheckoutPage() {
         {/* Details Section */}
         <div className="space-y-6">
 
-          {/* Delivery Address Section */}
-          <Card className="p-6 overflow-hidden">
-            <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
-              <MapPin className="text-blue-600" size={24} />
-              <Heading size="4" className="font-semibold">Delivery Address</Heading>
-            </div>
-
-            {defaultAddress ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Text weight="bold" size="3">{defaultAddress.fullName}</Text>
-                  {defaultAddress.isDefault && <Badge color="green">Default</Badge>}
+          {/* Address Step */}
+          <Card className="p-6">
+            {!isSelectingAddress ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-4">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="text-blue-600" size={24} />
+                    <Heading size="4">Delivery Address</Heading>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-700"
+                    onClick={() => setIsSelectingAddress(true)}
+                  >
+                    Change
+                  </Button>
                 </div>
-                <Text as="p" size="2" className="text-gray-600 block">
-                  {defaultAddress.addressLine1}, {defaultAddress.addressLine2 ? defaultAddress.addressLine2 + ', ' : ''}
-                </Text>
-                <Text as="p" size="2" className="text-gray-600 block">
-                  {defaultAddress.city}, {defaultAddress.state} - {defaultAddress.postalCode}
-                </Text>
-                <Text as="p" size="2" className="text-gray-600 block mt-1">
-                  Phone: {defaultAddress.phoneNumber}
-                </Text>
+
+                {selectedAddress && (
+                  <div className="pt-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Text weight="bold" size="3">{selectedAddress.fullName}</Text>
+                      {selectedAddress.isDefault && <Badge color="green">Default</Badge>}
+                    </div>
+                    <Text as="p" size="2" className="text-gray-600">
+                      {selectedAddress.addressLine1}, {selectedAddress.addressLine2 ? selectedAddress.addressLine2 + ', ' : ''}
+                      {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.postalCode}
+                    </Text>
+                    <Text as="p" size="2" className="text-gray-600 mt-1">
+                      Phone: {selectedAddress.phoneNumber}
+                    </Text>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="text-center py-6">
-                <Text color="gray" className="mb-4 block">No delivery address found.</Text>
-                <Link href="/address/new">
-                  <Button className="bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50">Add New Address</Button>
-                </Link>
-              </div>
+              <AddressSelection
+                addresses={addresses}
+                selectedAddressId={selectedAddressId}
+                onSelect={(id) => dispatch(setSelectedAddressId(id))}
+                onConfirm={() => setIsSelectingAddress(false)}
+              />
             )}
           </Card>
 
-          {/* Payment Method Section (Fixed to COD) */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
-              <CreditCard className="text-green-600" size={24} />
-              <Heading size="4" className="font-semibold">Payment Method</Heading>
-            </div>
+          {/* Payment Method Section (Fixed to COD for now) */}
+          {!isSelectingAddress && (
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
+                <CreditCard className="text-green-600" size={24} />
+                <Heading size="4" className="font-semibold">Payment Method</Heading>
+              </div>
 
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <div className="w-4 h-4 rounded-full bg-green-500"></div>
-              <span className="font-medium text-gray-900">Cash on Delivery (COD)</span>
-            </div>
-          </Card>
+              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                <span className="font-medium text-gray-900">Cash on Delivery (COD)</span>
+              </div>
+            </Card>
+          )}
 
           {/* Order Items Review */}
-          <Card className="p-6">
-            <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
-              <Truck className="text-orange-600" size={24} />
-              <Heading size="4" className="font-semibold">Order Items ({cartItems.length})</Heading>
-            </div>
-            <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-              <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
-                    <div className="flex gap-4">
-                      {/* Ideally show image here too */}
-                      <div className="space-y-1">
-                        <Text weight="medium" className="block">{item.name}</Text>
-                        <Text size="1" color="gray">Qty: {item.quantity}</Text>
-                      </div>
-                    </div>
-                    <Text weight="medium">${(item.price * item.quantity).toFixed(2)}</Text>
-                  </div>
-                ))}
+          {!isSelectingAddress && (
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-4 border-b border-gray-100 pb-4">
+                <Truck className="text-orange-600" size={24} />
+                <Heading size="4" className="font-semibold">Order Items ({cartItems.length})</Heading>
               </div>
-            </div>
-          </Card>
-
+              <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-4">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                      <div className="flex gap-4">
+                        <div className="space-y-1">
+                          <Text weight="medium" className="block">{item.name}</Text>
+                          <Text size="1" color="gray">Qty: {item.quantity}</Text>
+                        </div>
+                      </div>
+                      <Text weight="medium">${(item.price * item.quantity).toFixed(2)}</Text>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
 
-        {/* Order Summary Section */}
-        <div className="">
-          <Card className="p-6">
+        {/* Right Column: Summary */}
+        <div className="lg:col-span-1">
+          <Card className="p-6 sticky top-8">
             <Heading size="4" className="font-semibold mb-6">Order Summary</Heading>
 
             <div className="space-y-3 mb-6">
@@ -196,14 +244,14 @@ export default function CheckoutPage() {
             <Button
               className="w-full text-lg py-6"
               onClick={handlePlaceOrder}
-              disabled={deployingOrder || !defaultAddress}
+              disabled={deployingOrder || isSelectingAddress || !selectedAddressId}
             >
               {deployingOrder ? 'Processing...' : 'Proceed to Payment'}
             </Button>
 
-            {!defaultAddress && (
-              <Text size="1" color="red" className="mt-2 block text-center">
-                Please add an address to continue
+            {isSelectingAddress && (
+              <Text size="1" color="gray" className="mt-3 block text-center">
+                Confirm your address selection to proceed
               </Text>
             )}
           </Card>

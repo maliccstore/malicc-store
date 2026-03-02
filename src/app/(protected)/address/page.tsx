@@ -51,7 +51,8 @@ export default function AddressPage() {
             state: "",
             postalCode: "",
             country: "IN",
-            isDefault: false
+            // Auto-default if this will be the only single address
+            isDefault: addresses.length === 0
         });
         setIsEditing(true);
     };
@@ -100,6 +101,9 @@ export default function AddressPage() {
         }
     };
 
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const redirect = searchParams?.get('redirect');
+
     // Submit form data
     const onSubmit = async (data: AddressFormData) => {
         try {
@@ -125,6 +129,11 @@ export default function AddressPage() {
                 const newAddress = await addressAPI.createAddress(input);
                 setAddresses(prev => [newAddress, ...prev]);
                 toast.success("Address added successfully");
+
+                if (redirect === 'checkout') {
+                    window.location.href = '/checkout?newAddress=' + newAddress.id;
+                    return;
+                }
             }
             setIsEditing(false);
             setEditingId(null);
