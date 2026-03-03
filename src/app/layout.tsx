@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={` antialiased h-full bg-slate-200  `}>
-        <Container className="mobile-only  pb-20   max-h-screen z-10 border-2 border-slate-700">
+        <Container className="mobile-only pb-20 max-h-screen z-10">
           <Theme>
             <Providers>{children}</Providers>
           </Theme>
