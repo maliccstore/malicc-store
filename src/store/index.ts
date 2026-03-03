@@ -10,13 +10,22 @@ import adminUsers from './admin/users/usersSlice';
 import authReducer from './slices/authSlice';
 import wishlistReducer from './slices/wishlistSlice';
 import orderReducer from './slices/orderSlice';
+import checkoutReducer from './slices/checkoutSlice';
 import { loadState, saveState } from './cartPersist';
-const preloadedState = {
-  cart: loadState() || undefined,
-};
 
 export const makeStore = () => {
-  return configureStore({
+  const persistedState = loadState();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw = persistedState as any;
+  const preloadedState = persistedState ? {
+    // Support old format (cart stored directly with `items`) and new format ({cart, checkout})
+    cart: raw?.cart ?? (raw?.items ? raw : undefined),
+    checkout: raw?.checkout ?? undefined,
+  } : undefined;
+
+
+  const store = configureStore({
     reducer: {
       app: appReducer,
       cart: cartReducer,
@@ -28,15 +37,20 @@ export const makeStore = () => {
       auth: authReducer,
       wishlist: wishlistReducer,
       orders: orderReducer,
+      checkout: checkoutReducer,
       // Add other reducers here
     },
-    preloadedState,
+    // Cast to undefined so TS doesn't constrain the reducer shape to the partial persisted state
+    preloadedState: preloadedState as undefined,
   });
+
+  // Subscribe to store changes to persist cart and checkout state
+  store.subscribe(() => {
+    saveState(store.getState());
+  });
+
+  return store;
 };
-const store = makeStore();
-store.subscribe(() => {
-  saveState(store.getState());
-});
 
 // Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>;
