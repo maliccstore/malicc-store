@@ -1,21 +1,46 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store";
-import { Box, Flex, Heading, Text, TextField, Button, Separator } from "@radix-ui/themes";
+import {
+  Box,
+  Flex,
+  Heading,
+  Text,
+  TextField,
+  Button,
+  Separator,
+} from "@radix-ui/themes";
 import { useState } from "react";
+import {
+  applyCouponSuccess,
+  clearCoupon,
+} from "../../store/slices/checkoutSlice";
+import { couponService } from "../../services/coupon.service";
 
 const CheckoutSummary = () => {
+  const dispatch = useDispatch();
+
+  // Cart totals live in state.cart — always accurate
   const { totalQuantity, totalAmount } = useSelector(
     (state: RootState) => state.cart
   );
 
-  const [couponCode, setCouponCode] = useState("");
+  // Only coupon state lives in state.checkout
+  const {
+    couponCode: appliedCouponCode,
+    discountAmount,
+  } = useSelector((state: RootState) => state.checkout);
+
+  const [couponCode, setCouponCode] = useState<string>(appliedCouponCode || "");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // TODO: integrate GraphQL validateCoupon mutation later
+  const safeTotal = totalAmount ?? 0;
+  const safeDiscount = discountAmount ?? 0;
+  const finalTotal = safeTotal - safeDiscount;
+
   const handleApplyCoupon = async () => {
-    if (!couponCode) {
+    if (!couponCode.trim()) {
       setErrorMessage("Please enter a coupon code");
       return;
     }
@@ -25,12 +50,28 @@ const CheckoutSummary = () => {
       setErrorMessage(null);
       setSuccessMessage(null);
 
-      // TODO: integrate GraphQL validateCoupon mutation later
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Validate coupon against the current cart subtotal
+      const response = await couponService.validateCoupon(couponCode.trim(), safeTotal);
 
-      setSuccessMessage("Coupon applied successfully!");
-    } catch {
-      setErrorMessage("Invalid coupon code");
+      if (response.success) {
+        dispatch(
+          applyCouponSuccess({
+            couponCode: couponCode.trim(),
+            discountAmount: response.discount ?? 0,
+          })
+        );
+        setSuccessMessage(`Coupon applied! You save $${(response.discount ?? 0).toFixed(2)}`);
+      } else {
+        dispatch(clearCoupon());
+        setErrorMessage(response.message || "Invalid coupon code");
+      }
+    } catch (error: unknown) {
+      dispatch(clearCoupon());
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Failed to apply coupon");
+      }
     } finally {
       setLoading(false);
     }
@@ -52,12 +93,7 @@ const CheckoutSummary = () => {
             style={{ flex: 1 }}
           />
 
-          <Button
-            onClick={handleApplyCoupon}
-            disabled={loading}
-            color="gray"
-            highContrast
-          >
+          <Button onClick={handleApplyCoupon} disabled={loading} color="gray" highContrast>
             {loading ? "Applying..." : "Apply"}
           </Button>
         </Flex>
@@ -67,7 +103,6 @@ const CheckoutSummary = () => {
             {successMessage}
           </Text>
         )}
-
         {errorMessage && (
           <Text size="2" color="red">
             {errorMessage}
@@ -78,9 +113,16 @@ const CheckoutSummary = () => {
       {/* Order Details */}
       <Flex direction="column" gap="3" pt="2">
         <Flex justify="between">
-          <Text>Items ({totalQuantity})</Text>
-          <Text>${totalAmount.toFixed(2)}</Text>
+          <Text>Subtotal ({totalQuantity} items)</Text>
+          <Text>${safeTotal.toFixed(2)}</Text>
         </Flex>
+
+        {safeDiscount > 0 && (
+          <Flex justify="between">
+            <Text>Discount</Text>
+            <Text color="green">-${safeDiscount.toFixed(2)}</Text>
+          </Flex>
+        )}
 
         <Flex justify="between">
           <Text>Shipping</Text>
@@ -91,7 +133,7 @@ const CheckoutSummary = () => {
 
         <Flex justify="between">
           <Text weight="medium">Total</Text>
-          <Text weight="medium">${totalAmount.toFixed(2)}</Text>
+          <Text weight="medium">${finalTotal.toFixed(2)}</Text>
         </Flex>
       </Flex>
     </Box>
