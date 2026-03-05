@@ -1,8 +1,7 @@
-// src/app/admin/components/MobileSidebar.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import * as Collapsible from '@radix-ui/react-collapsible';
+import { useState } from "react";
+import * as Collapsible from "@radix-ui/react-collapsible";
 import {
   ChevronRightIcon,
   DashboardIcon,
@@ -11,69 +10,107 @@ import {
   GearIcon,
   HamburgerMenuIcon,
   Cross1Icon,
-} from '@radix-ui/react-icons';
-import Link from 'next/link';
+} from "@radix-ui/react-icons";
+import Link from "next/link";
 
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [openSections, setOpenSections] = useState<string[]>(['dashboard']);
+  const [openSections, setOpenSections] = useState<string[]>(["dashboard"]);
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: "dashboard",
+      label: "Dashboard",
       icon: <DashboardIcon />,
-      link: '/admin/dashboard',
+      link: "/admin/dashboard",
     },
     {
-      id: 'users',
-      label: 'Users',
+      id: "users",
+      label: "Users",
       icon: <UsersIcon />,
       items: [
-        { id: 'all-users', label: 'All Users', link: '/admin/users' },
-        { id: 'customers', label: 'Customers', link: '/admin/users/customers' },
+        { id: "all-users", label: "All Users", link: "/admin/users" },
+        { id: "customers", label: "Customers", link: "/admin/users/customers" },
       ],
-      link: '/admin/users',
+      link: "/admin/users",
     },
     {
-      id: 'Orders',
-      label: 'Orders',
+      id: "Orders",
+      label: "Orders",
       icon: <UsersIcon />,
 
-      link: '/admin/orders',
+      link: "/admin/orders",
     },
     {
-      id: 'products',
-      label: 'Products',
+      id: "products",
+      label: "Products",
       icon: <FileTextIcon />,
       items: [
-        { id: 'all-products', label: 'All Products', link: '/admin/catalog/products' },
-        { id: 'new', label: 'New Product', link: '/admin/catalog/products/new' },
-        { id: 'Edit Product', label: 'Edit Product', link: '/admin/catalog/products/editproduct' },
+        {
+          id: "all-products",
+          label: "All Products",
+          link: "/admin/catalog/products",
+        },
+        {
+          id: "new",
+          label: "New Product",
+          link: "/admin/catalog/products/new",
+        },
+        {
+          id: "Edit Product",
+          label: "Edit Product",
+          link: "/admin/catalog/products/editproduct",
+        },
       ],
-      link: '/admin/catalog/products',
+      link: "/admin/catalog/products",
     },
     {
-      id: 'category',
-      label: 'Categories',
+      id: "category",
+      label: "Categories",
       icon: <FileTextIcon />,
       items: [
-        { id: 'all-categories', label: 'All Categories', link: '/admin/catalog/categories' },
-        { id: 'new-category', label: 'New Category', link: '/admin/catalog/categories/new' },
+        {
+          id: "all-categories",
+          label: "All Categories",
+          link: "/admin/catalog/categories",
+        },
+        {
+          id: "new-category",
+          label: "New Category",
+          link: "/admin/catalog/categories/new",
+        },
       ],
-      link: '/admin/catalog/categories',
+      link: "/admin/catalog/categories",
     },
     {
-      id: 'settings',
-      label: 'Settings',
+      id: "coupons",
+      label: "Coupons",
+      icon: <FileTextIcon />,
+      items: [
+        {
+          id: "all-coupons",
+          label: "All Coupons",
+          link: "/admin/catalog/coupons",
+        },
+        {
+          id: "new-coupon",
+          label: "New Coupon",
+          link: "/admin/catalog/coupons/new",
+        },
+      ],
+      link: "/admin/catalog/coupons",
+    },
+    {
+      id: "settings",
+      label: "Settings",
       icon: <GearIcon />,
-      link: '/admin/settings',
+      link: "/admin/settings",
     },
   ];
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -98,7 +135,7 @@ export default function AdminSidebar() {
         className={`
         fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50
         transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
         {/* Header */}
@@ -127,7 +164,7 @@ export default function AdminSidebar() {
                       <span>{item.label}</span>
                     </div>
                     <ChevronRightIcon
-                      className={`transition-transform ${openSections.includes(item.id) ? 'rotate-90' : ''}`}
+                      className={`transition-transform ${openSections.includes(item.id) ? "rotate-90" : ""}`}
                     />
                   </Collapsible.Trigger>
 
