@@ -8,7 +8,9 @@ import {
   TextField,
   Button,
   Separator,
+  Callout,
 } from "@radix-ui/themes";
+import { InfoCircledIcon, CheckCircledIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import {
   applyCouponSuccess,
@@ -60,7 +62,7 @@ const CheckoutSummary = () => {
             discountAmount: response.discount ?? 0,
           })
         );
-        setSuccessMessage(`Coupon applied! You save $${(response.discount ?? 0).toFixed(2)}`);
+        setSuccessMessage(`Coupon applied successfully! You saved $${(response.discount ?? 0).toFixed(2)}`);
       } else {
         dispatch(clearCoupon());
         setErrorMessage(response.message || "Invalid coupon code");
@@ -73,6 +75,7 @@ const CheckoutSummary = () => {
         setErrorMessage("Failed to apply coupon");
       }
     } finally {
+      setCouponCode("")
       setLoading(false);
     }
   };
@@ -99,14 +102,20 @@ const CheckoutSummary = () => {
         </Flex>
 
         {successMessage && (
-          <Text size="2" color="green">
-            {successMessage}
-          </Text>
+          <Callout.Root color="green" size="1">
+            <Callout.Icon>
+              <CheckCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>{successMessage}</Callout.Text>
+          </Callout.Root>
         )}
         {errorMessage && (
-          <Text size="2" color="red">
-            {errorMessage}
-          </Text>
+          <Callout.Root color="red" size="1">
+            <Callout.Icon>
+              <InfoCircledIcon />
+            </Callout.Icon>
+            <Callout.Text>{errorMessage}</Callout.Text>
+          </Callout.Root>
         )}
       </Flex>
 
