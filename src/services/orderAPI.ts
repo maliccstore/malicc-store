@@ -1,10 +1,10 @@
 import apiClient from "./apiClient";
 
 export const orderAPI = {
-  checkout: async (addressId: number, paymentMethod: string = "COD") => {
+  checkout: async (addressId: number, paymentMethod: string = "COD", couponCode?: string) => {
     const query = `
-      mutation Checkout($addressId: Float!, $paymentMethod: String) {
-        checkout(addressId: $addressId, paymentMethod: $paymentMethod) {
+      mutation Checkout($addressId: Float!, $paymentMethod: String, $couponCode: String) {
+        checkout(addressId: $addressId, paymentMethod: $paymentMethod, couponCode: $couponCode) {
           success
           message
           order {
@@ -19,7 +19,7 @@ export const orderAPI = {
     try {
       const response = await apiClient.post("", {
         query,
-        variables: { addressId, paymentMethod },
+        variables: { addressId, paymentMethod, ...(couponCode && { couponCode }) },
       });
 
       if (response.data.errors) {

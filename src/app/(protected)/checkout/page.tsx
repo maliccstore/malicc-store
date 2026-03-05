@@ -20,7 +20,11 @@ export default function CheckoutPage() {
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
   const totalAmount = useAppSelector((state) => state.cart.totalAmount);
-  const selectedAddressId = useAppSelector((state) => state.checkout.selectedAddressId);
+  const { selectedAddressId, couponCode, discountAmount } = useAppSelector((state) => state.checkout);
+
+  const safeTotal = totalAmount ?? 0;
+  const safeDiscount = discountAmount ?? 0;
+  const finalTotal = safeTotal - safeDiscount;
 
   // State
   const [loading, setLoading] = useState(true);
@@ -84,7 +88,7 @@ export default function CheckoutPage() {
 
     try {
       setDeployingOrder(true);
-      const response = await orderAPI.checkout(Number(selectedAddressId), "Prepaid");
+      const response = await orderAPI.checkout(Number(selectedAddressId), "Prepaid", couponCode || undefined);
 
       if (response.success) {
         dispatch(clearCart());
@@ -224,8 +228,14 @@ export default function CheckoutPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>${safeTotal.toFixed(2)}</span>
               </div>
+              {safeDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount {couponCode ? `(${couponCode})` : ''}</span>
+                  <span>-${safeDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
                 <span className="text-green-600">Free</span>
@@ -237,7 +247,7 @@ export default function CheckoutPage() {
               <div className="h-px bg-gray-200 my-4"></div>
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>${finalTotal.toFixed(2)}</span>
               </div>
             </div>
 
