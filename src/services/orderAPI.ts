@@ -129,4 +129,32 @@ export const orderAPI = {
       throw error;
     }
   },
+
+  validateCoupon: async (code: string, subtotal: number) => {
+    const query = `
+      query ValidateCoupon($input: ValidateCouponInput!) {
+        validateCoupon(input: $input) {
+          success
+          message
+          discount
+          finalAmount
+        }
+      }
+    `;
+
+    try {
+      const response = await apiClient.post("", {
+        query,
+        variables: { input: { code, subtotal } },
+      });
+
+      if (response.data.errors) {
+        throw new Error(response.data.errors[0].message);
+      }
+
+      return response.data.data.validateCoupon;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
