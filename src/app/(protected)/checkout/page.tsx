@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { Card, Heading, Text, Badge } from '@radix-ui/themes';
 import { MapPin, Truck, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { fetchOrderDetails } from '@/store/slices/orderSlice';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -91,9 +92,9 @@ export default function CheckoutPage() {
       const response = await orderAPI.checkout(Number(selectedAddressId), "Prepaid", couponCode || undefined);
 
       if (response.success) {
+        await dispatch(fetchOrderDetails(response.order.id));
         dispatch(clearCart());
-        toast.success("Order placed successfully!");
-        router.push('/orders'); // Redirect to orders page
+        router.push('/checkout/Payment'); 
       } else {
         toast.error(response.message || "Failed to place order");
       }
