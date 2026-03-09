@@ -1,13 +1,18 @@
 "use client";
 // src/app/(protected)/checkout/Payment/page.tsx
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useRazorpayCheckout } from "@/features/auth/hooks/useRazorpayCheckout";
 import { clearCheckoutState } from "@/store/slices/checkoutSlice";
-import { Card, Heading, Text } from "@radix-ui/themes";
-import { ShieldCheck, CreditCard, Lock } from "lucide-react";
+import { Card, Heading, Text, Callout } from "@radix-ui/themes";
+import { ShieldCheck, CreditCard, Lock, AlertCircle, Info, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+
+type PaymentError = {
+  type: "cancelled" | "failed" | "verification_error";
+  message: string;
+} | null;
 
 export default function PaymentPage() {
   const router = useRouter();
@@ -15,10 +20,13 @@ export default function PaymentPage() {
   const { initiateCheckout, loading } = useRazorpayCheckout();
 
   // ── Redux state ───────────────────────────────────────────────
-  const currentOrder   = useAppSelector((state) => state.orders.currentOrder);
-  const user           = useAppSelector((state) => state.auth.user);
-  const couponCode     = useAppSelector((state) => state.checkout.couponCode);
+  const currentOrder = useAppSelector((state) => state.orders.currentOrder);
+  const user = useAppSelector((state) => state.auth.user);
+  const couponCode = useAppSelector((state) => state.checkout.couponCode);
   const discountAmount = useAppSelector((state) => state.checkout.discountAmount);
+
+  // ── Local state ───────────────────────────────────────────────
+  const [paymentError, setPaymentError] = useState<PaymentError>(null);
 
   useEffect(() => {
     if (!currentOrder?.id) {
@@ -28,6 +36,8 @@ export default function PaymentPage() {
 
   const handlePayment = async () => {
     if (!currentOrder?.id || !user) return;
+
+    setPaymentError(null); // Clear previous errors on retry
 
     await initiateCheckout({
       orderId: currentOrder.id,
@@ -42,17 +52,35 @@ export default function PaymentPage() {
       },
 
       onFailure: (error) => {
-        if (error === "cancelled") return;
-        alert(`Payment failed: ${error}`);
+        if (error === "cancelled") {
+          setPaymentError({
+            type: "cancelled",
+            message: "Payment cancelled. You can try again when ready.",
+          });
+          return;
+        }
+
+        if (error.includes("verification failed") || error.includes("Verification error")) {
+          setPaymentError({
+            type: "verification_error",
+            message: "Payment could not be verified. Please contact support with your Order ID.",
+          });
+          return;
+        }
+
+        setPaymentError({
+          type: "failed",
+          message: error || "Payment failed. Please try again with a different method.",
+        });
       },
     });
   };
 
   if (!currentOrder) return null;
 
-  const subtotal      = currentOrder.subtotal ?? currentOrder.totalAmount;
-  const shippingFee   = currentOrder.shippingFee ?? 0;
-  const finalAmount   = currentOrder.totalAmount - (discountAmount ?? 0);
+  const subtotal = currentOrder.subtotal ?? currentOrder.totalAmount;
+  const shippingFee = currentOrder.shippingFee ?? 0;
+  const finalAmount = currentOrder.totalAmount - (discountAmount ?? 0);
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8">
@@ -61,6 +89,23 @@ export default function PaymentPage() {
       </Heading>
 
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+
+        {/* Error Banners */}
+        {paymentError && (
+          <Callout.Root
+            size="2"
+            color={paymentError.type === "cancelled" ? "blue" : "red"}
+            variant="surface"
+            className="mb-2"
+          >
+            <Callout.Icon>
+              {paymentError.type === "cancelled" ? <Info size={20} /> : <AlertCircle size={20} />}
+            </Callout.Icon>
+            <Callout.Text className="font-medium">
+              {paymentError.message}
+            </Callout.Text>
+          </Callout.Root>
+        )}
 
         {/* Secure Payment Notice */}
         <Card className="p-6">
@@ -128,17 +173,41 @@ export default function PaymentPage() {
           </div>
         </Card>
 
-        {/* Pay Button Card */}
+        {/* Pay / Retry Button Card */}
         <Card className="p-6">
-          <Button
-            className="w-full text-lg py-6"
-            onClick={handlePayment}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : `Pay ₹${finalAmount.toFixed(2)}`}
-          </Button>
+          <div className="space-y-3">
+            <Button
+              className="w-full text-lg flex items-center justify-center gap-2"
+              onClick={handlePayment}
+              disabled={loading}
+              variant={paymentError ? undefined : undefined}
+            >
+              {loading ? (
+                "Processing..."
+              ) : paymentError ? (
+                <>
+                  <RefreshCw size={20} />
+                  Retry Payment (₹{finalAmount.toFixed(2)})
+                </>
+              ) : (
+                `Pay ₹${finalAmount.toFixed(2)}`
+              )}
+            </Button>
 
-          <div className="flex items-center justify-center gap-2 mt-4">
+            {paymentError && (
+              <Button
+                variant="outline"
+                className="w-full text-md flex items-center justify-center gap-2 bg-white dark:bg-transparent"
+                onClick={() => router.push("/checkout")}
+                disabled={loading}
+              >
+                <ArrowLeft size={18} />
+                Go Back to Checkout
+              </Button>
+            )}
+          </div>
+
+          <div className="flex items-center justify-center gap-2 mt-4 text-center">
             <ShieldCheck size={14} className="text-gray-400" />
             <Text size="1" className="text-gray-400 dark:text-gray-500">
               Secured by Razorpay · UPI, Cards, Net Banking accepted
