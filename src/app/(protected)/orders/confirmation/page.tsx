@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrderDetails } from '@/store/slices/orderSlice';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { CheckCircle, Package, Truck, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
@@ -63,7 +63,7 @@ export default function OrderConfirmationPage() {
           Order Placed Successfully!
         </Heading>
         <Text size="3" className="text-gray-600 dark:text-gray-400">
-          Thank you for your purchase, {user?.username || 'Customer'}. We've received your order.
+          Thank you for your purchase, {user?.username || 'Customer'}. We&apos;ve received your order.
         </Text>
       </div>
 
@@ -162,7 +162,7 @@ export default function OrderConfirmationPage() {
               <div className="flex justify-between">
                 <Text size="2">Shipping</Text>
                 <Text size="2" className={(currentOrder.shippingFee === 0 || !currentOrder.shippingFee) ? "text-green-600" : ""}>
-                  {(currentOrder.shippingFee === 0 || !currentOrder.shippingFee) ? "Free" : `₹${currentOrder.shippingFee.toFixed(2)}`}
+                   {(currentOrder.shippingFee === 0 || !currentOrder.shippingFee) ? "Free" : `₹${currentOrder.shippingFee.toFixed(2)}`}
                 </Text>
               </div>
 
@@ -197,5 +197,17 @@ export default function OrderConfirmationPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-[50vh] items-center justify-center">
+        <Text size="3" className="text-gray-500 dark:text-gray-400">Loading order confirmation...</Text>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

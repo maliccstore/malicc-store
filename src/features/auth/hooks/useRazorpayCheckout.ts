@@ -5,9 +5,43 @@ import {
   verifyPaymentAPI,
 } from '@/services/payment.service';
 
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  order_id: string;
+  name: string;
+  description: string;
+  image: string;
+  prefill: {
+    name: string;
+    contact: string;
+    email: string;
+  };
+  theme: { color: string };
+  handler: (response: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => Promise<void>;
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
+
 const loadRazorpayScript = (): Promise<boolean> =>
   new Promise((resolve) => {
-    if ((window as any).Razorpay) return resolve(true);
+    if (window.Razorpay) return resolve(true);
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.onload = () => resolve(true);
@@ -51,7 +85,7 @@ export const useRazorpayCheckout = () => {
       setLoading(false); // stop loading before modal opens
 
       // Step 2 — open Razorpay modal
-      const rzp = new (window as any).Razorpay({
+      const rzp = new window.Razorpay({
         key: orderData.keyId,
         amount: orderData.amount,
         currency: orderData.currency,
@@ -88,10 +122,9 @@ export const useRazorpayCheckout = () => {
                 'Payment verification failed. Contact support.'
               );
             }
-          } catch (err: any) {
-            options.onFailure(
-              err.message || 'Verification error. Contact support.'
-            );
+          } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Verification error. Contact support.';
+            options.onFailure(errorMessage);
           } finally {
             setLoading(false);
           }
@@ -106,9 +139,10 @@ export const useRazorpayCheckout = () => {
       });
 
       rzp.open();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false);
-      options.onFailure(err.message || 'Failed to initiate payment.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initiate payment.';
+      options.onFailure(errorMessage);
     }
   }, []);
 

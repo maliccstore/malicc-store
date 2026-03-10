@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Flex, Heading, Text, Button, Container } from '@radix-ui/themes';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
-// import Image from 'next/image';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 
@@ -64,10 +64,12 @@ export default function HeroCarousel() {
                 >
                     {/* Image Background */}
                     <div className="absolute inset-0">
-                        <img
+                        <Image
                             src={slide.image}
                             alt={slide.title}
-                            className="w-full h-full object-cover opacity-60"
+                            fill
+                            className="object-cover opacity-60"
+                            priority={index === 0}
                         />
                         {/* Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />

@@ -78,7 +78,7 @@ export default function CheckoutPage() {
     };
 
     fetchAddresses();
-  }, [dispatch, router]); // selectedAddressId intentionally omitted — fetch runs once on mount only
+  }, [dispatch, router, selectedAddressId]); // selectedAddressId added to satisfy eslint, hasFetched ref prevents re-run
 
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
