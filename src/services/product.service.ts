@@ -1,5 +1,7 @@
 import apiClient from './apiClient';
 import { Product, ProductFilterInput } from '@/types/product';
+import { Review, ProductRatingSummary, CreateReviewInput, UpdateReviewInput } from '@/types/review';
+
 import axios from 'axios';
 
 export const productService = {
@@ -89,4 +91,152 @@ export const productService = {
             throw error;
         }
     },
+
+    getProductReviews: async (productId: string): Promise<Review[]> => {
+        try {
+            const query = `
+        query GetProductReviews($productId: ID!) {
+          productReviews(productId: $productId) {
+            id
+            userId
+            productId
+            rating
+            reviewText
+            status
+            createdAt
+          }
+        }
+      `;
+
+            const response = await apiClient.post('', {
+                query,
+                variables: { productId },
+            });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            return response.data.data.productReviews;
+        } catch (error) {
+            console.error('Error fetching product reviews:', error);
+            throw error;
+        }
+    },
+
+    getProductRatingSummary: async (productId: string): Promise<ProductRatingSummary> => {
+        try {
+            const query = `
+        query GetProductRatingSummary($productId: ID!) {
+          productRatingSummary(productId: $productId) {
+            averageRating
+            totalReviews
+          }
+        }
+      `;
+
+            const response = await apiClient.post('', {
+                query,
+                variables: { productId },
+            });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            return response.data.data.productRatingSummary;
+        } catch (error) {
+            console.error('Error fetching product rating summary:', error);
+            throw error;
+        }
+    },
+
+    createReview: async (input: CreateReviewInput): Promise<Review> => {
+        try {
+            const query = `
+        mutation CreateReview($input: CreateReviewInput!) {
+          createReview(input: $input) {
+            id
+            userId
+            productId
+            rating
+            reviewText
+            status
+            createdAt
+          }
+        }
+      `;
+
+            const response = await apiClient.post('', {
+                query,
+                variables: { input },
+            });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            return response.data.data.createReview;
+        } catch (error) {
+            console.error('Error creating review:', error);
+            throw error;
+        }
+    },
+
+    updateReview: async (id: string, input: UpdateReviewInput): Promise<Review> => {
+        try {
+            const query = `
+        mutation UpdateReview($id: ID!, $input: UpdateReviewInput!) {
+          updateReview(id: $id, input: $input) {
+            id
+            userId
+            productId
+            rating
+            reviewText
+            status
+            createdAt
+          }
+        }
+      `;
+
+            const response = await apiClient.post('', {
+                query,
+                variables: { id, input },
+            });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            return response.data.data.updateReview;
+        } catch (error) {
+            console.error('Error updating review:', error);
+            throw error;
+        }
+    },
+
+    deleteReview: async (id: string): Promise<boolean> => {
+        try {
+            const query = `
+        mutation DeleteReview($id: ID!) {
+          deleteReview(id: $id)
+        }
+      `;
+
+            const response = await apiClient.post('', {
+                query,
+                variables: { id },
+            });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            return response.data.data.deleteReview;
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            throw error;
+        }
+    },
+
 };
