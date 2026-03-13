@@ -45,6 +45,7 @@ export const orderAPI = {
             createdAt
             items {
               id
+              productId
               productName
               quantity
               unitPrice

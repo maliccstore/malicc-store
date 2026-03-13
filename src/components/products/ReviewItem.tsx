@@ -1,15 +1,27 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Flex, Text, Box, Avatar, IconButton, Tooltip, AlertDialog, Button } from '@radix-ui/themes';
-import StarRating from './StarRating';
-import { Review } from '@/types/review';
-import { formatDate } from '@/utils/format';
-import { useAuth } from '@/features/auth/hooks/useAuthActions';
-import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
-import { productService } from '@/services/product.service';
-import ReviewForm from './ReviewForm';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState } from "react";
+import {
+  Flex,
+  Text,
+  Box,
+  Avatar,
+  IconButton,
+  Tooltip,
+  AlertDialog,
+  Button,
+} from "@radix-ui/themes";
+import StarRating from "./StarRating";
+import { Review } from "@/types/review";
+import { formatDate } from "@/utils/format";
+import { useAuth } from "@/features/auth/hooks/useAuthActions";
+import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import { productService } from "@/services/product.service";
+import ReviewForm from "./ReviewForm";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { fetchAdminUsers } from "@/store/admin/users/userThunks";
 
 interface ReviewItemProps {
   review: Review;
@@ -17,26 +29,39 @@ interface ReviewItemProps {
   onDelete?: () => void;
 }
 
-export const ReviewItem: React.FC<ReviewItemProps> = ({ 
-  review, 
-  onUpdate, 
-  onDelete 
+export const ReviewItem: React.FC<ReviewItemProps> = ({
+  review,
+  onUpdate,
+  onDelete,
 }) => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchAdminUsers());
+  }, [dispatch]);
+
+  const users = useSelector((state: RootState) => state.adminUsers.list);
 
   const isOwner = user?.id === review.userId;
-  const username = review.userId === user?.id ? 'You' : `User #${review.userId.slice(-4)}`;
+  const username =
+    users.find((u) => String(u.id) === String(review.userId))?.username ??
+    "customer";
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await productService.deleteReview(review.id);
-      toast.success('Review deleted successfully');
+      toast.success("Review deleted successfully");
+      setDialogOpen(false);
       if (onDelete) onDelete();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete review');
+    } catch (error: unknown) {
+      toast.error(
+        (error as { message?: string }).message || "Failed to delete review",
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -45,16 +70,21 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
   if (isEditing) {
     return (
       <Box py="4" className="border-b border-gray-100 last:border-none">
-        <ReviewForm 
-          productId={review.productId} 
-          initialData={review} 
+        <ReviewForm
+          productId={review.productId}
+          initialData={review}
           onComplete={() => {
             setIsEditing(false);
             if (onUpdate) onUpdate();
           }}
           className="shadow-none border-none bg-transparent p-0"
         />
-        <Button variant="soft" color="gray" mt="2" onClick={() => setIsEditing(false)}>
+        <Button
+          variant="soft"
+          color="gray"
+          mt="2"
+          onClick={() => setIsEditing(false)}
+        >
           Cancel
         </Button>
       </Box>
@@ -66,9 +96,9 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
       <Flex direction="column" gap="3">
         <Flex justify="between" align="center">
           <Flex align="center" gap="3">
-            <Avatar 
-              size="2" 
-              fallback={username.charAt(0).toUpperCase()} 
+            <Avatar
+              size="2"
+              fallback={username.charAt(0).toUpperCase()}
               radius="full"
               color={isOwner ? "blue" : "gray"}
               variant="soft"
@@ -82,16 +112,16 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
               </Text>
             </Flex>
           </Flex>
-          
+
           <Flex align="center" gap="3">
             <StarRating rating={review.rating} size={16} />
-            
+
             {isOwner && (
-              <Flex gap="1" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <Flex gap="1">
                 <Tooltip content="Edit Review">
-                  <IconButton 
-                    size="1" 
-                    variant="ghost" 
+                  <IconButton
+                    size="1"
+                    variant="ghost"
                     color="gray"
                     onClick={() => setIsEditing(true)}
                   >
@@ -99,30 +129,41 @@ export const ReviewItem: React.FC<ReviewItemProps> = ({
                   </IconButton>
                 </Tooltip>
 
-                <AlertDialog.Root>
-                  <AlertDialog.Trigger>
-                    <Tooltip content="Delete Review">
+                <AlertDialog.Root
+                  open={dialogOpen}
+                  onOpenChange={setDialogOpen}
+                >
+                  <Tooltip content="Delete Review">
+                    <AlertDialog.Trigger>
                       <IconButton size="1" variant="ghost" color="red">
                         <TrashIcon />
                       </IconButton>
-                    </Tooltip>
-                  </AlertDialog.Trigger>
+                    </AlertDialog.Trigger>
+                  </Tooltip>
                   <AlertDialog.Content maxWidth="450px">
                     <AlertDialog.Title>Delete Review</AlertDialog.Title>
                     <AlertDialog.Description size="2">
-                      Are you sure you want to delete this review? This action cannot be undone.
+                      Are you sure you want to delete this review? This action
+                      cannot be undone.
                     </AlertDialog.Description>
                     <Flex gap="3" mt="4" justify="end">
                       <AlertDialog.Cancel>
-                        <Button variant="soft" color="gray">
+                        <Button
+                          variant="soft"
+                          color="gray"
+                          disabled={isDeleting}
+                        >
                           Cancel
                         </Button>
                       </AlertDialog.Cancel>
-                      <AlertDialog.Action>
-                        <Button variant="solid" color="red" onClick={handleDelete} loading={isDeleting}>
-                          Delete Review
-                        </Button>
-                      </AlertDialog.Action>
+                      <Button
+                        variant="solid"
+                        color="red"
+                        onClick={handleDelete}
+                        loading={isDeleting}
+                      >
+                        Delete Review
+                      </Button>
                     </Flex>
                   </AlertDialog.Content>
                 </AlertDialog.Root>

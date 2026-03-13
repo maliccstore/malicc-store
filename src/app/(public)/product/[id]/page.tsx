@@ -1,30 +1,116 @@
-'use client'; // Essential for client-side hooks and Redux
+"use client";
 
-import { useParams } from 'next/navigation';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/store';
-import { Product } from '@/types/product';
-import { Box, Container, Heading, Text } from '@radix-ui/themes';
-import ProductDetailsSkeleton from '@/components/products/ProductDetailsSkeleton';
-import Image from 'next/image';
-import { addToCart } from '@/store/slices/cartSlice';
-import { Image as ImageIcon } from 'lucide-react';
+import { useParams } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/store";
+import { Product } from "@/types/product";
 
-import { useEffect } from 'react';
-import { fetchProducts } from '@/store/slices/productSlice';
-import { AppDispatch } from '@/store';
-import { Button } from '@/components/ui/Button';
+import { Box, Container, Heading, Text } from "@radix-ui/themes";
+import ProductDetailsSkeleton from "@/components/products/ProductDetailsSkeleton";
+import RatingSummary from "@/components/products/RatingSummary";
+import ReviewList from "@/components/products/ReviewList";
+import ReviewForm from "@/components/products/ReviewForm";
+
+import Image from "next/image";
+import { Image as ImageIcon } from "lucide-react";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { fetchProducts } from "@/store/slices/productSlice";
+import { addToCart } from "@/store/slices/cartSlice";
+
+import { productService } from "@/services/product.service";
+import { orderAPI } from "@/services/orderAPI";
+
+import { Review, ProductRatingSummary } from "@/types/review";
+import { useAuth } from "@/features/auth/hooks/useAuthActions";
+
+import { Button } from "@/components/ui/Button";
+
+type OrderItem = {
+  productId: string;
+};
+
+type Order = {
+  id: string;
+  items?: OrderItem[];
+};
 
 const ProductPage = () => {
   const params = useParams();
   const dispatch = useDispatch<AppDispatch>();
+
   const id = params.id;
   const productId = Array.isArray(id) ? id[0] : id;
 
-  const { products, loading } = useSelector((state: RootState) => state.products);
+  const { products, loading } = useSelector(
+    (state: RootState) => state.products,
+  );
 
-  // Get product from Redux store - Use loose comparison or string conversion to be safe
-  const product = products.find((p: Product) => String(p.id) === String(productId));
+  const { isAuthenticated, user } = useAuth();
+
+  const product = useMemo(
+    () => products.find((p: Product) => String(p.id) === String(productId)),
+    [products, productId],
+  );
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [ratingSummary, setRatingSummary] =
+    useState<ProductRatingSummary | null>(null);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const [purchasedOrderId, setPurchasedOrderId] = useState<string | null>(null);
+
+  const fetchReviewData = useCallback(async () => {
+    if (!productId) return;
+
+    try {
+      const [reviewsData, ratingData] = await Promise.all([
+        productService.getProductReviews(productId),
+        productService.getProductRatingSummary(productId),
+      ]);
+
+      setReviews(reviewsData);
+      setRatingSummary(ratingData);
+    } catch (error) {
+      console.error("Failed to fetch review data", error);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (!productId) return;
+
+    const load = async () => {
+      setLoadingReviews(true);
+      await fetchReviewData();
+      setLoadingReviews(false);
+    };
+
+    load();
+  }, [fetchReviewData, productId]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !product) return;
+
+    const checkPurchase = async () => {
+      try {
+        const response = await orderAPI.myOrders();
+        const orders: Order[] = response?.orders ?? [];
+
+        const matchedOrder = orders.find((order: Order) =>
+          order.items?.some((item: OrderItem) => item.productId === product.id),
+        );
+
+        if (matchedOrder) {
+          setPurchasedOrderId(matchedOrder.id);
+        }
+      } catch (error) {
+        console.error("Failed to check purchase history", error);
+      }
+    };
+
+    checkPurchase();
+  }, [isAuthenticated, product]);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -33,11 +119,22 @@ const ProductPage = () => {
   }, [dispatch, products.length]);
 
   const handleAddToCart = () => {
-    if (product) {
-      console.log(product);
-      dispatch(addToCart(product));
-    }
+    if (!product) return;
+    dispatch(addToCart(product));
   };
+
+  const handleReviewCreated = async () => {
+    await fetchReviewData();
+  };
+
+  const handleReviewDeleted = async () => {
+    await fetchReviewData();
+  };
+
+  const hasReviewed = useMemo(() => {
+    if (!user) return false;
+    return reviews.some((r) => String(r.userId) === String(user.id));
+  }, [reviews, user]);
 
   if (loading) {
     return <ProductDetailsSkeleton />;
@@ -45,11 +142,9 @@ const ProductPage = () => {
 
   if (!product) {
     return (
-      <Container className="product-page p-4 text-center">
-        <Heading as="h1" size="4" className="font-bold line-clamp-1">
-          Product not found
-        </Heading>
-        <Text as="p" size="2" color="gray">
+      <Container className="p-4 text-center">
+        <Heading size="4">Product not found</Heading>
+        <Text color="gray">
           The product you are looking for does not exist.
         </Text>
       </Container>
@@ -57,32 +152,63 @@ const ProductPage = () => {
   }
 
   return (
-    <Container className="product-page p-4">
+    <Container className="p-4">
+      {/* Product Image */}
+
       <Box className="w-full h-96 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden mb-6">
         {product.image ? (
           <Image
-            width={400}
-            height={300}
             src={product.image}
             alt={product.name}
+            width={400}
+            height={300}
             className="w-full h-full object-contain"
           />
         ) : (
-          <ImageIcon className="text-gray-300" size={96} />
+          <ImageIcon size={96} className="text-gray-300" />
         )}
       </Box>
-      <div className='mb-4'>
-        <Heading as="h1" size="4" className="font-bold line-clamp-1">
-          {product.name}
-        </Heading>
-        <Text as="p" size="2" color="gray">
+
+      {/* Product Info */}
+
+      <div className="mb-6">
+        <div className="flex justify-between items-start">
+          <Heading size="4">{product.name}</Heading>
+
+          {ratingSummary && <RatingSummary summary={ratingSummary} />}
+        </div>
+
+        <Text size="2" color="gray">
           {product.description}
         </Text>
       </div>
-      <div className="sticky bottom-12 flex justify-center">
+
+      {/* Review Form */}
+
+      {purchasedOrderId && !hasReviewed && (
+        <Box className="mb-8">
+          <ReviewForm
+            productId={product.id}
+            orderId={purchasedOrderId}
+            onComplete={handleReviewCreated}
+          />
+        </Box>
+      )}
+
+      {/* Review List */}
+
+      <ReviewList
+        reviews={reviews}
+        loading={loadingReviews}
+        onRefresh={handleReviewDeleted}
+      />
+
+      {/* Add to Cart */}
+
+      <div className="sticky bottom-12 flex justify-center mt-8">
         <Button
           onClick={handleAddToCart}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors max-w-md w-full"
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition max-w-md w-full"
         >
           Add to Cart
         </Button>

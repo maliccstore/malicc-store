@@ -1,12 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Flex, Heading, Text, Button, TextArea, Box, Card, Callout } from '@radix-ui/themes';
-import StarRating from './StarRating';
-import { productService } from '@/services/product.service';
-import { Review, CreateReviewInput, UpdateReviewInput } from '@/types/review';
-import { InfoCircledIcon, CheckCircledIcon } from '@radix-ui/react-icons';
-import toast from 'react-hot-toast';
+import React, { useState } from "react";
+import {
+  Flex,
+  Heading,
+  Text,
+  Button,
+  TextArea,
+  Card,
+  Callout,
+} from "@radix-ui/themes";
+import StarRating from "./StarRating";
+import { productService } from "@/services/product.service";
+import { Review, CreateReviewInput, UpdateReviewInput } from "@/types/review";
+import { InfoCircledIcon, CheckCircledIcon } from "@radix-ui/react-icons";
+import toast from "react-hot-toast";
 
 interface ReviewFormProps {
   productId: string;
@@ -25,7 +33,9 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 }) => {
   const isEditMode = !!initialData;
   const [rating, setRating] = useState<number>(initialData?.rating || 5);
-  const [reviewText, setReviewText] = useState<string>(initialData?.reviewText || '');
+  const [reviewText, setReviewText] = useState<string>(
+    initialData?.reviewText || "",
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -42,9 +52,10 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
           reviewText: reviewText.trim() || undefined,
         };
         await productService.updateReview(initialData.id, input);
-        toast.success('Review updated successfully!');
+        toast.success("Review updated successfully!");
       } else {
-        if (!orderId) throw new Error('Order ID is required to create a review');
+        if (!orderId)
+          throw new Error("Order ID is required to create a review");
         const input: CreateReviewInput = {
           productId,
           orderId,
@@ -52,13 +63,16 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
           reviewText: reviewText.trim() || undefined,
         };
         await productService.createReview(input);
-        toast.success('Review submitted successfully!');
+        toast.success("Review submitted successfully!");
       }
-      
+
       setIsSubmitted(true);
       if (onComplete) onComplete();
-    } catch (err: any) {
-      const message = err.message || 'Failed to process review. Please try again.';
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to process review. Please try again.";
       setError(message);
       toast.error(message);
     } finally {
@@ -68,16 +82,24 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
 
   if (isSubmitted) {
     return (
-      <Card size="3" className={className} style={{ color: "green", backgroundColor: "var(--green-2)" }}>
+      <Card
+        size="3"
+        className={className}
+        style={{ color: "green", backgroundColor: "var(--green-2)" }}
+      >
         <Flex direction="column" align="center" gap="3" py="4">
           <CheckCircledIcon width="32" height="32" />
           <Heading size="4">
-            {isEditMode ? 'Review updated!' : 'Thank you for your review!'}
+            {isEditMode ? "Review updated!" : "Thank you for your review!"}
           </Heading>
           <Text size="2">
-            {isEditMode 
-              ? 'Your changes have been saved.' 
-              : 'Your feedback helps other shoppers make better choices.'}
+            {isEditMode
+              ? "Your changes have been saved."
+              : "Your feedback helps other shoppers make better choices."}
+          </Text>
+          <Text size="1" color="yellow" className="text-yellow-800">
+            {!isEditMode &&
+              "Note: Your review may be subject to approval and might not appear immediately."}
           </Text>
         </Flex>
       </Card>
@@ -88,7 +110,9 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
     <Card size="3" className={className}>
       <form onSubmit={handleSubmit}>
         <Flex direction="column" gap="4">
-          <Heading size="4">{isEditMode ? 'Edit Review' : 'Write a Review'}</Heading>
+          <Heading size="4">
+            {isEditMode ? "Edit Review" : "Write a Review"}
+          </Heading>
 
           <Flex direction="column" gap="2">
             <Text size="2" weight="bold" color="gray">
@@ -131,7 +155,7 @@ export const ReviewForm: React.FC<ReviewFormProps> = ({
             loading={isSubmitting}
             className="cursor-pointer"
           >
-            {isEditMode ? 'Update Review' : 'Submit Review'}
+            {isEditMode ? "Update Review" : "Submit Review"}
           </Button>
         </Flex>
       </form>
