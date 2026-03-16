@@ -39,6 +39,7 @@ export function useProductForm(product?: AdminProduct) {
         control,
         handleSubmit,
         watch,
+        setValue,
         formState: { errors, isSubmitting },
     } = useForm<ProductFormValues>({
         values: {
@@ -111,6 +112,7 @@ export function useProductForm(product?: AdminProduct) {
         errors,
         isSubmitting,
         watch,
+        setValue,
         imageUrl,
         categories,
         isLoadingCategories,

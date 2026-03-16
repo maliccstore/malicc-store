@@ -14,6 +14,11 @@ import {
 } from '@radix-ui/themes';
 import { ProductFormProps } from '@/features/admin/products/product.types';
 import { Controller } from 'react-hook-form';
+import { useRef, useState } from 'react';
+import uploadService from '@/services/admin/upload.service';
+import toast from 'react-hot-toast';
+import { UploadIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 
 export default function ProductForm({
   product,
@@ -28,7 +33,44 @@ export default function ProductForm({
   handleDelete,
   imageUrl,
   onDiscard,
+  setValue,
 }: ProductFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validation
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('File size must be less than 5MB');
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Only image files are allowed');
+      toast.error('Only image files are allowed');
+      return;
+    }
+
+    setUploadError(null);
+    setIsUploading(true);
+
+    try {
+      const uploadedUrl = await uploadService.uploadProductImage(file);
+      setValue('imageUrl', uploadedUrl);
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Failed to upload image. Please try again.');
+      setUploadError('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <Box height="100%" width="100%" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
@@ -179,29 +221,39 @@ export default function ProductForm({
                   </Form.Field>
                 </Flex>
 
-                {/* Media Block */}
                 <Box mt="4">
                   <Heading size="4" mb="2">Media</Heading>
-                  <Form.Field name="imageUrl">
-                    <Box>
-                      <Form.Label asChild>
-                        <Text as="span" size="2" weight="bold" mb="1" style={{ display: 'block' }}>Image URL</Text>
-                      </Form.Label>
-                      <Form.Control asChild>
-                        <Controller
-                          name="imageUrl"
-                          control={control}
-                          render={({ field }) => (
-                            <TextField.Root placeholder="https://..." size="2" {...field} />
-                          )}
-                        />
-                      </Form.Control>
-                    </Box>
-                  </Form.Field>
+                  <Box>
+                    <Text as="span" size="2" weight="bold" mb="1" style={{ display: 'block' }}>Product Image</Text>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <UploadIcon />
+                      {isUploading ? 'Uploading...' : 'Upload Product Image'}
+                    </Button>
+                    {uploadError && (
+                      <Text color="red" size="1" mt="1" style={{ display: 'block' }}>
+                        {uploadError}
+                      </Text>
+                    )}
+                  </Box>
                   {imageUrl && (
-                    <Box mt="2" className="rounded-lg overflow-hidden border border-gray-200">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl} alt="Preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', background: '#f8f9fa' }} />
+                    <Box mt="3" className="rounded-lg overflow-hidden border border-gray-200" style={{ position: 'relative' }}>
+                      <Image width={200} height={300} src={imageUrl} alt="Preview" style={{ width: '100%', maxHeight: '300px', objectFit: 'contain', background: '#f8f9fa' }} />
+                      <Box p="2" style={{ borderTop: '1px solid var(--gray-5)' }}>
+                        <Text size="1" color="gray" truncate>{imageUrl}</Text>
+                      </Box>
                     </Box>
                   )}
                 </Box>
