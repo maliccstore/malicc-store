@@ -116,9 +116,21 @@ const ProductPage = () => {
     }
   }, [dispatch, products.length]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
+    
+    // Optimistic Redux update
     dispatch(addToCart(product));
+    
+    if (isAuthenticated) {
+      try {
+        const { cartAPI } = await import("@/services/cart.service");
+        await cartAPI.addToCart(String(product.id), 1);
+        // toast.success("Synced with your account");
+      } catch (error) {
+        console.error("Failed to sync cart with backend", error);
+      }
+    }
   };
 
   const handleReviewCreated = async () => {

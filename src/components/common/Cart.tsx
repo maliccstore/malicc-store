@@ -11,12 +11,15 @@ import {
 } from '../../store/slices/cartSlice';
 import { Button } from '../ui/Button';
 import Image from 'next/image';
+import { useAuth } from '@/features/auth/hooks/useAuthActions';
+import { cartAPI } from '@/services/cart.service';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const { items, totalQuantity, totalAmount, isCartOpen } = useSelector(
     (state: RootState) => state.cart
   );
+  const { isAuthenticated } = useAuth();
 
   return (
     <Dialog.Root
@@ -61,14 +64,32 @@ const Cart = () => {
                       <p className="text-gray-600">${item.price.toFixed(2)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => dispatch(removeFromCart(item.id))}
+                          onClick={async () => {
+                            dispatch(removeFromCart(item.id));
+                            if (isAuthenticated) {
+                              try {
+                                await cartAPI.updateCartItem(String(item.id), item.quantity - 1);
+                              } catch (err) {
+                                console.error("Failed to sync decrease", err);
+                              }
+                            }
+                          }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
                           -
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={() => dispatch(addToCart(item))}
+                          onClick={async () => {
+                            dispatch(addToCart(item));
+                            if (isAuthenticated) {
+                              try {
+                                await cartAPI.addToCart(String(item.id), 1);
+                              } catch (err) {
+                                console.error("Failed to sync increase", err);
+                              }
+                            }
+                          }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
                           +
@@ -76,7 +97,16 @@ const Cart = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => dispatch(removeItemCompletely(item.id))}
+                      onClick={async () => {
+                        dispatch(removeItemCompletely(item.id));
+                        if (isAuthenticated) {
+                          try {
+                            await cartAPI.removeFromCart(String(item.id));
+                          } catch (err) {
+                            console.error("Failed to sync remove", err);
+                          }
+                        }
+                      }}
                       className="text-gray-500 hover:text-red-500"
                     >
                       <Cross2Icon className="h-4 w-4" />
@@ -103,7 +133,16 @@ const Cart = () => {
                 Proceed to Checkout
               </Button>
               <button
-                onClick={() => dispatch(clearCart())}
+                onClick={async () => {
+                  dispatch(clearCart());
+                  if (isAuthenticated) {
+                    try {
+                      await cartAPI.clearCart();
+                    } catch (err) {
+                      console.error("Failed to sync clear", err);
+                    }
+                  }
+                }}
                 className="w-full mt-2 text-sm text-gray-500 hover:text-gray-700"
               >
                 Clear Cart
