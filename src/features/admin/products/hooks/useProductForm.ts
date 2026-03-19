@@ -45,7 +45,7 @@ export function useProductForm(product?: AdminProduct) {
         values: {
             title: product?.name || '',
             description: product?.description || '',
-            imageUrl: product?.images?.[0] || '',
+            imageUrls: product?.images || [],
             status: product?.status || 'INACTIVE',
             price: product?.price || 0,
             sku: product?.sku || '',
@@ -56,7 +56,7 @@ export function useProductForm(product?: AdminProduct) {
     });
 
     // image url watcher
-    const imageUrl = watch('imageUrl');
+    const imageUrls = watch('imageUrls');
 
     // submit product
     const onSubmit = async (data: ProductFormValues) => {
@@ -72,7 +72,7 @@ export function useProductForm(product?: AdminProduct) {
                 quantity: Number(data.inventoryQuantity),
                 availableQuantity: Number(data.inventoryAvailable),
             },
-            images: data.imageUrl ? [data.imageUrl] : [],
+            images: data.imageUrls || [],
         };
 
         try {
@@ -113,7 +113,7 @@ export function useProductForm(product?: AdminProduct) {
         isSubmitting,
         watch,
         setValue,
-        imageUrl,
+        imageUrls,
         categories,
         isLoadingCategories,
         onSubmit,

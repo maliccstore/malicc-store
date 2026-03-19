@@ -10,9 +10,7 @@ import ProductDetailsSkeleton from "@/components/products/ProductDetailsSkeleton
 import RatingSummary from "@/components/products/RatingSummary";
 import ReviewList from "@/components/products/ReviewList";
 import ReviewForm from "@/components/products/ReviewForm";
-
-import Image from "next/image";
-import { Image as ImageIcon } from "lucide-react";
+import ProductGallery from "@/components/products/ProductGallery";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -155,19 +153,10 @@ const ProductPage = () => {
     <Container className="p-4">
       {/* Product Image */}
 
-      <Box className="w-full h-96 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden mb-6">
-        {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={400}
-            height={300}
-            className="w-full h-full object-contain"
-          />
-        ) : (
-          <ImageIcon size={96} className="text-gray-300" />
-        )}
-      </Box>
+      <ProductGallery 
+        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
+        productName={product.name} 
+      />
 
       {/* Product Info */}
 

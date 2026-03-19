@@ -65,6 +65,7 @@ export const productService = {
                 name: item.name,
                 description: item.description,
                 image: item.imageUrl && item.imageUrl.length > 0 ? item.imageUrl[0] : '', // Use first image or empty string
+                images: item.imageUrl || [],
                 price: item.price,
                 rating: '4', // Default rating as backend doesn't provide it yet [TODO]
                 category: item.category,

@@ -31,7 +31,7 @@ export default function ProductForm({
   isSubmitting,
   onSubmit,
   handleDelete,
-  imageUrl,
+  imageUrls,
   onDiscard,
   setValue,
 }: ProductFormProps) {
@@ -40,35 +40,31 @@ export default function ProductForm({
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validation
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('File size must be less than 5MB');
-      toast.error('File size must be less than 5MB');
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Only image files are allowed');
-      toast.error('Only image files are allowed');
-      return;
-    }
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     setUploadError(null);
     setIsUploading(true);
 
     try {
-      const uploadedUrl = await uploadService.uploadProductImage(file);
-      setValue('imageUrl', uploadedUrl);
-      toast.success('Image uploaded successfully');
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Validation per file
+        if (file.size > 5 * 1024 * 1024) throw new Error(`File ${file.name} is larger than 5MB`);
+        if (!file.type.startsWith('image/')) throw new Error(`File ${file.name} is not an image`);
+
+        return await uploadService.uploadProductImage(file);
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setValue('imageUrls', [...(imageUrls || []), ...uploadedUrls], { shouldValidate: true, shouldDirty: true });
+      toast.success('Images uploaded successfully');
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error('Failed to upload image. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to upload image. Please try again.');
       setUploadError('Failed to upload image');
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -230,6 +226,7 @@ export default function ProductForm({
                       ref={fileInputRef}
                       onChange={handleFileChange}
                       accept="image/*"
+                      multiple
                       style={{ display: 'none' }}
                     />
                     <Button
@@ -240,7 +237,7 @@ export default function ProductForm({
                       disabled={isUploading}
                     >
                       <UploadIcon />
-                      {isUploading ? 'Uploading...' : 'Upload Product Image'}
+                      {isUploading ? 'Uploading...' : 'Upload Product Images'}
                     </Button>
                     {uploadError && (
                       <Text color="red" size="1" mt="1" style={{ display: 'block' }}>
@@ -248,12 +245,70 @@ export default function ProductForm({
                       </Text>
                     )}
                   </Box>
-                  {imageUrl && (
-                    <Box mt="3" className="rounded-lg overflow-hidden border border-gray-200" style={{ position: 'relative' }}>
-                      <Image width={200} height={300} src={imageUrl} alt="Preview" style={{ width: '100%', maxHeight: '300px', objectFit: 'contain', background: '#f8f9fa' }} />
-                      <Box p="2" style={{ borderTop: '1px solid var(--gray-5)' }}>
-                        <Text size="1" color="gray" truncate>{imageUrl}</Text>
-                      </Box>
+                  {imageUrls && imageUrls.length > 0 && (
+                    <Box
+                      mt="4"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: "12px",
+                      }}
+                    >
+                      {imageUrls.map((url, index) => (
+                        <Box
+                          key={index}
+                          style={{
+                            border: "1px solid var(--gray-5)",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <Image
+                            width={100}
+                            height={100}
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            style={{
+                              width: "100%",
+                              height: "100px",
+                              objectFit: "contain",
+                              background: "var(--gray-2)",
+                            }}
+                          />
+
+                          <Box
+                            p="2"
+                            style={{ borderTop: "1px solid var(--gray-5)" }}
+                          >
+                            <Flex justify="between" align="center">
+                              <Text
+                                size="1"
+                                color="gray"
+                                truncate
+                                style={{ maxWidth: "120px" }}
+                              >
+                                {url}
+                              </Text>
+
+                              <Button
+                                size="1"
+                                color="red"
+                                variant="soft"
+                                type="button"
+                                onClick={() =>
+                                  setValue(
+                                    "imageUrls",
+                                    imageUrls.filter((_, i) => i !== index),
+                                    { shouldValidate: true, shouldDirty: true }
+                                  )
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </Flex>
+                          </Box>
+                        </Box>
+                      ))}
                     </Box>
                   )}
                 </Box>

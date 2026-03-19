@@ -30,7 +30,7 @@ export interface AdminProduct {
 export type ProductFormValues = {
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrls: string[];
   status: AdminProductStatus;
   price: number;
   sku: string;
@@ -51,6 +51,6 @@ export interface ProductFormProps {
   setValue: UseFormSetValue<ProductFormValues>;
   onSubmit: (data: ProductFormValues) => void;
   handleDelete: () => void;
-  imageUrl: string;
+  imageUrls: string[];
   onDiscard: () => void;
 }
