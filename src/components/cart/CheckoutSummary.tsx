@@ -12,6 +12,7 @@ import {
 } from "@radix-ui/themes";
 import { InfoCircledIcon, CheckCircledIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   applyCouponSuccess,
   clearCoupon,
@@ -20,6 +21,7 @@ import { couponService } from "../../services/coupon.service";
 
 const CheckoutSummary = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
 
   // Cart totals live in state.cart — always accurate
   const { totalQuantity, totalAmount } = useSelector(
@@ -47,6 +49,8 @@ const CheckoutSummary = () => {
       return;
     }
 
+    let isAuthError = false;
+
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -70,12 +74,26 @@ const CheckoutSummary = () => {
     } catch (error: unknown) {
       dispatch(clearCoupon());
       if (error instanceof Error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes("unauthorized") || msg.includes("access denied")) {
+          isAuthError = true;
+          setErrorMessage("Please log in to apply a coupon. Redirecting...");
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("pendingCoupon", couponCode.trim());
+          }
+          setTimeout(() => {
+            router.push("/auth/login");
+          }, 1500);
+          return;
+        }
         setErrorMessage(error.message);
       } else {
         setErrorMessage("Failed to apply coupon");
       }
     } finally {
-      setCouponCode("")
+      if (!isAuthError) {
+        setCouponCode("");
+      }
       setLoading(false);
     }
   };
