@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { AppDispatch, RootState } from "@/store";
-import { updateUserThunk, setUser } from "@/store/slices/authSlice";
+import { updateUserThunk, setUser, logout } from "@/store/slices/authSlice";
 import {
   requestAdminPhoneChangeOTPAPI,
   verifyAdminPhoneChangeAPI,
@@ -25,6 +26,7 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 export default function SettingsPage() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const user = useSelector((state: RootState) => state.auth.user);
   console.log(user)
 
@@ -35,6 +37,7 @@ export default function SettingsPage() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPhone, setIsSavingPhone] = useState(false);
   const [isVerifyingPhone, setIsVerifyingPhone] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [otp, setOtp] = useState("");
 
   useEffect(() => {
@@ -116,6 +119,18 @@ export default function SettingsPage() {
       toast.error(err instanceof Error ? err.message : "Invalid OTP or verification failed");
     } finally {
       setIsSavingPhone(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      dispatch(logout())
+      toast.success("Successfully logged out");
+      router.push("/auth/login");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to logout");
+      setIsLoggingOut(false);
     }
   };
 
@@ -202,6 +217,24 @@ export default function SettingsPage() {
                     {isSavingPhone ? "Sending OTP..." : "Update Phone"}
                   </Button>
                 </Flex>
+              </Box>
+
+              <hr className="border-gray-200 my-6" />
+
+              {/* Logout Section */}
+              <Box style={{ maxWidth: '32rem' }}>
+                <Heading size="3" mb="4">Account Access</Heading>
+                <Text color="gray" size="2" mb="4" as="p">
+                  Log out of your admin dashboard securely.
+                </Text>
+                <Button
+                  color="red"
+                  variant="soft"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                >
+                  {isLoggingOut ? "Logging out..." : "Log Out"}
+                </Button>
               </Box>
             </>
           ) : (
