@@ -15,7 +15,8 @@ import ProductGallery from "@/components/products/ProductGallery";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { fetchProducts } from "@/store/slices/productSlice";
-import { addToCart } from "@/store/slices/cartSlice";
+import { addToCart, removeFromCart } from "@/store/slices/cartSlice";
+import { Minus, Plus } from "lucide-react";
 
 import { productService } from "@/services/product.service";
 import { orderAPI } from "@/services/orderAPI";
@@ -44,6 +45,9 @@ const ProductPage = () => {
   const { products, loading } = useSelector(
     (state: RootState) => state.products,
   );
+
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const cartItem = useMemo(() => cartItems.find(item => String(item.id) === String(productId)), [cartItems, productId]);
 
   const { isAuthenticated, user } = useAuth();
 
@@ -118,10 +122,10 @@ const ProductPage = () => {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    
+
     // Optimistic Redux update
     dispatch(addToCart(product));
-    
+
     if (isAuthenticated) {
       try {
         const { cartAPI } = await import("@/services/cart.service");
@@ -165,9 +169,9 @@ const ProductPage = () => {
     <Container className="p-4">
       {/* Product Image */}
 
-      <ProductGallery 
-        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
-        productName={product.name} 
+      <ProductGallery
+        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+        productName={product.name}
       />
 
       {/* Product Info */}
@@ -205,14 +209,33 @@ const ProductPage = () => {
       />
 
       {/* Add to Cart */}
-
-      <div className="sticky bottom-12 flex justify-center mt-8">
-        <Button
-          onClick={handleAddToCart}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition max-w-md w-full"
-        >
-          Add to Cart
-        </Button>
+      <div className="sticky bottom-12 flex justify-center">
+        {cartItem ? (
+          <div className="flex items-center justify-between max-w-[200px] w-full border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
+            <Button
+              onClick={() => dispatch(removeFromCart(String(product.id)))}
+              className="h-12 w-14 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-r border-gray-100 transition-colors"
+            >
+              <Minus size={20} />
+            </Button>
+            <span className="text-lg font-semibold w-12 text-center text-gray-900">
+              {cartItem.quantity}
+            </span>
+            <Button
+              onClick={() => dispatch(addToCart(product))}
+              className="h-12 w-14 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-l border-gray-100 transition-colors"
+            >
+              <Plus size={20} />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleAddToCart}
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors max-w-md w-full"
+          >
+            Add to Cart
+          </Button>
+        )}
       </div>
     </Container>
   );

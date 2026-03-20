@@ -7,8 +7,9 @@ import { Heading, Text, Card } from '@radix-ui/themes';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { addToCart as addToCartAction } from '@/store/slices/cartSlice';
+import { addToCart as addToCartAction, removeFromCart } from '@/store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
+import { Minus, Plus } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuthActions';
 import { MouseEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -21,8 +22,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const dispatch = useDispatch();
   const { isAuthenticated } = useAuth();
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
   const isInWishlist = wishlistItems.some((item) => item.id === product.id);
 
+  const cartItem = cartItems.find(item => String(item.id) === String(product.id));
   const handleClick = () => {
     router.push(`/product/${product.id}`);
   };
@@ -84,29 +87,56 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Text as="span" size="4" >
             ${product.price}
           </Text>
-          <Button
-            onClick={async (e) => {
-              e.stopPropagation();
-              // Optimistic update (or keeping existing behavior)
-              dispatch(addToCartAction(product));
+          <div onClick={(e) => e.stopPropagation()}>
+            {/* Check if product is in cart */}
+            {cartItem ? (
+              <div className="flex items-center justify-between w-full border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dispatch(removeFromCart(String(product.id)));
+                  }}
+                  className="h-8 w-10 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-r border-gray-100"
+                >
+                  <Minus size={20} />
+                </Button>
+                <span className="text-sm font-semibold w-8 text-center text-gray-900">
+                  {cartItem.quantity}
+                </span>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dispatch(addToCartAction(product));
+                  }}
+                  className="h-8 w-10 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-l border-gray-100"
+                >
+                  <Plus size={20} />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  dispatch(addToCartAction(product));
 
-              if (isAuthenticated) {
-                try {
-                  const { cartAPI } = await import('@/services/cart.service');
-                  await cartAPI.addToCart(String(product.id), 1);
-                  toast.success("Added to cart");
-                } catch (err) {
-                  console.error("Failed to sync cart", err);
-                  // toast.error("Failed to save to account"); // Optional
-                }
-              } else {
-                toast.success("Added to cart");
-              }
-            }}
-            className="hover:bg-gray-900 hover:text-white transition-colors"
-          >
-            Add to Cart
-          </Button>
+                  if (isAuthenticated) {
+                    try {
+                      const { cartAPI } = await import('@/services/cart.service');
+                      await cartAPI.addToCart(String(product.id), 1);
+                      toast.success("Added to cart");
+                    } catch (err) {
+                      console.error("Failed to sync cart", err);
+                    }
+                  } else {
+                    toast.success("Added to cart");
+                  }
+                }}
+                className="hover:bg-gray-900 hover:text-white transition-colors"
+              >
+                Add to Cart
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>
