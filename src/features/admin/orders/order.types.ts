@@ -8,6 +8,10 @@ export interface Order {
     shippingFee: number;
     totalAmount: number;
     currency: string;
+    discountAmount?: number;
+    coupon?: {
+        code: string;
+    };
     paymentMethod: string;
     shippingMethod: string;
     createdAt: string;
