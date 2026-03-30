@@ -175,20 +175,26 @@ export default function ProductForm({
                               control={control}
                               rules={{ required: 'Category is required' }}
                               render={({ field }) => (
-                                <Select.Root
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  disabled={isLoadingCategories}
-                                >
-                                  <Select.Trigger placeholder="Select category" style={{ width: '100%' }} />
-                                  <Select.Content>
-                                    {categories.map((category) => (
-                                      <Select.Item key={category.id} value={category.id}>
-                                        {category.name}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select.Root>
+                                isLoadingCategories ? (
+                                  <Select.Root disabled>
+                                    <Select.Trigger placeholder="Loading categories..." style={{ width: '100%' }} />
+                                  </Select.Root>
+                                ) : (
+                                  <Select.Root
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    disabled={isLoadingCategories}
+                                  >
+                                    <Select.Trigger placeholder="Select category" style={{ width: '100%' }} />
+                                    <Select.Content>
+                                      {categories.map((category) => (
+                                        <Select.Item key={category.id} value={category.id}>
+                                          {category.name}
+                                        </Select.Item>
+                                      ))}
+                                    </Select.Content>
+                                  </Select.Root>
+                                )
                               )}
                             />
                           </Form.Control>
