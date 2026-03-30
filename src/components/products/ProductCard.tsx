@@ -13,6 +13,7 @@ import { Minus, Plus } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuthActions';
 import { MouseEvent } from 'react';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '@/utils/format';
 
 interface ProductCardProps {
   product: Product;
@@ -85,7 +86,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="flex items-center justify-between">
           <Text as="span" size="4" >
-            ${product.price}
+            {formatCurrency(product.price)}
           </Text>
           <div onClick={(e) => e.stopPropagation()}>
             {/* Check if product is in cart */}
