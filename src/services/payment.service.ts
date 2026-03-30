@@ -3,13 +3,12 @@ import apiClient from './apiClient';
 
 // ── Create Razorpay Order ─────────────────────────────────────────
 export const createPaymentOrderAPI = async (
-  orderId: string,
-  couponCode?: string
+  orderId: string
 ) => {
   const response = await apiClient.post('', {
     query: `
-      mutation CreatePaymentOrder($orderId: String!, $couponCode: String) {
-        createPaymentOrder(orderId: $orderId, couponCode: $couponCode) {
+      mutation CreatePaymentOrder($orderId: String!) {
+        createPaymentOrder(orderId: $orderId) {
           razorpayOrderId
           amount
           currency
@@ -17,7 +16,7 @@ export const createPaymentOrderAPI = async (
         }
       }
     `,
-    variables: { orderId, couponCode },
+    variables: { orderId },
   });
 
   const result = response.data?.data?.createPaymentOrder;

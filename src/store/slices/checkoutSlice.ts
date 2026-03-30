@@ -7,6 +7,7 @@ interface CheckoutState {
   totalAmount: number;
   couponCode: string | null;
   discountAmount: number;
+  originalSubtotal: number;
   couponStatus: 'idle' | 'loading' | 'success' | 'error';
   couponError: string | null;
 }
@@ -17,6 +18,7 @@ const initialState: CheckoutState = {
   totalAmount: 0,
   couponCode: null,
   discountAmount: 0,
+  originalSubtotal: 0,
   couponStatus: 'idle',
   couponError: null,
 };
@@ -27,6 +29,9 @@ const checkoutSlice = createSlice({
   reducers: {
     setSelectedAddressId: (state, action: PayloadAction<string | null>) => {
       state.selectedAddressId = action.payload;
+    },
+    setOriginalSubtotal: (state, action: PayloadAction<number>) => {
+      state.originalSubtotal = action.payload;
     },
     setCartTotals: (
       state,
@@ -62,6 +67,7 @@ const checkoutSlice = createSlice({
       state.totalAmount = 0;
       state.couponCode = null;
       state.discountAmount = 0;
+      state.originalSubtotal = 0;
       state.couponStatus = 'idle';
       state.couponError = null;
     },
@@ -75,6 +81,7 @@ export const {
   applyCouponError,
   clearCoupon,
   clearCheckoutState,
+  setOriginalSubtotal,
 } = checkoutSlice.actions;
 
 export default checkoutSlice.reducer;

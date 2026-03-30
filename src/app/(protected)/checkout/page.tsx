@@ -7,7 +7,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { addressAPI } from '@/services/address.service';
 import { orderAPI } from '@/services/orderAPI';
 import { Address } from '@/types/address';
-import { setSelectedAddressId } from '@/store/slices/checkoutSlice';
+import { setSelectedAddressId, setOriginalSubtotal } from '@/store/slices/checkoutSlice';
 import { clearCart } from '@/store/slices/cartSlice';
 import { AddressSelection } from '@/components/checkout/AddressSelection';
 import toast from 'react-hot-toast';
@@ -93,6 +93,7 @@ export default function CheckoutPage() {
 
       if (response.success) {
         await dispatch(fetchOrderDetails(response.order.id));
+        dispatch(setOriginalSubtotal(totalAmount));
         dispatch(clearCart());
         router.push('/checkout/Payment'); 
       } else {

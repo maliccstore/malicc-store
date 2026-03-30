@@ -18,6 +18,7 @@ import {
   clearCoupon,
 } from "../../store/slices/checkoutSlice";
 import { couponService } from "../../services/coupon.service";
+import { formatCurrency } from "@/utils/format";
 
 const CheckoutSummary = () => {
   const dispatch = useDispatch();
@@ -66,7 +67,7 @@ const CheckoutSummary = () => {
             discountAmount: response.discount ?? 0,
           })
         );
-        setSuccessMessage(`Coupon applied successfully! You saved $${(response.discount ?? 0).toFixed(2)}`);
+        setSuccessMessage(`Coupon applied successfully! You saved ${formatCurrency(response.discount ?? 0)}`);
       } else {
         dispatch(clearCoupon());
         setErrorMessage(response.message || "Invalid coupon code");
@@ -141,13 +142,13 @@ const CheckoutSummary = () => {
       <Flex direction="column" gap="3" pt="2">
         <Flex justify="between">
           <Text>Subtotal ({totalQuantity} items)</Text>
-          <Text>${safeTotal.toFixed(2)}</Text>
+          <Text>{formatCurrency(safeTotal)}</Text>
         </Flex>
 
         {safeDiscount > 0 && (
           <Flex justify="between">
             <Text>Discount</Text>
-            <Text color="green">-${safeDiscount.toFixed(2)}</Text>
+            <Text color="green">-{formatCurrency(safeDiscount)}</Text>
           </Flex>
         )}
 
@@ -160,7 +161,7 @@ const CheckoutSummary = () => {
 
         <Flex justify="between">
           <Text weight="medium">Total</Text>
-          <Text weight="medium">${finalTotal.toFixed(2)}</Text>
+          <Text weight="medium">{formatCurrency(finalTotal)}</Text>
         </Flex>
       </Flex>
     </Box>

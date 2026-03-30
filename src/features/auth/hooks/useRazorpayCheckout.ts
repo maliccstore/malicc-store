@@ -51,7 +51,6 @@ const loadRazorpayScript = (): Promise<boolean> =>
 
 interface CheckoutOptions {
   orderId: string;
-  couponCode?: string;
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
@@ -78,8 +77,7 @@ export const useRazorpayCheckout = () => {
 
       // Step 1 — create Razorpay order on backend
       const orderData = await createPaymentOrderAPI(
-        options.orderId,
-        options.couponCode
+        options.orderId
       );
 
       setLoading(false); // stop loading before modal opens

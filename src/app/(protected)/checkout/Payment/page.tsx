@@ -24,6 +24,7 @@ export default function PaymentPage() {
   const user = useAppSelector((state) => state.auth.user);
   const couponCode = useAppSelector((state) => state.checkout.couponCode);
   const discountAmount = useAppSelector((state) => state.checkout.discountAmount);
+  const originalSubtotal = useAppSelector((state) => state.checkout.originalSubtotal);
 
   // ── Local state ───────────────────────────────────────────────
   const [paymentError, setPaymentError] = useState<PaymentError>(null);
@@ -41,7 +42,6 @@ export default function PaymentPage() {
 
     await initiateCheckout({
       orderId: currentOrder.id,
-      couponCode: couponCode || undefined,
       customerName: user.username || "Customer",
       customerPhone: user.phoneNumber || "",
       customerEmail: user.email || "",
@@ -78,9 +78,11 @@ export default function PaymentPage() {
 
   if (!currentOrder) return null;
 
-  const subtotal = currentOrder.subtotal ?? currentOrder.totalAmount;
+  // Use persisted subtotal
+  const subtotal = originalSubtotal ?? currentOrder.totalAmount;
   const shippingFee = currentOrder.shippingFee ?? 0;
-  const finalAmount = currentOrder.totalAmount - (discountAmount ?? 0);
+  // finalAmount is already discounted in totalAmount from backend
+  const finalAmount = currentOrder.totalAmount;
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8">
