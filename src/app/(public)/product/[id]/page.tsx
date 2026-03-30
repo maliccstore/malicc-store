@@ -13,6 +13,8 @@ import ReviewForm from "@/components/products/ReviewForm";
 import ProductGallery from "@/components/products/ProductGallery";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { formatCurrency } from "@/utils/format";
+
 
 import { fetchProducts } from "@/store/slices/productSlice";
 import { addToCart, removeFromCart } from "@/store/slices/cartSlice";
@@ -62,6 +64,26 @@ const ProductPage = () => {
   const [loadingReviews, setLoadingReviews] = useState(true);
 
   const [purchasedOrderId, setPurchasedOrderId] = useState<string | null>(null);
+  const [categoryName, setCategoryName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!product?.category) return;
+
+    const fetchCategory = async () => {
+      try {
+        const { categoryService } = await import("@/services/category.service");
+        const categories = await categoryService.getAll();
+        const matchedCategory = categories.find((c) => String(c.id) === String(product.category));
+        if (matchedCategory) {
+          setCategoryName(matchedCategory.name);
+        }
+      } catch (error) {
+        console.error("Failed to fetch category names", error);
+      }
+    };
+
+    fetchCategory();
+  }, [product?.category]);
 
   const fetchReviewData = useCallback(async () => {
     if (!productId) return;
@@ -176,14 +198,38 @@ const ProductPage = () => {
 
       {/* Product Info */}
 
-      <div className="mb-6">
-        <div className="flex justify-between items-start">
-          <Heading size="4">{product.name}</Heading>
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col gap-2">
+          {categoryName && (
+            <div>
+              <span className="inline-block px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200 rounded-full">
+                {categoryName}
+              </span>
+            </div>
+          )}
 
-          {ratingSummary && <RatingSummary summary={ratingSummary} />}
+          <div className="flex justify-between items-start">
+            <Heading size="6">{product.name}</Heading>
+
+            {ratingSummary && <RatingSummary summary={ratingSummary} />}
+          </div>
         </div>
 
-        <Text size="2" color="gray">
+        <div className="flex items-center gap-4">
+          <Text size="6" weight="bold">
+            {formatCurrency(product.price)}
+          </Text>
+          <span
+            className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${product.inStock !== false
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+              }`}
+          >
+            {product.inStock !== false ? "In Stock" : "Out of Stock"}
+          </span>
+        </div>
+
+        <Text size="3" color="gray" className="block mt-4">
           {product.description}
         </Text>
       </div>
@@ -231,9 +277,10 @@ const ProductPage = () => {
         ) : (
           <Button
             onClick={handleAddToCart}
+            disabled={product.inStock === false}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors max-w-md w-full"
           >
-            Add to Cart
+            {product.inStock === false ? "Out of Stock" : "Add to Cart"}
           </Button>
         )}
       </div>
