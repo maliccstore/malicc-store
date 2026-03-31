@@ -70,6 +70,7 @@ export const productService = {
                 rating: '4', // Default rating as backend doesn't provide it yet [TODO]
                 category: item.category,
                 inStock: item.inventory?.isInStock ?? item.isActive, // Fallback to isActive if inventory is missing
+                isActive: item.isActive,
                 createdAt: item.createdAt,
             }));
         } catch (error) {

@@ -8,11 +8,13 @@ import { useState } from "react";
 interface ProductGalleryProps {
   images: string[];
   productName: string;
+  isUnavailable?: boolean;
 }
 
 export default function ProductGallery({
   images,
   productName,
+  isUnavailable = false,
 }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -44,8 +46,19 @@ export default function ProductGallery({
           alt={productName}
           width={400}
           height={300}
-          className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+          className={`w-full h-full object-contain transition-transform duration-300 hover:scale-105 ${
+            isUnavailable ? 'opacity-50 grayscale' : ''
+          }`}
         />
+
+        {/* Unavailable overlay badge */}
+        {isUnavailable && (
+          <div className="absolute inset-0 flex items-end justify-start p-3 pointer-events-none">
+            <span className="text-sm font-semibold tracking-wide uppercase bg-gray-700 text-white px-3 py-1 rounded shadow-lg">
+              Unavailable
+            </span>
+          </div>
+        )}
 
         {images.length > 1 && (
           <>
@@ -87,7 +100,9 @@ export default function ProductGallery({
                   alt={`${productName} thumbnail ${idx + 1}`}
                   width={80}
                   height={80}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${
+                    isUnavailable ? 'opacity-50 grayscale' : ''
+                  }`}
                 />
               </button>
             ))}

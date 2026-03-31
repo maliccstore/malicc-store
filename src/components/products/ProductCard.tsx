@@ -32,6 +32,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const cartItem = cartItems.find(item => String(item.id) === String(product.id));
 
+  // Derived availability flags
+  const isUnavailable = product.isActive === false;
+
   // Rating summary fetched from API
   const [ratingSummary, setRatingSummary] = useState<ProductRatingSummary | null>(null);
 
@@ -85,14 +88,22 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            className={`object-cover transition-transform duration-500 hover:scale-105 ${!product.inStock ? 'opacity-60' : ''
-              }`}
+            className={`object-cover transition-transform duration-500 hover:scale-105 ${
+              isUnavailable || !product.inStock ? 'opacity-50 grayscale' : ''
+            }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <ImageIcon className="text-gray-400" size={48} />
         )}
-        {!product.inStock && (
+        {isUnavailable && (
+          <div className="absolute inset-0 z-10 flex items-end justify-start p-2 pointer-events-none">
+            <span className="text-xs font-semibold tracking-wide uppercase bg-gray-600 text-white px-2 py-0.5 rounded-sm shadow">
+              Unavailable
+            </span>
+          </div>
+        )}
+        {!isUnavailable && !product.inStock && (
           <div className="absolute inset-0 z-10 flex items-end justify-start p-2 pointer-events-none">
             <span className="text-xs font-semibold tracking-wide uppercase bg-red-600 text-white px-2 py-0.5 rounded-sm shadow">
               Out of Stock
@@ -151,6 +162,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <Plus size={20} />
                 </Button>
               </div>
+            ) : isUnavailable ? (
+              <Button
+                disabled
+                className="opacity-50 cursor-not-allowed"
+                aria-disabled="true"
+              >
+                Unavailable
+              </Button>
             ) : product.inStock === false ? (
               <Button
                 disabled

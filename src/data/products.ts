@@ -11,6 +11,7 @@ const products: Product[] = [
     rating: '4',
     category: 'Electronics',
     inStock: true,
+    isActive: true,
     createdAt: '2023-01-01',
   },
   {
@@ -23,6 +24,7 @@ const products: Product[] = [
     rating: '4',
     category: 'Fitness',
     inStock: true,
+    isActive: true,
     createdAt: '2023-02-15',
   },
   {
@@ -35,6 +37,7 @@ const products: Product[] = [
     rating: '4',
     category: 'Electronics',
     inStock: false,
+    isActive: true,
     createdAt: '2023-03-10',
   },
   {
@@ -47,6 +50,7 @@ const products: Product[] = [
     rating: '4',
     category: 'Home',
     inStock: true,
+    isActive: true,
     createdAt: '2023-04-05',
   },
   {
@@ -59,6 +63,7 @@ const products: Product[] = [
     rating: '4',
     category: 'Electronics',
     inStock: true,
+    isActive: true,
     createdAt: '2023-05-20',
   },
 ];
