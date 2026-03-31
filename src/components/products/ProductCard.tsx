@@ -1,8 +1,10 @@
 'use client';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { Product } from '@/types/product';
+import { ProductRatingSummary } from '@/types/review';
 import { Heading, Text, Card } from '@radix-ui/themes';
 import { Heart, Image as ImageIcon } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +16,8 @@ import { useAuth } from '@/features/auth/hooks/useAuthActions';
 import { MouseEvent } from 'react';
 import toast from 'react-hot-toast';
 import { formatCurrency } from '@/utils/format';
+import StarRating from './StarRating';
+import { productService } from '@/services/product.service';
 
 interface ProductCardProps {
   product: Product;
@@ -27,6 +31,19 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isInWishlist = wishlistItems.some((item) => item.id === product.id);
 
   const cartItem = cartItems.find(item => String(item.id) === String(product.id));
+
+  // Rating summary fetched from API
+  const [ratingSummary, setRatingSummary] = useState<ProductRatingSummary | null>(null);
+
+  useEffect(() => {
+    productService
+      .getProductRatingSummary(String(product.id))
+      .then(setRatingSummary)
+      .catch(() => {
+        // silently ignore — card still renders without rating
+      });
+  }, [product.id]);
+
   const handleClick = () => {
     router.push(`/product/${product.id}`);
   };
@@ -68,18 +85,38 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 hover:scale-105"
+            className={`object-cover transition-transform duration-500 hover:scale-105 ${!product.inStock ? 'opacity-60' : ''
+              }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <ImageIcon className="text-gray-400" size={48} />
         )}
+        {!product.inStock && (
+          <div className="absolute inset-0 z-10 flex items-end justify-start p-2 pointer-events-none">
+            <span className="text-xs font-semibold tracking-wide uppercase bg-red-600 text-white px-2 py-0.5 rounded-sm shadow">
+              Out of Stock
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-4 space-y-3">
         <div>
-          <Heading as="h3" size="4" className="font-bold line-clamp-1">
-            {product.name}
-          </Heading>
+          <div className='flex justify-between'>
+            <Heading as="h3" size="4" className="font-bold line-clamp-1">
+              {product.name}
+            </Heading>
+            {/* rating */}
+            {ratingSummary && (
+              <div className="flex items-center gap-1.5">
+                <StarRating rating={ratingSummary.averageRating ?? 0} size={10} />
+                <Text size="1" color="gray">
+                  {ratingSummary.totalReviews}
+                </Text>
+              </div>
+            )}
+          </div>
+
           <Text as="p" size="2" color="gray">
             {product.description}
           </Text>
@@ -114,6 +151,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <Plus size={20} />
                 </Button>
               </div>
+            ) : product.inStock === false ? (
+              <Button
+                disabled
+                className="opacity-50 cursor-not-allowed"
+                aria-disabled="true"
+              >
+                Out of Stock
+              </Button>
             ) : (
               <Button
                 onClick={async (e) => {
