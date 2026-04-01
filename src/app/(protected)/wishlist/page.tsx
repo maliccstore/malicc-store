@@ -10,6 +10,7 @@ import { removeFromWishlist } from "@/store/slices/wishlistSlice";
 import { addToCart } from "@/store/slices/cartSlice";
 import { Product } from "@/types/product";
 import Image from "next/image";
+import { formatCurrency } from "@/utils/format";
 
 export default function WishlistPage() {
     const dispatch = useDispatch();
@@ -76,7 +77,7 @@ export default function WishlistPage() {
                                 </Text>
 
                                 <Text size="2" weight="bold" mt="1">
-                                    ${item.price}
+                                    {formatCurrency(item.price)}
                                 </Text>
 
                                 <Button
