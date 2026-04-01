@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrderDetails, clearCurrentOrder } from '@/store/slices/orderSlice';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
+import { formatCurrency } from '@/utils/format';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const wrappedParams = use(params);
@@ -77,8 +79,21 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             <Flex direction="column" gap="6">
                                 {order.items.map((item) => (
                                     <Flex key={item.id} direction={{ initial: 'column', sm: 'row' }} gap="4">
-                                        <Flex align="center" justify="center" className="h-20 w-20 rounded-lg flex-shrink-0 self-center sm:self-start">
-                                            <Package size={32} />
+                                        <Flex align="center" justify="center" className="h-20 w-20 rounded-lg flex-shrink-0 self-center sm:self-start relative">
+                                            {item.productImage ? (
+                                                <Image
+                                                    src={item.productImage}
+                                                    alt={item.productName}
+                                                    width={100}
+                                                    height={100}
+                                                    className="h-full w-full object-cover rounded-lg"
+                                                />
+                                            ) : (
+                                                <Package size={32} />
+                                            )}
+                                            <span className="absolute bottom-0 right-0 bg-black text-white text-xs px-2 py-1 rounded">
+                                                x{item.quantity}
+                                            </span>
                                         </Flex>
                                         <Box className="flex-1 w-full">
                                             <Flex direction={{ initial: "column", sm: "row" }} justify="between" align={{ initial: "stretch", sm: "start" }} gap="2">
@@ -86,13 +101,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                                                     <Text weight="medium" className="block text-lg mb-1">{item.productName}</Text>
                                                     <Text size="2" color="gray" className="block break-all">Product ID: {item.productId}</Text>
                                                 </Box>
-                                                <Text weight="bold" size="4" className="self-end sm:self-auto">${item.totalPrice}</Text>
+                                                <Text weight="bold" size="4" className="self-end sm:self-auto">{formatCurrency(item.totalPrice)}</Text>
                                             </Flex>
                                             <Flex align="center" justify={{ initial: "between", sm: "start" }} gap={{ initial: "0", sm: "4" }}>
                                                 <Flex gap="4">
                                                     <Text>Qty: {item.quantity}</Text>
                                                     <Text>×</Text>
-                                                    <Text>${item.unitPrice}</Text>
+                                                    <Text>{formatCurrency(item.unitPrice)}</Text>
                                                 </Flex>
                                             </Flex>
                                         </Box>
@@ -110,20 +125,20 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         <Flex direction="column" gap="3" className="text-sm">
                             <Flex justify="between">
                                 <Text>Subtotal</Text>
-                                <Text>${order.subtotal}</Text>
+                                <Text>{formatCurrency(order.subtotal)}</Text>
                             </Flex>
                             <Flex justify="between">
                                 <Text>Shipping</Text>
-                                <Text>${order.shippingFee}</Text>
+                                <Text>{formatCurrency(order.shippingFee)}</Text>
                             </Flex>
                             <Flex justify="between">
                                 <Text>Tax</Text>
-                                <Text>${order.tax}</Text>
+                                <Text>{formatCurrency(order.tax)}</Text>
                             </Flex>
                             <Separator />
                             <Flex justify="between">
                                 <Text>Total</Text>
-                                <Text>${order.totalAmount}</Text>
+                                <Text>{formatCurrency(order.totalAmount)}</Text>
                             </Flex>
                         </Flex>
                     </Card>

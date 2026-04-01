@@ -95,6 +95,7 @@ export const orderAPI = {
             items {
               id
               productName
+              productImage
               productId
               quantity
               unitPrice
