@@ -10,6 +10,7 @@ export type Product = {
   rating: Rating;
   category: string;
   inStock: boolean;
+  availableQuantity: number;
   isActive: boolean;
   createdAt: string;
 };

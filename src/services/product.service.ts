@@ -21,6 +21,7 @@ export const productService = {
               imageUrl
               inventory {
                 isInStock
+                availableQuantity
               }
               isActive
               createdAt
@@ -55,6 +56,7 @@ export const productService = {
                 category: string;
                 inventory?: {
                     isInStock: boolean;
+                    availableQuantity: number;
                 };
                 isActive: boolean;
                 createdAt: string;
@@ -70,6 +72,7 @@ export const productService = {
                 rating: '4', // Default rating as backend doesn't provide it yet [TODO]
                 category: item.category,
                 inStock: item.inventory?.isInStock ?? item.isActive, // Fallback to isActive if inventory is missing
+                availableQuantity: item.inventory?.availableQuantity ?? 0,
                 isActive: item.isActive,
                 createdAt: item.createdAt,
             }));

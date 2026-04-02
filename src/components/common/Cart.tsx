@@ -1,25 +1,20 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Cross2Icon } from '@radix-ui/react-icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store';
 import {
-  removeFromCart,
-  removeItemCompletely,
-  clearCart,
   setCartOpen,
-  addToCart,
+  updateCartItemThunk,
+  clearCartThunk,
 } from '../../store/slices/cartSlice';
 import { Button } from '../ui/Button';
 import Image from 'next/image';
-import { useAuth } from '@/features/auth/hooks/useAuthActions';
-import { cartAPI } from '@/services/cart.service';
 
 const Cart = () => {
-  const dispatch = useDispatch();
-  const { items, totalQuantity, totalAmount, isCartOpen } = useSelector(
+  const dispatch = useAppDispatch();
+  const { items, totalQuantity, totalAmount, isCartOpen } = useAppSelector(
     (state: RootState) => state.cart
   );
-  const { isAuthenticated } = useAuth();
 
   return (
     <Dialog.Root
@@ -64,15 +59,11 @@ const Cart = () => {
                       <p className="text-gray-600">${item.price.toFixed(2)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={async () => {
-                            dispatch(removeFromCart(item.id));
-                            if (isAuthenticated) {
-                              try {
-                                await cartAPI.updateCartItem(String(item.id), item.quantity - 1);
-                              } catch (err) {
-                                console.error("Failed to sync decrease", err);
-                              }
-                            }
+                          onClick={() => {
+                            dispatch(updateCartItemThunk({
+                              productId: String(item.id),
+                              newQuantity: item.quantity - 1
+                            }));
                           }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
@@ -80,15 +71,11 @@ const Cart = () => {
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={async () => {
-                            dispatch(addToCart(item));
-                            if (isAuthenticated) {
-                              try {
-                                await cartAPI.addToCart(String(item.id), 1);
-                              } catch (err) {
-                                console.error("Failed to sync increase", err);
-                              }
-                            }
+                          onClick={() => {
+                            dispatch(updateCartItemThunk({
+                              productId: String(item.id),
+                              newQuantity: item.quantity + 1
+                            }));
                           }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
@@ -97,15 +84,11 @@ const Cart = () => {
                       </div>
                     </div>
                     <button
-                      onClick={async () => {
-                        dispatch(removeItemCompletely(item.id));
-                        if (isAuthenticated) {
-                          try {
-                            await cartAPI.removeFromCart(String(item.id));
-                          } catch (err) {
-                            console.error("Failed to sync remove", err);
-                          }
-                        }
+                      onClick={() => {
+                        dispatch(updateCartItemThunk({
+                          productId: String(item.id),
+                          newQuantity: 0
+                        }));
                       }}
                       className="text-gray-500 hover:text-red-500"
                     >
@@ -133,15 +116,8 @@ const Cart = () => {
                 Proceed to Checkout
               </Button>
               <button
-                onClick={async () => {
-                  dispatch(clearCart());
-                  if (isAuthenticated) {
-                    try {
-                      await cartAPI.clearCart();
-                    } catch (err) {
-                      console.error("Failed to sync clear", err);
-                    }
-                  }
+                onClick={() => {
+                  dispatch(clearCartThunk());
                 }}
                 className="w-full mt-2 text-sm text-gray-500 hover:text-gray-700"
               >

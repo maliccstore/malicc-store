@@ -1,23 +1,31 @@
-import { useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
-  addToCart,
-  removeFromCart,
   removeItemCompletely,
-} from '../../store/slices/cartSlice';
-import { RootState } from '../../store';
-import { useSelector } from 'react-redux';
-import Image from 'next/image';
-import { Image as ImageIcon } from 'lucide-react';
+  updateCartItemThunk,
+  CartItem,
+} from "../../store/slices/cartSlice";
+import { RootState } from "../../store";
+import Image from "next/image";
+import { Image as ImageIcon } from "lucide-react";
 
 const CartItems = () => {
-  const dispatch = useDispatch();
-  const { items } = useSelector((state: RootState) => state.cart);
+  const dispatch = useAppDispatch();
+  const { items } = useAppSelector((state: RootState) => state.cart);
+
+  const handleUpdateQuantity = async (item: CartItem, newQuantity: number) => {
+    dispatch(
+      updateCartItemThunk({
+        productId: String(item.id),
+        newQuantity,
+      }),
+    );
+  };
 
   return (
-    <div className=" rounded-lg shadow p-6">
+    <div className="rounded-lg shadow p-6">
       <h2 className="text-lg font-semibold mb-4">Items in your cart</h2>
 
-      <ul className="divide-y ">
+      <ul className="divide-y">
         {items.map((item) => (
           <li key={item.id} className="py-4 flex">
             <div className="flex-shrink-0 w-24 h-24 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -41,22 +49,35 @@ const CartItems = () => {
               </div>
 
               <div className="flex-1 flex items-end justify-between">
+                {/* Quantity controls */}
                 <div className="flex items-center border rounded-md overflow-hidden">
                   <button
-                    onClick={() => dispatch(removeFromCart(item.id))}
-                    className="px-3 py-1 "
+                    onClick={() =>
+                      handleUpdateQuantity(item, item.quantity - 1)
+                    }
+                    className="px-3 py-1"
                   >
                     -
                   </button>
+
                   <span className="px-3">{item.quantity}</span>
+
                   <button
-                    onClick={() => dispatch(addToCart(item))}
-                    className="px-3 py-1"
+                    onClick={() =>
+                      handleUpdateQuantity(item, item.quantity + 1)
+                    }
+                    disabled={
+                      item.availableQuantity !== undefined &&
+                      item.availableQuantity !== null &&
+                      item.quantity >= item.availableQuantity
+                    }
+                    className="px-3 py-1 disabled:opacity-50"
                   >
                     +
                   </button>
                 </div>
 
+                {/* Remove */}
                 <button
                   onClick={() => dispatch(removeItemCompletely(item.id))}
                   className="text-gray-500 border border-gray-300 px-3 py-1 rounded hover:text-red-500 hover:bg-red-50 transition-colors"
