@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { adminCategoryAPI } from '@/services/admin/category.admin';
 import { CategoryFormValues } from '@/features/admin/categories/category.types';
 import CategoryForm from '@/components/admin/categories/CategoryForm';
+import toast from 'react-hot-toast';
 
 export default function NewCategoryPage() {
     const router = useRouter();
@@ -18,9 +19,10 @@ export default function NewCategoryPage() {
             setIsSubmitting(true);
             await adminCategoryAPI.create(data);
             router.push('/admin/catalog/categories');
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to create category:', error);
-            alert('Failed to create category');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to create category';
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

@@ -11,6 +11,7 @@ import { PlusIcon } from '@radix-ui/react-icons';
 import { adminCategoryAPI } from '@/services/admin/category.admin';
 import { AdminCategory } from '@/features/admin/categories/category.types';
 import { CategoryTable } from '@/components/admin/categories/CategoryTable';
+import toast from 'react-hot-toast';
 
 export default function CategoriesPage() {
     const [categories, setCategories] = useState<AdminCategory[]>([]);
@@ -22,8 +23,10 @@ export default function CategoriesPage() {
             setLoading(true);
             const { data } = await adminCategoryAPI.getAll();
             setCategories(data);
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to fetch categories:', error);
+            const errorMessage = (error as { message?: string })?.message || 'Failed to fetch categories';
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -40,8 +43,9 @@ export default function CategoriesPage() {
             await adminCategoryAPI.delete(id);
             // Refresh list
             fetchCategories();
-        } catch (error) {
-            alert('Failed to delete category');
+        } catch (error: unknown) {
+            const errorMessage = (error as { message?: string })?.message || 'Failed to delete category';
+            toast.error(errorMessage);
             console.error(error);
         }
     };

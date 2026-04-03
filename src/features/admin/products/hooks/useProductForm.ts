@@ -25,9 +25,10 @@ export function useProductForm(product?: AdminProduct) {
                 setIsLoadingCategories(true);
                 const response = await adminCategoryAPI.getAll({ isActive: true });
                 setCategories(response.data);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Failed to fetch categories:', error);
-                toast.error('Failed to load categories');
+                const errorMessage = (error as { message?: string })?.message || 'Failed to load categories';
+                toast.error(errorMessage);
             } finally {
                 setIsLoadingCategories(false);
             }
@@ -85,9 +86,10 @@ export function useProductForm(product?: AdminProduct) {
             }
             router.push('/admin/catalog/products');
             router.refresh();
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to save product:', error);
-            toast.error('Failed to save product. Please try again.');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to save product. Please try again.';
+            toast.error(errorMessage);
         }
     };
 
@@ -100,9 +102,10 @@ export function useProductForm(product?: AdminProduct) {
             toast.success('Product deleted successfully');
             router.push('/admin/catalog/products');
             router.refresh();
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to delete product:', error);
-            toast.error('Failed to delete product');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to delete product';
+            toast.error(errorMessage);
         }
     };
 
