@@ -19,10 +19,15 @@ import {
 } from "../../store/slices/checkoutSlice";
 import { couponService } from "../../services/coupon.service";
 import { formatCurrency } from "@/utils/format";
+import { useAppSelector } from "@/store/hooks";
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants";
 
 const CheckoutSummary = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const user = useAppSelector((state) => state.auth.user);
 
   // Cart totals live in state.cart — always accurate
   const { totalQuantity, totalAmount } = useSelector(
@@ -68,9 +73,28 @@ const CheckoutSummary = () => {
           })
         );
         setSuccessMessage(`Coupon applied successfully! You saved ${formatCurrency(response.discount ?? 0)}`);
+        trackEvent({
+          event: ANALYTICS_EVENTS.COUPON_APPLIED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            couponCode: couponCode.trim(),
+            discountAmount: response.discount ?? 0,
+            cartTotal: safeTotal,
+          },
+        });
       } else {
         dispatch(clearCoupon());
         setErrorMessage(response.message || "Invalid coupon code");
+        trackEvent({
+          event: ANALYTICS_EVENTS.COUPON_FAILED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            couponCode: couponCode.trim(),
+            reason: response.message || "Invalid coupon code",
+          },
+        });
       }
     } catch (error: unknown) {
       dispatch(clearCoupon());
@@ -88,8 +112,26 @@ const CheckoutSummary = () => {
           return;
         }
         setErrorMessage(error.message);
+        trackEvent({
+          event: ANALYTICS_EVENTS.COUPON_FAILED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            couponCode: couponCode.trim(),
+            reason: error.message,
+          },
+        });
       } else {
         setErrorMessage("Failed to apply coupon");
+        trackEvent({
+          event: ANALYTICS_EVENTS.COUPON_FAILED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            couponCode: couponCode.trim(),
+            reason: "Unknown error",
+          },
+        });
       }
     } finally {
       if (!isAuthError) {
