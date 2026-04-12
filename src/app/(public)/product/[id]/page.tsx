@@ -28,6 +28,10 @@ import { useAuth } from "@/features/auth/hooks/useAuthActions";
 
 import { Button } from "@/components/ui/Button";
 
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants";
+
 type OrderItem = {
   productId: string;
 };
@@ -65,6 +69,22 @@ const ProductPage = () => {
 
   const [purchasedOrderId, setPurchasedOrderId] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(null);
+
+
+useEffect(() => {
+  if (!product?.id) return;
+
+  trackEvent({
+    event: ANALYTICS_EVENTS.PRODUCT_VIEW,
+    sessionId: getSessionId(),
+    userId: user?.id,
+    metadata: {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+    },
+  });
+}, [product?.id, product?.name, product?.price, user?.id]);
 
   useEffect(() => {
     if (!product?.category) return;
@@ -144,6 +164,17 @@ const ProductPage = () => {
 
   const handleAddToCart = async () => {
     if (!product) return;
+
+    // Analytics
+    trackEvent({
+      event: ANALYTICS_EVENTS.ADD_TO_CART,
+      sessionId: getSessionId(),
+      userId: user?.id,
+      metadata: {
+        productId: product.id,
+        quantity: 1,
+      },
+    });
 
     // Optimistic Redux update
     dispatch(addToCart(product));

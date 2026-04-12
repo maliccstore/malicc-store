@@ -3,7 +3,7 @@ import type { TrackEventInput } from "../../types/analytics";
 
 export const trackEvent = async (input: TrackEventInput) => {
   try {
-    const response = await apiClient.post("/graphql", {
+    const response = await apiClient.post("", {
       query: `
         mutation TrackEvent($input: TrackEventInput!) {
           trackEvent(input: $input)
