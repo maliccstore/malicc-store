@@ -10,6 +10,9 @@ import { Address } from '@/types/address';
 import { setSelectedAddressId, setOriginalSubtotal } from '@/store/slices/checkoutSlice';
 import { clearCart } from '@/store/slices/cartSlice';
 import { AddressSelection } from '@/components/checkout/AddressSelection';
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants";
 import toast from 'react-hot-toast';
 import { Card, Heading, Text, Badge } from '@radix-ui/themes';
 import { MapPin, Truck, CreditCard } from 'lucide-react';
@@ -22,6 +25,7 @@ export default function CheckoutPage() {
   const cartItems = useAppSelector((state) => state.cart.items);
   const totalAmount = useAppSelector((state) => state.cart.totalAmount);
   const { selectedAddressId, couponCode, discountAmount } = useAppSelector((state) => state.checkout);
+  const user = useAppSelector((state) => state.auth.user);
 
   const safeTotal = totalAmount ?? 0;
   const safeDiscount = discountAmount ?? 0;
@@ -80,6 +84,21 @@ export default function CheckoutPage() {
     fetchAddresses();
   }, [dispatch, router, selectedAddressId]); // selectedAddressId added to satisfy eslint, hasFetched ref prevents re-run
 
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      trackEvent({
+        event: ANALYTICS_EVENTS.CHECKOUT_STARTED,
+        sessionId: getSessionId(),
+        userId: user?.id,
+        metadata: {
+          totalAmount: finalTotal,
+          cartItemsCount: cartItems.length,
+          couponCode: couponCode || undefined,
+        },
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handlePlaceOrder = async () => {
     if (!selectedAddressId) {
       toast.error("Please select a delivery address");
@@ -95,7 +114,17 @@ export default function CheckoutPage() {
         await dispatch(fetchOrderDetails(response.order.id));
         dispatch(setOriginalSubtotal(totalAmount));
         dispatch(clearCart());
-        router.push('/checkout/Payment'); 
+        trackEvent({
+          event: ANALYTICS_EVENTS.PAYMENT_INITIATED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            orderId: response.order.id,
+            amount: finalTotal,
+            couponCode: couponCode || undefined,
+          },
+        });
+        router.push('/checkout/Payment');
       } else {
         toast.error(response.message || "Failed to place order");
       }

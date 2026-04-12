@@ -5,6 +5,10 @@ import {
   verifyPaymentAPI,
   reportPaymentFailureAPI,
 } from '@/services/payment.service';
+import { useAppSelector } from '@/store/hooks';
+import { trackEvent } from '@/services/analytics/analytics.service';
+import { getSessionId } from '@/services/analytics/session';
+import { ANALYTICS_EVENTS } from '@/constants';
 
 interface RazorpayOptions {
   key: string;
@@ -62,6 +66,7 @@ interface CheckoutOptions {
 
 export const useRazorpayCheckout = () => {
   const [loading, setLoading] = useState(false);
+  const user = useAppSelector((state) => state.auth.user);
 
   const initiateCheckout = useCallback(async (options: CheckoutOptions) => {
     setLoading(true);
@@ -116,15 +121,43 @@ export const useRazorpayCheckout = () => {
             });
 
             if (result.success) {
+              trackEvent({
+                event: ANALYTICS_EVENTS.PAYMENT_SUCCESS,
+                sessionId: getSessionId(),
+                userId: user?.id,
+                metadata: {
+                  orderId: options.orderId,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                },
+              });
               options.onSuccess(options.orderId);
             } else {
               options.onFailure(
                 'Payment verification failed. Contact support.'
               );
+              trackEvent({
+                event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+                sessionId: getSessionId(),
+                userId: user?.id,
+                metadata: {
+                  orderId: options.orderId,
+                  reason: 'Payment verification failed',
+                },
+              });
             }
           } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Verification error. Contact support.';
             options.onFailure(errorMessage);
+            trackEvent({
+              event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+              sessionId: getSessionId(),
+              userId: user?.id,
+              metadata: {
+                orderId: options.orderId,
+                reason: errorMessage,
+              },
+            });
           } finally {
             setLoading(false);
           }
@@ -141,6 +174,15 @@ export const useRazorpayCheckout = () => {
             }).catch(console.error);
 
             options.onFailure('cancelled');
+            trackEvent({
+              event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+              sessionId: getSessionId(),
+              userId: user?.id,
+              metadata: {
+                orderId: options.orderId,
+                reason: 'User closed the payment modal',
+              },
+            });
           },
         },
       });
@@ -154,6 +196,15 @@ export const useRazorpayCheckout = () => {
         }).catch(console.error);
         
         options.onFailure(response.error?.description || 'Payment failed');
+        trackEvent({
+          event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+          sessionId: getSessionId(),
+          userId: user?.id,
+          metadata: {
+            orderId: options.orderId,
+            reason: response.error?.description || 'Bank decline or payment failed',
+          },
+        });
       });
 
       rzp.open();
@@ -162,7 +213,7 @@ export const useRazorpayCheckout = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to initiate payment.';
       options.onFailure(errorMessage);
     }
-  }, []);
+  }, [user]);
 
   return { initiateCheckout, loading };
 };
