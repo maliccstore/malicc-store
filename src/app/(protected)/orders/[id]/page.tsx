@@ -1,17 +1,20 @@
 'use client';
 
 import { useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
 import { Heading, Text, Card, Badge, Separator, Box, Flex, Button } from '@radix-ui/themes';
-import { Package, MapPin, AlertCircle, ChevronLeft, CreditCard, Truck, Calendar, Copy } from 'lucide-react';
+import { Package, MapPin, AlertCircle, ChevronLeft, CreditCard, Truck, Calendar, Copy, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrderDetails, clearCurrentOrder } from '@/store/slices/orderSlice';
+import { setOriginalSubtotal } from '@/store/slices/checkoutSlice';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { formatCurrency } from '@/utils/format';
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const wrappedParams = use(params);
+    const router = useRouter();
     const dispatch = useAppDispatch();
     const { currentOrder: order, loading, error } = useAppSelector((state) => state.orders);
 
@@ -71,9 +74,26 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     <Card className="p-0 overflow-hidden border-0 shadow-sm ring-1 ring-gray-200">
                         <Flex justify="between" align="center" className="px-6 py-4 border-b border-gray-100">
                             <Heading size="4">Order Items</Heading>
-                            <Badge color={getStatusColor(order.status)} size="1" variant="solid" radius="full" className="px-3">
-                                {order.status}
-                            </Badge>
+                            <Flex align="center" gap="3">
+                                {order.status === 'FAILED' && (
+                                    <Button 
+                                        size="1" 
+                                        variant="soft" 
+                                        color="red"
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                            dispatch(setOriginalSubtotal(order.totalAmount));
+                                            router.push('/checkout/Payment');
+                                        }}
+                                    >
+                                        <RefreshCw size={12} />
+                                        Retry Payment
+                                    </Button>
+                                )}
+                                <Badge color={getStatusColor(order.status)} size="1" variant="solid" radius="full" className="px-3">
+                                    {order.status}
+                                </Badge>
+                            </Flex>
                         </Flex>
                         <Box className="p-6">
                             <Flex direction="column" gap="6">
@@ -137,9 +157,25 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                             </Flex>
                             <Separator />
                             <Flex justify="between">
-                                <Text>Total</Text>
-                                <Text>{formatCurrency(order.totalAmount)}</Text>
+                                <Text weight="bold">Total</Text>
+                                <Text weight="bold">{formatCurrency(order.totalAmount)}</Text>
                             </Flex>
+                            {order.status === 'FAILED' && (
+                                <Button 
+                                    mt="2"
+                                    size="2" 
+                                    variant="solid" 
+                                    color="red"
+                                    className="w-full cursor-pointer"
+                                    onClick={() => {
+                                        dispatch(setOriginalSubtotal(order.totalAmount));
+                                        router.push('/checkout/Payment');
+                                    }}
+                                >
+                                    <RefreshCw size={14} />
+                                    Retry Payment
+                                </Button>
+                            )}
                         </Flex>
                     </Card>
 

@@ -58,3 +58,35 @@ export const verifyPaymentAPI = async (params: {
   if (!result) throw new Error('Failed to verify payment');
   return result;
 };
+
+// ── Report Payment Failure ─────────────────────────────────────────
+export const reportPaymentFailureAPI = async (params: {
+  orderId: string;
+  razorpayOrderId?: string;
+  reason?: string;
+}) => {
+  const response = await apiClient.post('', {
+    query: `
+      mutation ReportPaymentFailure(
+        $orderId: String!
+        $razorpayOrderId: String
+        $reason: String
+      ) {
+        reportPaymentFailure(
+          orderId: $orderId
+          razorpayOrderId: $razorpayOrderId
+          reason: $reason
+        ) {
+          success
+          orderId
+          message
+        }
+      }
+    `,
+    variables: params,
+  });
+
+  const result = response.data?.data?.reportPaymentFailure;
+  if (!result) throw new Error('Failed to report payment failure');
+  return result;
+};

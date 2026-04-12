@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import {
   createPaymentOrderAPI,
   verifyPaymentAPI,
+  reportPaymentFailureAPI,
 } from '@/services/payment.service';
 
 interface RazorpayOptions {
@@ -31,6 +32,7 @@ interface RazorpayOptions {
 
 interface RazorpayInstance {
   open: () => void;
+  on: (event: string, handler: (response: { error?: { description: string } }) => void) => void;
 }
 
 declare global {
@@ -131,9 +133,27 @@ export const useRazorpayCheckout = () => {
         modal: {
           ondismiss: () => {
             setLoading(false);
+            // Report cancellation to backend to restore inventory
+            reportPaymentFailureAPI({
+              orderId: options.orderId,
+              razorpayOrderId: orderData.razorpayOrderId,
+              reason: 'User closed the payment modal',
+            }).catch(console.error);
+
             options.onFailure('cancelled');
           },
         },
+      });
+
+      // Handle bank decline / payment failures within the modal
+      rzp.on('payment.failed', (response: { error?: { description: string } }) => {
+        reportPaymentFailureAPI({
+          orderId: options.orderId,
+          razorpayOrderId: orderData.razorpayOrderId,
+          reason: response.error?.description || 'Bank decline or payment failed',
+        }).catch(console.error);
+        
+        options.onFailure(response.error?.description || 'Payment failed');
       });
 
       rzp.open();

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { useRazorpayCheckout } from "@/features/auth/hooks/useRazorpayCheckout";
 import { clearCheckoutState } from "@/store/slices/checkoutSlice";
+import { fetchOrderDetails } from "@/store/slices/orderSlice";
 import { Card, Heading, Text, Callout } from "@radix-ui/themes";
 import { ShieldCheck, CreditCard, Lock, AlertCircle, Info, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +22,7 @@ export default function PaymentPage() {
 
   // ── Redux state ───────────────────────────────────────────────
   const currentOrder = useAppSelector((state) => state.orders.currentOrder);
+  const ordersLoading = useAppSelector((state) => state.orders.loading);
   const user = useAppSelector((state) => state.auth.user);
   const couponCode = useAppSelector((state) => state.checkout.couponCode);
   const discountAmount = useAppSelector((state) => state.checkout.discountAmount);
@@ -31,9 +33,28 @@ export default function PaymentPage() {
 
   useEffect(() => {
     if (!currentOrder?.id) {
-      router.replace("/checkout");
+      // Only redirect if we're not currently loading an order
+      if (!ordersLoading) {
+        router.replace("/checkout");
+      }
+    } else {
+      // Refresh order details on mount to get latest status (if not already loading)
+      if (!ordersLoading) {
+        dispatch(fetchOrderDetails(currentOrder.id));
+      }
     }
-  }, [currentOrder, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrder?.id, router, dispatch]);
+
+  // Set initial error if order is already failed
+  useEffect(() => {
+    if (currentOrder?.status === "FAILED" && !paymentError) {
+      setPaymentError({
+        type: "failed",
+        message: "This order previously failed or was cancelled. You can retry the payment below.",
+      });
+    }
+  }, [currentOrder?.status, paymentError]);
 
   const handlePayment = async () => {
     if (!currentOrder?.id || !user) return;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Heading,
   Text,
@@ -10,13 +11,15 @@ import {
   Box,
   Flex,
 } from "@radix-ui/themes";
-import { Package, AlertCircle } from "lucide-react";
+import { Package, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchMyOrders } from "@/store/slices/orderSlice";
+import { fetchMyOrders, fetchOrderDetails } from "@/store/slices/orderSlice";
+import { setOriginalSubtotal } from "@/store/slices/checkoutSlice";
 import { formatCurrency } from "@/utils/format";
 
 export default function OrdersPage() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { orders, loading, error } = useAppSelector((state) => state.orders);
 
@@ -84,8 +87,9 @@ export default function OrdersPage() {
                 <Flex
                   direction={{ initial: "column", sm: "row" }}
                   justify="between"
+                  align="center"
                   gap="4"
-                  className="p-2 sm:p-4"
+                  className="p-3 sm:p-4"
                 >
                   <Flex direction="column" gap="1" className="w-full sm:w-auto">
                     <Text size="2">
@@ -114,21 +118,42 @@ export default function OrdersPage() {
                     gap={{ initial: "2", sm: "4" }}
                     className="w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100"
                   >
-                    <Badge
-                      color={getStatusColor(order.status)}
-                      size="1"
-                      variant="solid"
-                      radius="full"
-                    >
-                      {order.status}
-                    </Badge>
-                    <Text size="2" color="gray" className="text-right">
-                      {new Date(order.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "2-digit",
-                      })}
-                    </Text>
+                    <Flex direction="column" align="end" gap="2">
+                      <Badge
+                        color={getStatusColor(order.status)}
+                        size="1"
+                        variant="solid"
+                        radius="full"
+                      >
+                        {order.status}
+                      </Badge>
+                      <Text size="1" color="gray" className="text-right">
+                        {new Date(order.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "2-digit",
+                        })}
+                      </Text>
+                    </Flex>
+                    
+                    {order.status === "FAILED" && (
+                      <Button 
+                        size="2" 
+                        variant="soft" 
+                        color="red"
+                        className="cursor-pointer"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          await dispatch(fetchOrderDetails(order.id));
+                          dispatch(setOriginalSubtotal(order.totalAmount));
+                          router.push('/checkout/Payment');
+                        }}
+                      >
+                        <RefreshCw size={14} />
+                        Retry Payment
+                      </Button>
+                    )}
                   </Flex>
                 </Flex>
               </Card>
