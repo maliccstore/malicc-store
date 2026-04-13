@@ -7,6 +7,8 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { verifyOTPThunk } from "@/store/slices/authSlice";
+import { identifyEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
 
 interface VerifyOTPFormData {
     otp: string;
@@ -37,6 +39,10 @@ export default function VerifyOTPForm() {
         // Verify OTP
         try {
             await dispatch(verifyOTPThunk({ phoneNumber, otp: data.otp })).unwrap();
+            
+            // Link session to user silently
+            identifyEvent(getSessionId()).catch(console.error);
+
             // alert("Verified successfully!");
             toast.success("Verified successfully!");
             router.push(returnUrl);

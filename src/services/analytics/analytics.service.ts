@@ -20,3 +20,23 @@ export const trackEvent = async (input: TrackEventInput) => {
     return false;
   }
 };
+
+export const identifyEvent = async (sessionId: string) => {
+  try {
+    const response = await apiClient.post("", {
+      query: `
+        mutation Identify($sessionId: String!) {
+          identify(sessionId: $sessionId)
+        }
+      `,
+      variables: {
+        sessionId,
+      },
+    });
+
+    return response.data?.data?.identify;
+  } catch (error) {
+    console.error("IdentifyEvent Error:", error);
+    return false;
+  }
+};
