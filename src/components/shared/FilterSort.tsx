@@ -65,20 +65,30 @@ function FilterSortContent({ onApply }: FilterSortProps) {
         setMaxPrice(searchParams.get('maxPrice') || '');
     }, [searchParams]);
 
+    // Debounced search tracking
+    useEffect(() => {
+        if (!search || search.trim() === '') return;
+        
+        // Don't track if the search matches what's already in the URL 
+        // to prevent duplicate tracking on page load
+        if (search === searchParams.get('search')) return;
+
+        const timer = setTimeout(() => {
+            trackEvent({
+                event: ANALYTICS_EVENTS.SEARCH,
+                sessionId: getSessionId(),
+                userId: user?.id,
+                metadata: { query: search.trim() },
+            });
+        }, 800);
+
+        return () => clearTimeout(timer);
+    }, [search, user?.id, searchParams]);
+
     const handleApply = () => {
         const prev = prevApplied.current;
         const sessionId = getSessionId();
         const userId = user?.id;
-
-        // Track SEARCH if search query changed
-        if (search !== prev.search && search.trim() !== '') {
-            trackEvent({
-                event: ANALYTICS_EVENTS.SEARCH,
-                sessionId,
-                userId,
-                metadata: { query: search.trim() },
-            });
-        }
 
         // Track SORT_APPLIED if sort changed
         if (sort !== prev.sort) {

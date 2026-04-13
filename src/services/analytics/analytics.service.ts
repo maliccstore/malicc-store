@@ -17,7 +17,19 @@ export const wsClient = typeof window !== 'undefined'
     })
   : null;
 
-export const trackEvent = async (input: TrackEventInput) => {
+// Keep track of recent events to avoid rapid duplicates
+const recentEvents = new Map<string, number>();
+
+export const trackEvent = async (input: TrackEventInput, retries = 2): Promise<boolean> => {
+  // Simple deduplication
+  const eventHash = `${input.event}-${JSON.stringify(input.metadata)}`;
+  const now = Date.now();
+  if (recentEvents.has(eventHash) && now - (recentEvents.get(eventHash) || 0) < 1000) {
+    // Silently drop duplicate
+    return true; 
+  }
+  recentEvents.set(eventHash, now);
+
   try {
     const response = await apiClient.post("", {
       query: `
@@ -32,6 +44,12 @@ export const trackEvent = async (input: TrackEventInput) => {
 
     return response.data?.data?.trackEvent;
   } catch (error) {
+    if (retries > 0) {
+      console.warn(`TrackEvent failed, retrying... (${retries} retries left)`);
+      // Simple exp backoff
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return trackEvent(input, retries - 1);
+    }
     console.error("TrackEvent Error:", error);
     return false;
   }
