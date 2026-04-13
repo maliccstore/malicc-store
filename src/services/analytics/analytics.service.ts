@@ -1,32 +1,39 @@
 import apiClient from "../apiClient";
-import type { TrackEventInput } from "../../types/analytics";
-import { createClient } from 'graphql-ws';
-import Cookies from 'js-cookie';
+import type { LiveStats, TrackEventInput } from "../../types/analytics";
+import { createClient } from "graphql-ws";
+import Cookies from "js-cookie";
 
-const wsUrl = 'ws://localhost:8000/graphql';
+const wsUrl = "ws://localhost:8000/graphql";
 
-export const wsClient = typeof window !== 'undefined'
-  ? createClient({
-      url: wsUrl,
-      connectionParams: () => {
-        const token = Cookies.get('auth-token');
-        return {
-          Authorization: token ? `Bearer ${token}` : undefined,
-        };
-      },
-    })
-  : null;
+export const wsClient =
+  typeof window !== "undefined"
+    ? createClient({
+        url: wsUrl,
+        connectionParams: () => {
+          const token = Cookies.get("auth-token");
+          return {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          };
+        },
+      })
+    : null;
 
 // Keep track of recent events to avoid rapid duplicates
 const recentEvents = new Map<string, number>();
 
-export const trackEvent = async (input: TrackEventInput, retries = 2): Promise<boolean> => {
+export const trackEvent = async (
+  input: TrackEventInput,
+  retries = 2,
+): Promise<boolean> => {
   // Simple deduplication
   const eventHash = `${input.event}-${JSON.stringify(input.metadata)}`;
   const now = Date.now();
-  if (recentEvents.has(eventHash) && now - (recentEvents.get(eventHash) || 0) < 1000) {
+  if (
+    recentEvents.has(eventHash) &&
+    now - (recentEvents.get(eventHash) || 0) < 1000
+  ) {
     // Silently drop duplicate
-    return true; 
+    return true;
   }
   recentEvents.set(eventHash, now);
 
@@ -47,7 +54,7 @@ export const trackEvent = async (input: TrackEventInput, retries = 2): Promise<b
     if (retries > 0) {
       console.warn(`TrackEvent failed, retrying... (${retries} retries left)`);
       // Simple exp backoff
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return trackEvent(input, retries - 1);
     }
     console.error("TrackEvent Error:", error);
@@ -75,13 +82,17 @@ export const identifyEvent = async (sessionId: string) => {
   }
 };
 
+interface LiveAnalyticsPayload {
+  liveAnalytics: LiveStats;
+}
+
 export const subscribeToLiveAnalytics = (
-  onNext: (data: any) => void,
-  onError?: (error: any) => void
+  onNext: (data: LiveAnalyticsPayload | null) => void,
+  onError?: (error: unknown) => void,
 ) => {
   if (!wsClient) return () => {};
 
-  const unsubscribe = wsClient.subscribe(
+  const unsubscribe = wsClient.subscribe<LiveAnalyticsPayload>(
     {
       query: `
         subscription LiveAnalytics {
@@ -94,10 +105,10 @@ export const subscribeToLiveAnalytics = (
       `,
     },
     {
-      next: (val) => onNext(val.data),
-      error: (err) => onError?.(err),
+      next: (val) => onNext(val.data ?? null),
+      error: (err: unknown) => onError?.(err),
       complete: () => {},
-    }
+    },
   );
 
   return unsubscribe;
