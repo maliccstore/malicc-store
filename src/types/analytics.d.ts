@@ -4,3 +4,9 @@ export type TrackEventInput = {
     userId?: number | string;
     metadata?: Record<string, unknown>;
 };
+
+export interface LiveStats {
+    activeUsers: number;
+    cartsActive: number;
+    checkoutActive: number;
+}

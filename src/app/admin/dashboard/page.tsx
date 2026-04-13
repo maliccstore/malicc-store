@@ -6,6 +6,8 @@ import {
   getDashboardStats,
   DashboardStats,
 } from "@/services/admin/dashboard.admin";
+import { subscribeToLiveAnalytics } from "@/services/analytics/analytics.service";
+import type { LiveStats } from "@/types/analytics";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -19,6 +21,29 @@ export default function DashboardPage() {
     };
 
     fetchStats();
+  }, []);
+
+  const [liveStats, setLiveStats] = useState<LiveStats>({
+    activeUsers: 0,
+    cartsActive: 0,
+    checkoutActive: 0,
+  });
+
+  useEffect(() => {
+    const unsubscribe = subscribeToLiveAnalytics(
+      (data) => {
+        if (data?.liveAnalytics) {
+          setLiveStats(data.liveAnalytics);
+        }
+      },
+      (error) => {
+        console.error("Live analytics error:", error);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const formatCurrency = (amount: number) =>
@@ -78,7 +103,49 @@ export default function DashboardPage() {
         Admin Dashboard
       </Text>
 
-      <Flex direction="column" gap="3">
+      {/* Live Analytics Section */}
+      <Text size="4" weight="bold" mt="4">
+        Live Analytics
+      </Text>
+      <Flex gap="3" direction={{ initial: "column", sm: "row" }} wrap="wrap">
+        <Card style={{ flex: 1, backgroundColor: "#e0f7fa" }}>
+          <Flex direction="column" gap="2">
+            <Text size="2" color="gray" weight="bold">
+              Active Users
+            </Text>
+            <Text size="6" weight="bold">
+              {liveStats.activeUsers}
+            </Text>
+          </Flex>
+        </Card>
+
+        <Card style={{ flex: 1, backgroundColor: "#fff3e0" }}>
+          <Flex direction="column" gap="2">
+            <Text size="2" color="gray" weight="bold">
+              Live Carts
+            </Text>
+            <Text size="6" weight="bold">
+              {liveStats.cartsActive}
+            </Text>
+          </Flex>
+        </Card>
+
+        <Card style={{ flex: 1, backgroundColor: "#e8f5e9" }}>
+          <Flex direction="column" gap="2">
+            <Text size="2" color="gray" weight="bold">
+              Live Orders
+            </Text>
+            <Text size="6" weight="bold">
+              {liveStats.checkoutActive}
+            </Text>
+          </Flex>
+        </Card>
+      </Flex>
+
+      <Text size="4" weight="bold" mt="4">
+        General Stats
+      </Text>
+      <Flex gap="3" direction="column">
         <Card>
           <Flex direction="column" gap="2">
             <Text size="2" color="gray">

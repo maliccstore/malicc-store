@@ -70,7 +70,7 @@ export const subscribeToLiveAnalytics = (
           liveAnalytics {
             activeUsers
             cartsActive
-            orders
+            checkoutActive
           }
         }
       `,
