@@ -7,7 +7,9 @@ import {
   DashboardStats,
 } from "@/services/admin/dashboard.admin";
 import { subscribeToLiveAnalytics } from "@/services/analytics/analytics.service";
-import type { LiveStats } from "@/types/analytics";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { setLiveStats } from "@/store/admin/dashboard/dashboardSlice";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -23,17 +25,14 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  const [liveStats, setLiveStats] = useState<LiveStats>({
-    activeUsers: 0,
-    cartsActive: 0,
-    checkoutActive: 0,
-  });
+  const dispatch = useDispatch();
+  const liveStats = useSelector((state: RootState) => state.adminDashboard.liveStats);
 
   useEffect(() => {
     const unsubscribe = subscribeToLiveAnalytics(
       (data) => {
         if (data?.liveAnalytics) {
-          setLiveStats(data.liveAnalytics);
+          dispatch(setLiveStats(data.liveAnalytics));
         }
       },
       (error) => {
@@ -44,7 +43,7 @@ export default function DashboardPage() {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [dispatch]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
