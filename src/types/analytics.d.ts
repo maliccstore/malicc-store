@@ -10,3 +10,7 @@ export interface LiveStats {
     cartsActive: number;
     checkoutActive: number;
 }
+
+export interface LiveAnalyticsSubscriptionData {
+    liveAnalytics: LiveStats;
+}

@@ -1,5 +1,5 @@
 import apiClient from "../apiClient";
-import type { TrackEventInput } from "../../types/analytics";
+import type { TrackEventInput, LiveAnalyticsSubscriptionData } from "../../types/analytics";
 import { createClient } from 'graphql-ws';
 import Cookies from 'js-cookie';
 
@@ -76,8 +76,8 @@ export const identifyEvent = async (sessionId: string) => {
 };
 
 export const subscribeToLiveAnalytics = (
-  onNext: (data: any) => void,
-  onError?: (error: any) => void
+  onNext: (data: LiveAnalyticsSubscriptionData) => void,
+  onError?: (error: unknown) => void
 ) => {
   if (!wsClient) return () => {};
 
@@ -94,7 +94,11 @@ export const subscribeToLiveAnalytics = (
       `,
     },
     {
-      next: (val) => onNext(val.data),
+      next: (val) => {
+        if (val.data) {
+          onNext(val.data as unknown as LiveAnalyticsSubscriptionData);
+        }
+      },
       error: (err) => onError?.(err),
       complete: () => {},
     }
