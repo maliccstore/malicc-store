@@ -1,5 +1,9 @@
 import apiClient from "../apiClient";
-import type { LiveStats, TrackEventInput } from "../../types/analytics";
+import type {
+  LiveStats,
+  TrackEventInput,
+  LiveAnalyticsSubscriptionData,
+} from "../../types/analytics";
 import { createClient } from "graphql-ws";
 import Cookies from "js-cookie";
 
@@ -87,7 +91,7 @@ interface LiveAnalyticsPayload {
 }
 
 export const subscribeToLiveAnalytics = (
-  onNext: (data: LiveAnalyticsPayload | null) => void,
+  onNext: (data: LiveAnalyticsSubscriptionData) => void,
   onError?: (error: unknown) => void,
 ) => {
   if (!wsClient) return () => {};
@@ -105,8 +109,12 @@ export const subscribeToLiveAnalytics = (
       `,
     },
     {
-      next: (val) => onNext(val.data ?? null),
-      error: (err: unknown) => onError?.(err),
+      next: (val) => {
+        if (val.data) {
+          onNext(val.data as unknown as LiveAnalyticsSubscriptionData);
+        }
+      },
+      error: (err) => onError?.(err),
       complete: () => {},
     },
   );
