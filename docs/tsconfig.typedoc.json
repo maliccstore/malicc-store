@@ -1,0 +1,30 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true,
+    "baseUrl": "..",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "../src/services/**/*.ts",
+    "../src/store/**/*.ts",
+    "../src/utils/**/*.ts",
+    "../src/types/**/*.ts",
+    "../src/enums/**/*.ts",
+    "../src/constants/**/*.ts",
+    "../next-env.d.ts"
+  ],
+  "exclude": [
+    "../src/**/*.tsx",
+    "../src/**/*.css",
+    "../src/**/*.test.ts",
+    "../src/**/*.spec.ts",
+    "../src/app",
+    "../src/components",
+    "../src/pages"
+  ]
+}
