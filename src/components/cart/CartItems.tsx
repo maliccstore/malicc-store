@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
-  removeItemCompletely,
   updateCartItemThunk,
   CartItem,
 } from "../../store/slices/cartSlice";
@@ -79,7 +78,14 @@ const CartItems = () => {
 
                 {/* Remove */}
                 <button
-                  onClick={() => dispatch(removeItemCompletely(item.id))}
+                  onClick={() =>
+                    dispatch(
+                      updateCartItemThunk({
+                        productId: String(item.id),
+                        newQuantity: 0,
+                      }),
+                    )
+                  }
                   className="text-gray-500 border border-gray-300 px-3 py-1 rounded hover:text-red-500 hover:bg-red-50 transition-colors"
                 >
                   Remove

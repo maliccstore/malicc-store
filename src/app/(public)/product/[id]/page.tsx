@@ -17,7 +17,7 @@ import { formatCurrency } from "@/utils/format";
 
 
 import { fetchProducts } from "@/store/slices/productSlice";
-import { addToCart, removeFromCart } from "@/store/slices/cartSlice";
+import { updateCartItemThunk } from "@/store/slices/cartSlice";
 import { Minus, Plus } from "lucide-react";
 
 import { productService } from "@/services/product.service";
@@ -165,29 +165,24 @@ useEffect(() => {
   const handleAddToCart = async () => {
     if (!product) return;
 
-    // Analytics
-    trackEvent({
-      event: ANALYTICS_EVENTS.ADD_TO_CART,
-      sessionId: getSessionId(),
-      userId: user?.id,
-      metadata: {
-        productId: product.id,
-        quantity: 1,
-      },
-    });
+    dispatch(
+      updateCartItemThunk({
+        productId: String(product.id),
+        newQuantity: 1,
+        product,
+      }),
+    );
+  };
 
-    // Optimistic Redux update
-    dispatch(addToCart(product));
-
-    if (isAuthenticated) {
-      try {
-        const { cartAPI } = await import("@/services/cart.service");
-        await cartAPI.addToCart(String(product.id), 1);
-        // toast.success("Synced with your account");
-      } catch (error) {
-        console.error("Failed to sync cart with backend", error);
-      }
-    }
+  const handleUpdateQuantity = (newQuantity: number) => {
+    if (!product) return;
+    dispatch(
+      updateCartItemThunk({
+        productId: String(product.id),
+        newQuantity,
+        product,
+      }),
+    );
   };
 
   const handleReviewCreated = async () => {
@@ -315,7 +310,7 @@ useEffect(() => {
         ) : cartItem ? (
           <div className="flex items-center justify-between max-w-[200px] w-full border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
             <Button
-              onClick={() => dispatch(removeFromCart(String(product.id)))}
+              onClick={() => handleUpdateQuantity(cartItem.quantity - 1)}
               className="h-12 w-14 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-r border-gray-100 transition-colors"
             >
               <Minus size={20} />
@@ -324,7 +319,7 @@ useEffect(() => {
               {cartItem.quantity}
             </span>
             <Button
-              onClick={() => dispatch(addToCart(product))}
+              onClick={() => handleUpdateQuantity(cartItem.quantity + 1)}
               className="h-12 w-14 !p-0 !bg-transparent !text-gray-600 hover:!bg-gray-50 flex items-center justify-center rounded-none border-l border-gray-100 transition-colors"
             >
               <Plus size={20} />
