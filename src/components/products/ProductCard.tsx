@@ -20,9 +20,6 @@ import toast from "react-hot-toast";
 import { formatCurrency } from "@/utils/format";
 import StarRating from "./StarRating";
 import { productService } from "@/services/product.service";
-import { trackEvent } from "@/services/analytics/analytics.service";
-import { getSessionId } from "@/services/analytics/session";
-import { ANALYTICS_EVENTS } from "@/constants";
 
 
 interface ProductCardProps {
@@ -41,11 +38,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     (item) => String(item.id) === String(product.id),
   );
 
-  const user = useAppSelector((state) => state.auth.user);
 
   const handleUpdateQuantity = async (newQuantity: number) => {
-    const prevQuantity = cartItem?.quantity || 0;
-
     dispatch(
       updateCartItemThunk({
         productId: String(product.id),
@@ -53,19 +47,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         product,
       }),
     );
-
-    // 🔥 Track only when item is added first time
-    if (prevQuantity === 0 && newQuantity > 0) {
-      trackEvent({
-        event: ANALYTICS_EVENTS.ADD_TO_CART,
-        sessionId: getSessionId(),
-        userId: user?.id,
-        metadata: {
-          productId: product.id,
-          quantity: newQuantity,
-        },
-      });
-    }
   };
 
   // Derived availability flags

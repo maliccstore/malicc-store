@@ -3,6 +3,9 @@ import { Product } from "@/types/product";
 import { RootState } from "..";
 import { cartAPI } from "@/services/cart.service";
 import toast from "react-hot-toast";
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { ANALYTICS_EVENTS } from "@/constants";
+import { getSessionId } from "@/services/analytics/session";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -49,6 +52,7 @@ export const updateCartItemThunk = createAsyncThunk(
     const cartItem = state.cart.items.find((i) => String(i.id) === String(productId));
     const currentQuantity = cartItem ? cartItem.quantity : 0;
     const isAuthenticated = state.auth.isAuthenticated;
+    const user = state.auth.user;
 
     // 1. Validate against stock
     const availableQuantity = product?.availableQuantity ?? cartItem?.availableQuantity;
@@ -62,6 +66,7 @@ export const updateCartItemThunk = createAsyncThunk(
       toast.error(`Only ${availableQuantity} items available in stock`);
       throw new Error("Out of stock");
     }
+
 
     // 2. Optimistic Update
     if (cartItem) {
@@ -78,9 +83,42 @@ export const updateCartItemThunk = createAsyncThunk(
       }
     }
 
+    // 3. Analytics Tracking (Centralized)
+    // First Add: item was not in cart, now it is
+    if (currentQuantity === 0 && newQuantity > 0) {
+      trackEvent({
+        event: ANALYTICS_EVENTS.ADD_TO_CART,
+        sessionId: getSessionId(),
+        userId: user?.id,
+        metadata: { productId, quantity: newQuantity }
+      });
+    }
+    // Remove Completely: item was in cart, now it's gone
+    else if (currentQuantity > 0 && newQuantity === 0) {
+      // Logic for isEmpty: if this was the last item OR total quantity becomes 0
+      // Actually, as per requirements: only fire REMOVE_FROM_CART when cart becomes empty
+      // BUT requirement Case 3 says: User removes product completely -> cartsActive = 0
+      // Wait, requirement 2 under Centralize Analytics says:
+      // prevQuantity > 0 && newQuantity === 0 -> trackEvent("REMOVE_FROM_CART", { isEmpty: true })
+      // AND Metadata: { productId, isEmpty: newQuantity === 0 }
+      
+      const newItems = (getState() as RootState).cart.items;
+      const isCartNowEmpty = newItems.length === 0;
+
+      trackEvent({
+        event: ANALYTICS_EVENTS.REMOVE_FROM_CART,
+        sessionId: getSessionId(),
+        userId: user?.id,
+        metadata: { 
+          productId, 
+          isEmpty: isCartNowEmpty 
+        }
+      });
+    }
+
     if (isAuthenticated) {
       try {
-        // 3. API Sync
+        // 4. API Sync
         if (newQuantity > 0) {
           if (cartItem) {
             await cartAPI.updateCartItem(productId, newQuantity);
@@ -91,7 +129,7 @@ export const updateCartItemThunk = createAsyncThunk(
           await cartAPI.removeFromCart(productId);
         }
       } catch (err: unknown) {
-        // 4. Rollback
+        // 5. Rollback
         if (currentQuantity === 0) {
           dispatch(removeItemCompletely(productId));
         } else {
