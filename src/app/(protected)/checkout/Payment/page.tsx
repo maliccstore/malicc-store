@@ -9,6 +9,9 @@ import { fetchOrderDetails } from "@/store/slices/orderSlice";
 import { Card, Heading, Text, Callout } from "@radix-ui/themes";
 import { ShieldCheck, CreditCard, Lock, AlertCircle, Info, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants";
 
 type PaymentError = {
   type: "cancelled" | "failed" | "verification_error";
@@ -60,6 +63,17 @@ export default function PaymentPage() {
     if (!currentOrder?.id || !user) return;
 
     setPaymentError(null); // Clear previous errors on retry
+
+    // Track payment initiation/retry to update live order count
+    trackEvent({
+      event: ANALYTICS_EVENTS.CHECKOUT_STARTED,
+      sessionId: getSessionId(),
+      userId: user.id,
+      metadata: {
+        orderId: currentOrder.id,
+        isRetry: !!paymentError,
+      },
+    });
 
     await initiateCheckout({
       orderId: currentOrder.id,
