@@ -6,7 +6,7 @@ export type TrackEventInput = {
 };
 
 export interface LiveStats {
-    activeUsers: number;
+    activeSessions: number;
     cartsActive: number;
     checkoutActive: number;
 }

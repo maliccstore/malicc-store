@@ -7,11 +7,19 @@ import { useRazorpayCheckout } from "@/features/auth/hooks/useRazorpayCheckout";
 import { clearCheckoutState } from "@/store/slices/checkoutSlice";
 import { fetchOrderDetails } from "@/store/slices/orderSlice";
 import { Card, Heading, Text, Callout } from "@radix-ui/themes";
-import { ShieldCheck, CreditCard, Lock, AlertCircle, Info, ArrowLeft, RefreshCw } from "lucide-react";
+import {
+  ShieldCheck,
+  CreditCard,
+  Lock,
+  AlertCircle,
+  Info,
+  ArrowLeft,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { trackEvent } from "@/services/analytics/analytics.service";
 import { getSessionId } from "@/services/analytics/session";
-import { ANALYTICS_EVENTS } from "@/constants";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 type PaymentError = {
   type: "cancelled" | "failed" | "verification_error";
@@ -28,8 +36,12 @@ export default function PaymentPage() {
   const ordersLoading = useAppSelector((state) => state.orders.loading);
   const user = useAppSelector((state) => state.auth.user);
   const couponCode = useAppSelector((state) => state.checkout.couponCode);
-  const discountAmount = useAppSelector((state) => state.checkout.discountAmount);
-  const originalSubtotal = useAppSelector((state) => state.checkout.originalSubtotal);
+  const discountAmount = useAppSelector(
+    (state) => state.checkout.discountAmount,
+  );
+  const originalSubtotal = useAppSelector(
+    (state) => state.checkout.originalSubtotal,
+  );
 
   // ── Local state ───────────────────────────────────────────────
   const [paymentError, setPaymentError] = useState<PaymentError>(null);
@@ -54,7 +66,8 @@ export default function PaymentPage() {
     if (currentOrder?.status === "FAILED" && !paymentError) {
       setPaymentError({
         type: "failed",
-        message: "This order previously failed or was cancelled. You can retry the payment below.",
+        message:
+          "This order previously failed or was cancelled. You can retry the payment below.",
       });
     }
   }, [currentOrder?.status, paymentError]);
@@ -95,17 +108,23 @@ export default function PaymentPage() {
           return;
         }
 
-        if (error.includes("verification failed") || error.includes("Verification error")) {
+        if (
+          error.includes("verification failed") ||
+          error.includes("Verification error")
+        ) {
           setPaymentError({
             type: "verification_error",
-            message: "Payment could not be verified. Please contact support with your Order ID.",
+            message:
+              "Payment could not be verified. Please contact support with your Order ID.",
           });
           return;
         }
 
         setPaymentError({
           type: "failed",
-          message: error || "Payment failed. Please try again with a different method.",
+          message:
+            error ||
+            "Payment failed. Please try again with a different method.",
         });
       },
     });
@@ -126,7 +145,6 @@ export default function PaymentPage() {
       </Heading>
 
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
-
         {/* Error Banners */}
         {paymentError && (
           <Callout.Root
@@ -136,7 +154,11 @@ export default function PaymentPage() {
             className="mb-2"
           >
             <Callout.Icon>
-              {paymentError.type === "cancelled" ? <Info size={20} /> : <AlertCircle size={20} />}
+              {paymentError.type === "cancelled" ? (
+                <Info size={20} />
+              ) : (
+                <AlertCircle size={20} />
+              )}
             </Callout.Icon>
             <Callout.Text className="font-medium">
               {paymentError.message}
@@ -148,12 +170,15 @@ export default function PaymentPage() {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4 border-b border-gray-100 dark:border-gray-800 pb-4">
             <Lock className="text-green-600" size={24} />
-            <Heading size="4" className="font-semibold">Secure Payment</Heading>
+            <Heading size="4" className="font-semibold">
+              Secure Payment
+            </Heading>
           </div>
           <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
             <ShieldCheck size={20} className="text-green-600 shrink-0" />
             <Text size="2" className="text-gray-600 dark:text-gray-400">
-              Your payment is encrypted and secured by Razorpay. We never store your card details.
+              Your payment is encrypted and secured by Razorpay. We never store
+              your card details.
             </Text>
           </div>
         </Card>
@@ -162,19 +187,28 @@ export default function PaymentPage() {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4 border-b border-gray-100 dark:border-gray-800 pb-4">
             <CreditCard className="text-blue-600" size={24} />
-            <Heading size="4" className="font-semibold">Order Summary</Heading>
+            <Heading size="4" className="font-semibold">
+              Order Summary
+            </Heading>
           </div>
 
           <div className="space-y-3 mb-2">
             <div className="flex justify-between">
-              <Text size="2" className="text-gray-600 dark:text-gray-400">Order ID</Text>
-              <Text size="2" className="font-mono text-gray-500 dark:text-gray-500">
+              <Text size="2" className="text-gray-600 dark:text-gray-400">
+                Order ID
+              </Text>
+              <Text
+                size="2"
+                className="font-mono text-gray-500 dark:text-gray-500"
+              >
                 {currentOrder.id.slice(0, 8)}...
               </Text>
             </div>
 
             <div className="flex justify-between">
-              <Text size="2" className="text-gray-600 dark:text-gray-400">Subtotal</Text>
+              <Text size="2" className="text-gray-600 dark:text-gray-400">
+                Subtotal
+              </Text>
               <Text size="2">₹{subtotal?.toFixed(2)}</Text>
             </div>
 
@@ -190,22 +224,33 @@ export default function PaymentPage() {
             )}
 
             <div className="flex justify-between">
-              <Text size="2" className="text-gray-600 dark:text-gray-400">Shipping</Text>
-              <Text size="2" className={shippingFee === 0 ? "text-green-600" : ""}>
+              <Text size="2" className="text-gray-600 dark:text-gray-400">
+                Shipping
+              </Text>
+              <Text
+                size="2"
+                className={shippingFee === 0 ? "text-green-600" : ""}
+              >
                 {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
               </Text>
             </div>
 
             <div className="flex justify-between">
-              <Text size="2" className="text-gray-600 dark:text-gray-400">Tax</Text>
+              <Text size="2" className="text-gray-600 dark:text-gray-400">
+                Tax
+              </Text>
               <Text size="2">₹0.00</Text>
             </div>
 
             <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
 
             <div className="flex justify-between">
-              <Text size="3" weight="bold">Total</Text>
-              <Text size="3" weight="bold">₹{finalAmount.toFixed(2)}</Text>
+              <Text size="3" weight="bold">
+                Total
+              </Text>
+              <Text size="3" weight="bold">
+                ₹{finalAmount.toFixed(2)}
+              </Text>
             </div>
           </div>
         </Card>
@@ -251,7 +296,6 @@ export default function PaymentPage() {
             </Text>
           </div>
         </Card>
-
       </div>
     </div>
   );

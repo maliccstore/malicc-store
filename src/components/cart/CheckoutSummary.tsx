@@ -22,7 +22,7 @@ import { formatCurrency } from "@/utils/format";
 import { useAppSelector } from "@/store/hooks";
 import { trackEvent } from "@/services/analytics/analytics.service";
 import { getSessionId } from "@/services/analytics/session";
-import { ANALYTICS_EVENTS } from "@/constants";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 const CheckoutSummary = () => {
   const dispatch = useDispatch();
@@ -31,14 +31,13 @@ const CheckoutSummary = () => {
 
   // Cart totals live in state.cart — always accurate
   const { totalQuantity, totalAmount } = useSelector(
-    (state: RootState) => state.cart
+    (state: RootState) => state.cart,
   );
 
   // Only coupon state lives in state.checkout
-  const {
-    couponCode: appliedCouponCode,
-    discountAmount,
-  } = useSelector((state: RootState) => state.checkout);
+  const { couponCode: appliedCouponCode, discountAmount } = useSelector(
+    (state: RootState) => state.checkout,
+  );
 
   const [couponCode, setCouponCode] = useState<string>(appliedCouponCode || "");
   const [loading, setLoading] = useState(false);
@@ -63,16 +62,21 @@ const CheckoutSummary = () => {
       setSuccessMessage(null);
 
       // Validate coupon against the current cart subtotal
-      const response = await couponService.validateCoupon(couponCode.trim(), safeTotal);
+      const response = await couponService.validateCoupon(
+        couponCode.trim(),
+        safeTotal,
+      );
 
       if (response.success) {
         dispatch(
           applyCouponSuccess({
             couponCode: couponCode.trim(),
             discountAmount: response.discount ?? 0,
-          })
+          }),
         );
-        setSuccessMessage(`Coupon applied successfully! You saved ${formatCurrency(response.discount ?? 0)}`);
+        setSuccessMessage(
+          `Coupon applied successfully! You saved ${formatCurrency(response.discount ?? 0)}`,
+        );
         trackEvent({
           event: ANALYTICS_EVENTS.COUPON_APPLIED,
           sessionId: getSessionId(),
@@ -142,7 +146,10 @@ const CheckoutSummary = () => {
   };
 
   return (
-    <Box className="rounded-lg shadow p-6" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <Box
+      className="rounded-lg shadow p-6"
+      style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+    >
       <Heading as="h2" size="3">
         Order Summary
       </Heading>
@@ -157,7 +164,12 @@ const CheckoutSummary = () => {
             style={{ flex: 1 }}
           />
 
-          <Button onClick={handleApplyCoupon} disabled={loading} color="gray" highContrast>
+          <Button
+            onClick={handleApplyCoupon}
+            disabled={loading}
+            color="gray"
+            highContrast
+          >
             {loading ? "Applying..." : "Apply"}
           </Button>
         </Flex>

@@ -101,7 +101,7 @@ export const subscribeToLiveAnalytics = (
       query: `
         subscription LiveAnalytics {
           liveAnalytics {
-            activeUsers
+            activeSessions
             cartsActive
             checkoutActive
           }

@@ -137,7 +137,7 @@ function ExploreContent() {
                 Refine your product search.
               </Dialog.Description>
 
-              <FilterSort onApply={() => setIsFilterOpen(false)} />
+              <FilterSort onApply={() => setIsFilterOpen(false)} currentResultCount={displayedProducts.length} />
             </Dialog.Content>
           </Dialog.Root>
         </Box>

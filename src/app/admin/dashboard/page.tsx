@@ -26,7 +26,9 @@ export default function DashboardPage() {
   }, []);
 
   const dispatch = useDispatch();
-  const liveStats = useSelector((state: RootState) => state.adminDashboard.liveStats);
+  const liveStats = useSelector(
+    (state: RootState) => state.adminDashboard.liveStats,
+  );
 
   useEffect(() => {
     const unsubscribe = subscribeToLiveAnalytics(
@@ -37,7 +39,7 @@ export default function DashboardPage() {
       },
       (error) => {
         console.error("Live analytics error:", error);
-      }
+      },
     );
 
     return () => {
@@ -113,7 +115,7 @@ export default function DashboardPage() {
               Active Users
             </Text>
             <Text size="6" weight="bold">
-              {liveStats.activeUsers}
+              {liveStats.activeSessions}
             </Text>
           </Flex>
         </Card>

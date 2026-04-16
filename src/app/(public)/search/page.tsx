@@ -1,25 +1,62 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useAppSelector } from '@/store/hooks';
-import ProductCard from '@/components/products/ProductCard';
-import { Box, Container, Flex, Heading, Text, Grid, TextField } from '@radix-ui/themes';
-import { Search, Frown } from 'lucide-react';
-import FilterSort from '@/components/shared/FilterSort';
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import ProductCard from "@/components/products/ProductCard";
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  Grid,
+  TextField,
+} from "@radix-ui/themes";
+import { Search, Frown } from "lucide-react";
+import FilterSort from "@/components/shared/FilterSort";
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const query = searchParams.get("search") || "";
   const { products } = useAppSelector((state) => state.products);
+  const user = useAppSelector((state) => state.auth.user);
 
   // Filter params
-  const minPrice = Number(searchParams.get('minPrice')) || 0;
-  const maxPrice = Number(searchParams.get('maxPrice')) || Infinity;
-  const category = searchParams.get('category') || 'all';
-  const inStockOnly = searchParams.get('inStock') === 'true';
-  const sortBy = searchParams.get('sort') || 'relevance';
+  const minPrice = Number(searchParams.get("minPrice")) || 0;
+  const maxPrice = Number(searchParams.get("maxPrice")) || Infinity;
+  const category = searchParams.get("category") || "all";
+  const inStockOnly = searchParams.get("inStock") === "true";
+  const sortBy = searchParams.get("sort") || "relevance";
+
+  // Filter and Sort Logic (calculated on every render)
+  const filteredProducts = products.filter((product) => {
+    const matchesQuery = product.name
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
+    const matchesCategory = category === "all" || product.category === category;
+    const matchesStock = !inStockOnly || product.inStock;
+
+    return matchesQuery && matchesPrice && matchesCategory && matchesStock;
+  });
+
+  if (sortBy === "price-asc") {
+    filteredProducts.sort((a, b) => a.price - b.price);
+  } else if (sortBy === "price-desc") {
+    filteredProducts.sort((a, b) => b.price - a.price);
+  } else if (sortBy === "rating") {
+    filteredProducts.sort((a, b) => Number(b.rating) - Number(a.rating));
+  } else if (sortBy === "newest") {
+    filteredProducts.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }
 
   // State for local input value to control the input field
   const [searchTerm, setSearchTerm] = useState(query);
@@ -30,46 +67,43 @@ function SearchPageContent() {
       if (searchTerm !== query) {
         const params = new URLSearchParams(searchParams.toString());
         if (searchTerm) {
-          params.set('q', searchTerm);
+          params.set("search", searchTerm);
+
+          // Track search event
+          trackEvent({
+            event: ANALYTICS_EVENTS.PRODUCT_SEARCH,
+            sessionId: getSessionId(),
+            userId: user?.id,
+            metadata: {
+              searchQuery: searchTerm.trim(),
+              resultCount: filteredProducts.length, // approximation for current results
+            },
+          });
         } else {
-          params.delete('q');
+          params.delete("search");
         }
         router.push(`/search?${params.toString()}`);
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, router, searchParams, query]);
+  }, [
+    searchTerm,
+    router,
+    searchParams,
+    query,
+    filteredProducts.length,
+    user?.id,
+  ]);
 
   // Update local state if URL changes externally
   useEffect(() => {
     setSearchTerm(query);
   }, [query]);
 
-  // Filter and Sort Logic (calculated on every render)
-  const filteredProducts = products.filter((product) => {
-    const matchesQuery = product.name.toLowerCase().includes(query.toLowerCase());
-    const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
-    const matchesCategory = category === 'all' || product.category === category;
-    const matchesStock = !inStockOnly || product.inStock;
-
-    return matchesQuery && matchesPrice && matchesCategory && matchesStock;
-  });
-
-  if (sortBy === 'price-asc') {
-    filteredProducts.sort((a, b) => a.price - b.price);
-  } else if (sortBy === 'price-desc') {
-    filteredProducts.sort((a, b) => b.price - a.price);
-  } else if (sortBy === 'rating') {
-    filteredProducts.sort((a, b) => Number(b.rating) - Number(a.rating));
-  } else if (sortBy === 'newest') {
-    filteredProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }
-
   return (
     <Container size="4" p="4">
       <Flex direction="column" gap="6">
-
         {/* Header Section */}
         <Flex direction="column" gap="4" className="border-b pb-4">
           <Box>
@@ -98,7 +132,7 @@ function SearchPageContent() {
         <Flex direction="column" gap="6" align="start">
           {/* Filter Top Bar */}
           <Box width="100%" flexShrink="0">
-            <FilterSort />
+            <FilterSort currentResultCount={filteredProducts.length} />
           </Box>
 
           {/* Results Section */}
@@ -110,9 +144,18 @@ function SearchPageContent() {
                 ))}
               </Grid>
             ) : (
-              <Flex direction="column" align="center" justify="center" py="9" gap="4" className="bg-gray-50 rounded-lg border border-dashed border-gray-300">
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                py="9"
+                gap="4"
+                className="bg-gray-50 rounded-lg border border-dashed border-gray-300"
+              >
                 <Frown size={48} className="text-gray-400" />
-                <Heading size="4" color="gray">No results found</Heading>
+                <Heading size="4" color="gray">
+                  No results found
+                </Heading>
                 <Text color="gray" align="center" style={{ maxWidth: 400 }}>
                   Try removing some filters or use different keywords.
                 </Text>
@@ -120,7 +163,6 @@ function SearchPageContent() {
             )}
           </Box>
         </Flex>
-
       </Flex>
     </Container>
   );

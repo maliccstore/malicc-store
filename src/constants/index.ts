@@ -1,48 +1,27 @@
 export const COLOR = {
-  PRIMARY: '#3498db',
-  SECONDARY: '#2ecc71',
-  BACKGROUND: '#ecf0f1',
-  TEXT: '#2c3e50',
+  PRIMARY: "#3498db",
+  SECONDARY: "#2ecc71",
+  BACKGROUND: "#ecf0f1",
+  TEXT: "#2c3e50",
 };
 
 export const FONT_SIZE = {
-  SMALL: '12px',
-  MEDIUM: '16px',
-  LARGE: '20px',
-  XLARGE: '24px',
+  SMALL: "12px",
+  MEDIUM: "16px",
+  LARGE: "20px",
+  XLARGE: "24px",
 };
 
 export const SPACING = {
-  XS: '4px',
-  SM: '8px',
-  MD: '16px',
-  LG: '24px',
-  XL: '32px',
+  XS: "4px",
+  SM: "8px",
+  MD: "16px",
+  LG: "24px",
+  XL: "32px",
 };
 
 export const BORDER_RADIUS = {
-  SMALL: '2px',
-  MEDIUM: '4px',
-  LARGE: '8px',
+  SMALL: "2px",
+  MEDIUM: "4px",
+  LARGE: "8px",
 };
-
-export const ANALYTICS_EVENTS = {
-  PRODUCT_VIEW: "PRODUCT_VIEW",
-  ADD_TO_CART: "ADD_TO_CART",
-  REMOVE_FROM_CART: "REMOVE_FROM_CART",
-
-  SESSION_START: "SESSION_START",
-  SESSION_END: "SESSION_END",
-
-  SEARCH: "SEARCH",
-  FILTER_APPLIED: "FILTER_APPLIED",
-  SORT_APPLIED: "SORT_APPLIED",
-
-  COUPON_APPLIED: "COUPON_APPLIED",
-  COUPON_FAILED: "COUPON_FAILED",
-
-  CHECKOUT_STARTED: "CHECKOUT_STARTED",
-  PAYMENT_INITIATED: "PAYMENT_INITIATED",
-  PAYMENT_SUCCESS: "PAYMENT_SUCCESS",
-  PAYMENT_FAILED: "PAYMENT_FAILED",
-} as const;

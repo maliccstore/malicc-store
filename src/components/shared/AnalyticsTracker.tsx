@@ -8,7 +8,7 @@ import {
 } from "@/services/analytics/analytics.service";
 import { getSessionId } from "@/services/analytics/session";
 import { setLiveStats } from "@/store/admin/dashboard/dashboardSlice";
-import { ANALYTICS_EVENTS } from "@/constants";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 export function AnalyticsTracker() {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ export function AnalyticsTracker() {
       },
       (error) => {
         console.error("Live analytics error:", error);
-      }
+      },
     );
 
     // 🔥 SESSION END (reliable)

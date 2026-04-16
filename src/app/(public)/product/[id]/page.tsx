@@ -15,7 +15,6 @@ import ProductGallery from "@/components/products/ProductGallery";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatCurrency } from "@/utils/format";
 
-
 import { fetchProducts } from "@/store/slices/productSlice";
 import { updateCartItemThunk } from "@/store/slices/cartSlice";
 import { Minus, Plus } from "lucide-react";
@@ -30,7 +29,7 @@ import { Button } from "@/components/ui/Button";
 
 import { trackEvent } from "@/services/analytics/analytics.service";
 import { getSessionId } from "@/services/analytics/session";
-import { ANALYTICS_EVENTS } from "@/constants";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 type OrderItem = {
   productId: string;
@@ -53,7 +52,10 @@ const ProductPage = () => {
   );
 
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  const cartItem = useMemo(() => cartItems.find(item => String(item.id) === String(productId)), [cartItems, productId]);
+  const cartItem = useMemo(
+    () => cartItems.find((item) => String(item.id) === String(productId)),
+    [cartItems, productId],
+  );
 
   const { isAuthenticated, user } = useAuth();
 
@@ -70,21 +72,20 @@ const ProductPage = () => {
   const [purchasedOrderId, setPurchasedOrderId] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!product?.id) return;
 
-useEffect(() => {
-  if (!product?.id) return;
-
-  trackEvent({
-    event: ANALYTICS_EVENTS.PRODUCT_VIEW,
-    sessionId: getSessionId(),
-    userId: user?.id,
-    metadata: {
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-    },
-  });
-}, [product?.id, product?.name, product?.price, user?.id]);
+    trackEvent({
+      event: ANALYTICS_EVENTS.PRODUCT_VIEW,
+      sessionId: getSessionId(),
+      userId: user?.id,
+      metadata: {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+      },
+    });
+  }, [product?.id, product?.name, product?.price, user?.id]);
 
   useEffect(() => {
     if (!product?.category) return;
@@ -93,7 +94,9 @@ useEffect(() => {
       try {
         const { categoryService } = await import("@/services/category.service");
         const categories = await categoryService.getAll();
-        const matchedCategory = categories.find((c) => String(c.id) === String(product.category));
+        const matchedCategory = categories.find(
+          (c) => String(c.id) === String(product.category),
+        );
         if (matchedCategory) {
           setCategoryName(matchedCategory.name);
         }
@@ -218,7 +221,13 @@ useEffect(() => {
       {/* Product Image */}
 
       <ProductGallery
-        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+        images={
+          product.images && product.images.length > 0
+            ? product.images
+            : product.image
+              ? [product.image]
+              : []
+        }
         productName={product.name}
         isUnavailable={product.isActive === false}
       />
@@ -260,15 +269,15 @@ useEffect(() => {
               product.isActive === false
                 ? "bg-gray-200 text-gray-600"
                 : product.inStock !== false
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
             }`}
           >
             {product.isActive === false
               ? "Unavailable"
               : product.inStock !== false
-              ? "In Stock"
-              : "Out of Stock"}
+                ? "In Stock"
+                : "Out of Stock"}
           </span>
         </div>
 

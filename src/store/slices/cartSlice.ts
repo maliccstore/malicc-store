@@ -4,7 +4,7 @@ import { RootState } from "..";
 import { cartAPI } from "@/services/cart.service";
 import toast from "react-hot-toast";
 import { trackEvent } from "@/services/analytics/analytics.service";
-import { ANALYTICS_EVENTS } from "@/constants";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 import { getSessionId } from "@/services/analytics/session";
 
 export interface CartItem extends Product {
@@ -49,14 +49,17 @@ export const updateCartItemThunk = createAsyncThunk(
     { dispatch, getState },
   ) => {
     const state = getState() as RootState;
-    const cartItem = state.cart.items.find((i) => String(i.id) === String(productId));
+    const cartItem = state.cart.items.find(
+      (i) => String(i.id) === String(productId),
+    );
     const currentQuantity = cartItem ? cartItem.quantity : 0;
     const isAuthenticated = state.auth.isAuthenticated;
     const user = state.auth.user;
 
     // 1. Validate against stock
-    const availableQuantity = product?.availableQuantity ?? cartItem?.availableQuantity;
-    
+    const availableQuantity =
+      product?.availableQuantity ?? cartItem?.availableQuantity;
+
     if (
       newQuantity > currentQuantity &&
       availableQuantity !== undefined &&
@@ -66,7 +69,6 @@ export const updateCartItemThunk = createAsyncThunk(
       toast.error(`Only ${availableQuantity} items available in stock`);
       throw new Error("Out of stock");
     }
-
 
     // 2. Optimistic Update
     if (cartItem) {
@@ -90,7 +92,7 @@ export const updateCartItemThunk = createAsyncThunk(
         event: ANALYTICS_EVENTS.ADD_TO_CART,
         sessionId: getSessionId(),
         userId: user?.id,
-        metadata: { productId, quantity: newQuantity }
+        metadata: { productId, quantity: newQuantity },
       });
     }
     // Remove Completely: item was in cart, now it's gone
@@ -101,7 +103,7 @@ export const updateCartItemThunk = createAsyncThunk(
       // Wait, requirement 2 under Centralize Analytics says:
       // prevQuantity > 0 && newQuantity === 0 -> trackEvent("REMOVE_FROM_CART", { isEmpty: true })
       // AND Metadata: { productId, isEmpty: newQuantity === 0 }
-      
+
       const newItems = (getState() as RootState).cart.items;
       const isCartNowEmpty = newItems.length === 0;
 
@@ -109,10 +111,10 @@ export const updateCartItemThunk = createAsyncThunk(
         event: ANALYTICS_EVENTS.REMOVE_FROM_CART,
         sessionId: getSessionId(),
         userId: user?.id,
-        metadata: { 
-          productId, 
-          isEmpty: isCartNowEmpty 
-        }
+        metadata: {
+          productId,
+          isEmpty: isCartNowEmpty,
+        },
       });
     }
 
@@ -133,9 +135,12 @@ export const updateCartItemThunk = createAsyncThunk(
         if (currentQuantity === 0) {
           dispatch(removeItemCompletely(productId));
         } else {
-          dispatch(updateQuantity({ id: productId, quantity: currentQuantity }));
+          dispatch(
+            updateQuantity({ id: productId, quantity: currentQuantity }),
+          );
         }
-        const message = err instanceof Error ? err.message : "Failed to sync cart";
+        const message =
+          err instanceof Error ? err.message : "Failed to sync cart";
         toast.error(message);
         throw err;
       }
@@ -157,9 +162,10 @@ export const clearCartThunk = createAsyncThunk(
         await cartAPI.clearCart();
       } catch (err: unknown) {
         console.error("Failed to sync clear", err);
-        // We don't necessarily rollback clearCart as it's a destructive action, 
+        // We don't necessarily rollback clearCart as it's a destructive action,
         // but we log the error.
-        const message = err instanceof Error ? err.message : "Failed to sync clear cart";
+        const message =
+          err instanceof Error ? err.message : "Failed to sync clear cart";
         toast.error(message);
       }
     }

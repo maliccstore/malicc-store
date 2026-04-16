@@ -7,7 +7,7 @@ interface DashboardState {
 
 const initialState: DashboardState = {
   liveStats: {
-    activeUsers: 0,
+    activeSessions: 0,
     cartsActive: 0,
     checkoutActive: 0,
   },

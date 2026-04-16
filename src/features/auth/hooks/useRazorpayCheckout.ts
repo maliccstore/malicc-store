@@ -1,14 +1,14 @@
 // src/features/auth/hooks/useRazorpayCheckout.ts
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 import {
   createPaymentOrderAPI,
   verifyPaymentAPI,
   reportPaymentFailureAPI,
-} from '@/services/payment.service';
-import { useAppSelector } from '@/store/hooks';
-import { trackEvent } from '@/services/analytics/analytics.service';
-import { getSessionId } from '@/services/analytics/session';
-import { ANALYTICS_EVENTS } from '@/constants';
+} from "@/services/payment.service";
+import { useAppSelector } from "@/store/hooks";
+import { trackEvent } from "@/services/analytics/analytics.service";
+import { getSessionId } from "@/services/analytics/session";
+import { ANALYTICS_EVENTS } from "@/constants/event-constants";
 
 interface RazorpayOptions {
   key: string;
@@ -36,7 +36,10 @@ interface RazorpayOptions {
 
 interface RazorpayInstance {
   open: () => void;
-  on: (event: string, handler: (response: { error?: { description: string } }) => void) => void;
+  on: (
+    event: string,
+    handler: (response: { error?: { description: string } }) => void,
+  ) => void;
 }
 
 declare global {
@@ -48,8 +51,8 @@ declare global {
 const loadRazorpayScript = (): Promise<boolean> =>
   new Promise((resolve) => {
     if (window.Razorpay) return resolve(true);
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -68,152 +71,163 @@ export const useRazorpayCheckout = () => {
   const [loading, setLoading] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
 
-  const initiateCheckout = useCallback(async (options: CheckoutOptions) => {
-    setLoading(true);
+  const initiateCheckout = useCallback(
+    async (options: CheckoutOptions) => {
+      setLoading(true);
 
-    try {
-      // Load Razorpay SDK
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        options.onFailure(
-          'Failed to load payment gateway. Check your connection.'
-        );
-        setLoading(false);
-        return;
-      }
+      try {
+        // Load Razorpay SDK
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          options.onFailure(
+            "Failed to load payment gateway. Check your connection.",
+          );
+          setLoading(false);
+          return;
+        }
 
-      // Step 1 — create Razorpay order on backend
-      const orderData = await createPaymentOrderAPI(
-        options.orderId
-      );
+        // Step 1 — create Razorpay order on backend
+        const orderData = await createPaymentOrderAPI(options.orderId);
 
-      setLoading(false); // stop loading before modal opens
+        setLoading(false); // stop loading before modal opens
 
-      // Step 2 — open Razorpay modal
-      const rzp = new window.Razorpay({
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        order_id: orderData.razorpayOrderId,
-        name: 'Malicc',
-        description: 'Order Payment',
-        image: '/assets/images/malicc.svg',
-        prefill: {
-          name: options.customerName,
-          contact: options.customerPhone,
-          email: options.customerEmail || '',
-        },
-        theme: { color: '#000000' },
+        // Step 2 — open Razorpay modal
+        const rzp = new window.Razorpay({
+          key: orderData.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          order_id: orderData.razorpayOrderId,
+          name: "Malicc",
+          description: "Order Payment",
+          image: "/assets/images/malicc.svg",
+          prefill: {
+            name: options.customerName,
+            contact: options.customerPhone,
+            email: options.customerEmail || "",
+          },
+          theme: { color: "#000000" },
 
-        // Step 3 — verify signature after payment
-        handler: async (response: {
-          razorpay_order_id: string;
-          razorpay_payment_id: string;
-          razorpay_signature: string;
-        }) => {
-          setLoading(true);
-          try {
-            const result = await verifyPaymentAPI({
-              orderId: options.orderId,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-
-            if (result.success) {
-              trackEvent({
-                event: ANALYTICS_EVENTS.PAYMENT_SUCCESS,
-                sessionId: getSessionId(),
-                userId: user?.id,
-                metadata: {
-                  orderId: options.orderId,
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                },
+          // Step 3 — verify signature after payment
+          handler: async (response: {
+            razorpay_order_id: string;
+            razorpay_payment_id: string;
+            razorpay_signature: string;
+          }) => {
+            setLoading(true);
+            try {
+              const result = await verifyPaymentAPI({
+                orderId: options.orderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
               });
-              options.onSuccess(options.orderId);
-            } else {
-              options.onFailure(
-                'Payment verification failed. Contact support.'
-              );
+
+              if (result.success) {
+                trackEvent({
+                  event: ANALYTICS_EVENTS.PAYMENT_SUCCESS,
+                  sessionId: getSessionId(),
+                  userId: user?.id,
+                  metadata: {
+                    orderId: options.orderId,
+                    razorpayOrderId: response.razorpay_order_id,
+                    razorpayPaymentId: response.razorpay_payment_id,
+                  },
+                });
+                options.onSuccess(options.orderId);
+              } else {
+                options.onFailure(
+                  "Payment verification failed. Contact support.",
+                );
+                trackEvent({
+                  event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+                  sessionId: getSessionId(),
+                  userId: user?.id,
+                  metadata: {
+                    orderId: options.orderId,
+                    reason: "Payment verification failed",
+                  },
+                });
+              }
+            } catch (err: unknown) {
+              const errorMessage =
+                err instanceof Error
+                  ? err.message
+                  : "Verification error. Contact support.";
+              options.onFailure(errorMessage);
               trackEvent({
                 event: ANALYTICS_EVENTS.PAYMENT_FAILED,
                 sessionId: getSessionId(),
                 userId: user?.id,
                 metadata: {
                   orderId: options.orderId,
-                  reason: 'Payment verification failed',
+                  reason: errorMessage,
                 },
               });
+            } finally {
+              setLoading(false);
             }
-          } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Verification error. Contact support.';
-            options.onFailure(errorMessage);
-            trackEvent({
-              event: ANALYTICS_EVENTS.PAYMENT_FAILED,
-              sessionId: getSessionId(),
-              userId: user?.id,
-              metadata: {
-                orderId: options.orderId,
-                reason: errorMessage,
-              },
-            });
-          } finally {
-            setLoading(false);
-          }
-        },
+          },
 
-        modal: {
-          ondismiss: () => {
-            setLoading(false);
-            // Report cancellation to backend to restore inventory
+          modal: {
+            ondismiss: () => {
+              setLoading(false);
+              // Report cancellation to backend to restore inventory
+              reportPaymentFailureAPI({
+                orderId: options.orderId,
+                razorpayOrderId: orderData.razorpayOrderId,
+                reason: "User closed the payment modal",
+              }).catch(console.error);
+
+              options.onFailure("cancelled");
+              trackEvent({
+                event: ANALYTICS_EVENTS.PAYMENT_FAILED,
+                sessionId: getSessionId(),
+                userId: user?.id,
+                metadata: {
+                  orderId: options.orderId,
+                  reason: "User closed the payment modal",
+                },
+              });
+            },
+          },
+        });
+
+        // Handle bank decline / payment failures within the modal
+        rzp.on(
+          "payment.failed",
+          (response: { error?: { description: string } }) => {
             reportPaymentFailureAPI({
               orderId: options.orderId,
               razorpayOrderId: orderData.razorpayOrderId,
-              reason: 'User closed the payment modal',
+              reason:
+                response.error?.description || "Bank decline or payment failed",
             }).catch(console.error);
 
-            options.onFailure('cancelled');
+            options.onFailure(response.error?.description || "Payment failed");
             trackEvent({
               event: ANALYTICS_EVENTS.PAYMENT_FAILED,
               sessionId: getSessionId(),
               userId: user?.id,
               metadata: {
                 orderId: options.orderId,
-                reason: 'User closed the payment modal',
+                reason:
+                  response.error?.description ||
+                  "Bank decline or payment failed",
               },
             });
           },
-        },
-      });
+        );
 
-      // Handle bank decline / payment failures within the modal
-      rzp.on('payment.failed', (response: { error?: { description: string } }) => {
-        reportPaymentFailureAPI({
-          orderId: options.orderId,
-          razorpayOrderId: orderData.razorpayOrderId,
-          reason: response.error?.description || 'Bank decline or payment failed',
-        }).catch(console.error);
-        
-        options.onFailure(response.error?.description || 'Payment failed');
-        trackEvent({
-          event: ANALYTICS_EVENTS.PAYMENT_FAILED,
-          sessionId: getSessionId(),
-          userId: user?.id,
-          metadata: {
-            orderId: options.orderId,
-            reason: response.error?.description || 'Bank decline or payment failed',
-          },
-        });
-      });
-
-      rzp.open();
-    } catch (err: unknown) {
-      setLoading(false);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initiate payment.';
-      options.onFailure(errorMessage);
-    }
-  }, [user]);
+        rzp.open();
+      } catch (err: unknown) {
+        setLoading(false);
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to initiate payment.";
+        options.onFailure(errorMessage);
+      }
+    },
+    [user],
+  );
 
   return { initiateCheckout, loading };
 };
