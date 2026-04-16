@@ -107,10 +107,16 @@ export default function AdminSidebar() {
       icon: <PieChartIcon />,
       items: [
         {
+          id: "store-analytics",
+          label: "Store Analytics",
+          link: "/admin/analytics/store",
+        },
+        {
           id: "product-analytics",
           label: "Product Analytics",
           link: "/admin/analytics/products",
-        }]
+        },
+      ]
     },
     {
       id: "settings",

@@ -1,9 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Container, Flex, Heading, Text, Box, Spinner, Callout } from "@radix-ui/themes";
+import {
+  Container,
+  Flex,
+  Heading,
+  Text,
+  Box,
+  Spinner,
+  Callout,
+} from "@radix-ui/themes";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { getProductAnalytics, ProductPerformance } from "@/services/admin/dashboard.admin";
+import { getProductAnalytics } from "@/services/admin/dashboard.admin";
+import { ProductPerformance } from "@/types/analytics";
 import ProductAnalyticsTable from "@/components/admin/analytics/ProductAnalyticsTable";
 
 export default function ProductAnalyticsPage() {
@@ -32,9 +41,12 @@ export default function ProductAnalyticsPage() {
   return (
     <Container size="4" p="4">
       <Box mb="6">
-        <Heading size="8" mb="2">Product Performance</Heading>
+        <Heading size="8" mb="2">
+          Product Performance
+        </Heading>
         <Text color="gray">
-          Track views, intent, and conversion metrics to optimize your product catalog.
+          Track views, intent, and conversion metrics to optimize your product
+          catalog.
         </Text>
       </Box>
 
@@ -56,10 +68,10 @@ export default function ProductAnalyticsPage() {
               <InfoCircledIcon />
             </Callout.Icon>
             <Callout.Text>
-              This dashboard highlights products that customers "Add to Cart" often but rarely "Buy." High interest with low sales may suggest issues with pricing, shipping, or stock.
+              This dashboard highlights products with high interest but low
+              purchases, which may need improvement.
             </Callout.Text>
           </Callout.Root>
-          
           <ProductAnalyticsTable data={data} />
         </Flex>
       )}

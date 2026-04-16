@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Table, Flex, Text, Badge, Box } from "@radix-ui/themes";
-import { ProductPerformance } from "@/services/admin/dashboard.admin";
+import { Table, Flex, Text, Badge } from "@radix-ui/themes";
+import { ProductPerformance } from "@/types/analytics";
 import { ChevronUp, ChevronDown, ArrowUpDown } from "lucide-react";
 import { getProductInsights } from "@/features/analytics/utils/getProductInsights";
 

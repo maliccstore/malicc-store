@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Flex, Text, Card } from "@radix-ui/themes";
-import {
-  getDashboardStats,
-  DashboardStats,
-} from "@/services/admin/dashboard.admin";
+import { getDashboardStats } from "@/services/admin/dashboard.admin";
+import { DashboardStats } from "@/types/analytics";
 import { subscribeToLiveAnalytics } from "@/services/analytics/analytics.service";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";

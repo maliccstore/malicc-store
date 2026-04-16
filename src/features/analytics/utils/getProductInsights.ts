@@ -1,4 +1,4 @@
-import { ProductPerformance } from "@/services/admin/dashboard.admin";
+import { ProductPerformance } from "@/types/analytics";
 
 export interface ProductInsights {
   isHighIntent: boolean;

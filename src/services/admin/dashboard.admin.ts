@@ -1,18 +1,9 @@
 import apiClient from "../apiClient";
-
-export interface DashboardStats {
-  totalRevenue: number;
-  totalOrders: number;
-  totalCustomers: number;
-}
-
-export interface ProductPerformance {
-  productId: string;
-  productName: string;
-  views: number;
-  addToCart: number;
-  purchases: number;
-}
+import {
+  DashboardStats,
+  ProductPerformance,
+  FunnelStep,
+} from "@/types/analytics";
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   try {
@@ -57,7 +48,7 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       ordersData.orders?.reduce(
         (sum: number, order: { totalAmount: number }) =>
           sum + (order.totalAmount || 0),
-        0
+        0,
       ) || 0;
 
     const totalCustomers = usersData?.length || 0;
@@ -99,6 +90,32 @@ export const getProductAnalytics = async (): Promise<ProductPerformance[]> => {
     return response.data.data.analyticsProducts || [];
   } catch (error) {
     console.error("Product analytics error:", error);
+    return [];
+  }
+};
+
+export const getAnalyticsFunnel = async (): Promise<FunnelStep[]> => {
+  try {
+    const query = `
+      query GetAnalyticsFunnel {
+        analyticsFunnel {
+          step
+          count
+          dropOff
+          conversionRate
+        }
+      }
+     `;
+
+    const response = await apiClient.post("", { query });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+
+    return response.data.data.analyticsFunnel || [];
+  } catch (error) {
+    console.error("Funnel analytics error:", error);
     return [];
   }
 };
