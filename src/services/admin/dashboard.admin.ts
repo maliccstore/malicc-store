@@ -6,6 +6,14 @@ export interface DashboardStats {
   totalCustomers: number;
 }
 
+export interface ProductPerformance {
+  productId: string;
+  productName: string;
+  views: number;
+  addToCart: number;
+  purchases: number;
+}
+
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   try {
     const ordersQuery = `
@@ -66,5 +74,31 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       totalOrders: 0,
       totalCustomers: 0,
     };
+  }
+};
+export const getProductAnalytics = async (): Promise<ProductPerformance[]> => {
+  try {
+    const query = ` 
+      query GetAnalyticsProducts {
+        analyticsProducts {
+          productId
+          productName
+          views
+          addToCart
+          purchases
+        }
+      }
+    `;
+
+    const response = await apiClient.post("", { query });
+
+    if (response.data.errors) {
+      throw new Error(response.data.errors[0].message);
+    }
+
+    return response.data.data.analyticsProducts || [];
+  } catch (error) {
+    console.error("Product analytics error:", error);
+    return [];
   }
 };

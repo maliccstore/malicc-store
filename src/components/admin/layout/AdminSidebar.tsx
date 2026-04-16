@@ -10,6 +10,7 @@ import {
   GearIcon,
   HamburgerMenuIcon,
   Cross1Icon,
+  PieChartIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 
@@ -99,6 +100,17 @@ export default function AdminSidebar() {
         },
       ],
       link: "/admin/catalog/coupons",
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: <PieChartIcon />,
+      items: [
+        {
+          id: "product-analytics",
+          label: "Product Analytics",
+          link: "/admin/analytics/products",
+        }]
     },
     {
       id: "settings",
