@@ -41,7 +41,7 @@ export default function VerifyOTPForm() {
             await dispatch(verifyOTPThunk({ phoneNumber, otp: data.otp })).unwrap();
             
             // Link session to user silently
-            identifyEvent(getSessionId()).catch(console.error);
+            await identifyEvent(getSessionId()).catch(console.error);
 
             // alert("Verified successfully!");
             toast.success("Verified successfully!");

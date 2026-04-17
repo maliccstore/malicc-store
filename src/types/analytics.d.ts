@@ -9,6 +9,7 @@ export interface LiveStats {
   activeSessions: number;
   cartsActive: number;
   checkoutActive: number;
+  todayVisitors: number;
 }
 
 export interface LiveAnalyticsSubscriptionData {

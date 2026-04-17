@@ -104,6 +104,7 @@ export const subscribeToLiveAnalytics = (
             activeSessions
             cartsActive
             checkoutActive
+            todayVisitors
           }
         }
       `,
@@ -120,4 +121,21 @@ export const subscribeToLiveAnalytics = (
   );
 
   return unsubscribe;
+};
+
+export const getTodayVisitors = async (): Promise<number> => {
+  try {
+    const response = await apiClient.post("", {
+      query: `
+        query TodayVisitors {
+          todayVisitors
+        }
+      `,
+    });
+
+    return response.data?.data?.todayVisitors || 0;
+  } catch (error) {
+    console.error("GetTodayVisitors Error:", error);
+    return 0;
+  }
 };

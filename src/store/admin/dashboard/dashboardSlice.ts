@@ -10,6 +10,7 @@ const initialState: DashboardState = {
     activeSessions: 0,
     cartsActive: 0,
     checkoutActive: 0,
+    todayVisitors: 0,
   },
 };
 

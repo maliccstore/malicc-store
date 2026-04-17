@@ -15,12 +15,16 @@ export function AnalyticsTracker() {
 
   useEffect(() => {
     const sessionId = getSessionId();
+    const sessionSentKey = `session_start_sent_${sessionId}`;
 
-    // 🔥 SESSION START
-    trackEvent({
-      event: ANALYTICS_EVENTS.SESSION_START,
-      sessionId,
-    });
+    // 🔥 SESSION START (Once per session)
+    if (typeof window !== "undefined" && !sessionStorage.getItem(sessionSentKey)) {
+      trackEvent({
+        event: ANALYTICS_EVENTS.SESSION_START,
+        sessionId,
+      });
+      sessionStorage.setItem(sessionSentKey, "true");
+    }
 
     // 🔥 SUBSCRIBE ONLY (no initial fetch)
     const unsubscribe = subscribeToLiveAnalytics(
