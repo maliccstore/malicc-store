@@ -1,6 +1,6 @@
 # Interface: User
 
-Defined in: [types/user.d.ts:7](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L7)
+Defined in: [types/user.d.ts:7](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L7)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [types/user.d.ts:7](https://github.com/maliccstore/malicc-store/blob
 
 > `optional` **email?**: `string`
 
-Defined in: [types/user.d.ts:10](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L10)
+Defined in: [types/user.d.ts:10](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L10)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: [types/user.d.ts:10](https://github.com/maliccstore/malicc-store/blo
 
 > **id**: `string`
 
-Defined in: [types/user.d.ts:8](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L8)
+Defined in: [types/user.d.ts:8](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L8)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [types/user.d.ts:8](https://github.com/maliccstore/malicc-store/blob
 
 > **isAdmin**: `boolean`
 
-Defined in: [types/user.d.ts:13](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L13)
+Defined in: [types/user.d.ts:13](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L13)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [types/user.d.ts:13](https://github.com/maliccstore/malicc-store/blo
 
 > **isPhoneVerified**: `boolean`
 
-Defined in: [types/user.d.ts:14](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L14)
+Defined in: [types/user.d.ts:14](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L14)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [types/user.d.ts:14](https://github.com/maliccstore/malicc-store/blo
 
 > **phoneNumber**: `string`
 
-Defined in: [types/user.d.ts:11](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L11)
+Defined in: [types/user.d.ts:11](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L11)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [types/user.d.ts:11](https://github.com/maliccstore/malicc-store/blo
 
 > **role**: `string`
 
-Defined in: [types/user.d.ts:12](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L12)
+Defined in: [types/user.d.ts:12](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L12)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [types/user.d.ts:12](https://github.com/maliccstore/malicc-store/blo
 
 > `optional` **username?**: `string`
 
-Defined in: [types/user.d.ts:9](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/user.d.ts#L9)
+Defined in: [types/user.d.ts:9](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/user.d.ts#L9)

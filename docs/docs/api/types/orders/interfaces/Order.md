@@ -1,6 +1,6 @@
 # Interface: Order
 
-Defined in: [types/orders.d.ts:1](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L1)
+Defined in: [types/orders.d.ts:1](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L1)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [types/orders.d.ts:1](https://github.com/maliccstore/malicc-store/bl
 
 > **createdAt**: `string` \| `number`
 
-Defined in: [types/orders.d.ts:5](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L5)
+Defined in: [types/orders.d.ts:5](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L5)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: [types/orders.d.ts:5](https://github.com/maliccstore/malicc-store/bl
 
 > **id**: `string`
 
-Defined in: [types/orders.d.ts:2](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L2)
+Defined in: [types/orders.d.ts:2](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L2)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [types/orders.d.ts:2](https://github.com/maliccstore/malicc-store/bl
 
 > **items**: [`OrderItem`](OrderItem.md)[]
 
-Defined in: [types/orders.d.ts:6](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L6)
+Defined in: [types/orders.d.ts:6](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L6)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [types/orders.d.ts:6](https://github.com/maliccstore/malicc-store/bl
 
 > `optional` **shippingAddress?**: `object`
 
-Defined in: [types/orders.d.ts:7](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L7)
+Defined in: [types/orders.d.ts:7](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L7)
 
 #### addressLine1
 
@@ -52,7 +52,7 @@ Defined in: [types/orders.d.ts:7](https://github.com/maliccstore/malicc-store/bl
 
 > **status**: `string`
 
-Defined in: [types/orders.d.ts:3](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L3)
+Defined in: [types/orders.d.ts:3](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L3)
 
 ***
 
@@ -60,4 +60,4 @@ Defined in: [types/orders.d.ts:3](https://github.com/maliccstore/malicc-store/bl
 
 > **totalAmount**: `number`
 
-Defined in: [types/orders.d.ts:4](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/orders.d.ts#L4)
+Defined in: [types/orders.d.ts:4](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/orders.d.ts#L4)

@@ -1,6 +1,6 @@
 # Interface: OrderFilterInput
 
-Defined in: [services/admin/order.admin.ts:24](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/order.admin.ts#L24)
+Defined in: [services/admin/order.admin.ts:24](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/order.admin.ts#L24)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [services/admin/order.admin.ts:24](https://github.com/maliccstore/ma
 
 > `optional` **limit?**: `number`
 
-Defined in: [services/admin/order.admin.ts:27](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/order.admin.ts#L27)
+Defined in: [services/admin/order.admin.ts:27](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/order.admin.ts#L27)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: [services/admin/order.admin.ts:27](https://github.com/maliccstore/ma
 
 > `optional` **offset?**: `number`
 
-Defined in: [services/admin/order.admin.ts:28](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/order.admin.ts#L28)
+Defined in: [services/admin/order.admin.ts:28](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/order.admin.ts#L28)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [services/admin/order.admin.ts:28](https://github.com/maliccstore/ma
 
 > `optional` **status?**: [`OrderStatus`](../type-aliases/OrderStatus.md)
 
-Defined in: [services/admin/order.admin.ts:25](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/order.admin.ts#L25)
+Defined in: [services/admin/order.admin.ts:25](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/order.admin.ts#L25)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [services/admin/order.admin.ts:25](https://github.com/maliccstore/ma
 
 > `optional` **userId?**: `number`
 
-Defined in: [services/admin/order.admin.ts:26](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/order.admin.ts#L26)
+Defined in: [services/admin/order.admin.ts:26](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/order.admin.ts#L26)

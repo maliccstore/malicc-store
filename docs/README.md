@@ -1,41 +1,68 @@
-# Website
+# Malicc Store Documentation
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+This is the developer documentation site for the Malicc Store frontend, built with [Docusaurus](https://docusaurus.io/).
 
-## Installation
+It contains both manual documentation (guides, architecture) and an auto-generated **API Reference** powered by TypeDoc.
 
-```bash
-yarn
-```
+## 📂 Project Structure
 
-## Local Development
+- `docs/` — Manual guides and documentation (Markdown files).
+  - `docs/api/` — Destination for auto-generated API metadata.
+- `blog/` — Release notes and developer blog posts.
+- `src/` — React components for the Docusaurus landing page and custom themes.
+- `static/` — Static assets (images, logos, etc.).
+- `docusaurus.config.ts` — Main configuration for the documentation site.
+- `tsconfig.typedoc.json` — Specific TypeScript config used for API reference generation.
 
-```bash
-yarn start
-```
+## 🚀 Getting Started
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-## Build
-
-```bash
-yarn build
-```
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-## Deployment
-
-Using SSH:
+### Installation
 
 ```bash
-USE_SSH=true yarn deploy
+cd docs
+npm install
 ```
 
-Not using SSH:
+### Local Development
 
 ```bash
-GIT_USER=<Your GitHub username> yarn deploy
+npm start
 ```
 
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+By default, the documentation will be available at [http://localhost:3000](http://localhost:3000).
+
+### 📖 API Reference Generation
+
+The API reference is automatically generated from the source code in `@/services`, `@/store`, `@/utils`, and `@/types`. This happens automatically during `npm start` and `npm run build`.
+
+To manually verify the TypeScript configuration for the docs:
+
+```bash
+npm run typecheck
+```
+
+## 🏗️ Build & Deployment
+
+### Production Build
+
+```bash
+npm run build
+```
+
+The static files will be generated in the `build/` directory.
+
+### Deployment
+
+To deploy to GitHub Pages (or similar):
+
+```bash
+# Using SSH
+USE_SSH=true npm run deploy
+
+# Not using SSH
+GIT_USER=<Your GitHub username> npm run deploy
+```
+
+---
+
+*Built with ❤️ for the Malicc Store Frontend Team.*

@@ -44,7 +44,6 @@ const config: Config = {
           "../src/store",
           "../src/utils",
           "../src/types",
-          "../src/enums",
           "../src/constants",
         ],
         entryPointStrategy: "expand",

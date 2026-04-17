@@ -1,9 +1,7 @@
 # services/admin/dashboard.admin
 
-## Interfaces
-
-- [DashboardStats](interfaces/DashboardStats.md)
-
 ## Functions
 
+- [getAnalyticsFunnel](functions/getAnalyticsFunnel.md)
 - [getDashboardStats](functions/getDashboardStats.md)
+- [getProductAnalytics](functions/getProductAnalytics.md)

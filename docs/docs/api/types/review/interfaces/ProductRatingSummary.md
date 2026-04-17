@@ -1,6 +1,6 @@
 # Interface: ProductRatingSummary
 
-Defined in: [types/review.d.ts:11](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/review.d.ts#L11)
+Defined in: [types/review.d.ts:11](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/review.d.ts#L11)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [types/review.d.ts:11](https://github.com/maliccstore/malicc-store/b
 
 > `optional` **averageRating?**: `number`
 
-Defined in: [types/review.d.ts:12](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/review.d.ts#L12)
+Defined in: [types/review.d.ts:12](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/review.d.ts#L12)
 
 ***
 
@@ -16,4 +16,4 @@ Defined in: [types/review.d.ts:12](https://github.com/maliccstore/malicc-store/b
 
 > **totalReviews**: `number`
 
-Defined in: [types/review.d.ts:13](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/review.d.ts#L13)
+Defined in: [types/review.d.ts:13](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/review.d.ts#L13)

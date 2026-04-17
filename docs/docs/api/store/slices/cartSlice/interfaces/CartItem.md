@@ -1,6 +1,6 @@
 # Interface: CartItem
 
-Defined in: [store/slices/cartSlice.ts:7](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/store/slices/cartSlice.ts#L7)
+Defined in: [store/slices/cartSlice.ts:10](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/store/slices/cartSlice.ts#L10)
 
 ## Extends
 
@@ -12,7 +12,7 @@ Defined in: [store/slices/cartSlice.ts:7](https://github.com/maliccstore/malicc-
 
 > **availableQuantity**: `number`
 
-Defined in: [types/product.d.ts:13](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L13)
+Defined in: [types/product.d.ts:13](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L13)
 
 #### Inherited from
 
@@ -24,7 +24,7 @@ Defined in: [types/product.d.ts:13](https://github.com/maliccstore/malicc-store/
 
 > **category**: `string`
 
-Defined in: [types/product.d.ts:11](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L11)
+Defined in: [types/product.d.ts:11](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L11)
 
 #### Inherited from
 
@@ -36,7 +36,7 @@ Defined in: [types/product.d.ts:11](https://github.com/maliccstore/malicc-store/
 
 > **createdAt**: `string`
 
-Defined in: [types/product.d.ts:15](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L15)
+Defined in: [types/product.d.ts:15](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L15)
 
 #### Inherited from
 
@@ -48,7 +48,7 @@ Defined in: [types/product.d.ts:15](https://github.com/maliccstore/malicc-store/
 
 > **description**: `string`
 
-Defined in: [types/product.d.ts:6](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L6)
+Defined in: [types/product.d.ts:6](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L6)
 
 #### Inherited from
 
@@ -60,7 +60,7 @@ Defined in: [types/product.d.ts:6](https://github.com/maliccstore/malicc-store/b
 
 > **id**: `string`
 
-Defined in: [types/product.d.ts:4](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L4)
+Defined in: [types/product.d.ts:4](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L4)
 
 #### Inherited from
 
@@ -72,7 +72,7 @@ Defined in: [types/product.d.ts:4](https://github.com/maliccstore/malicc-store/b
 
 > **image**: `string`
 
-Defined in: [types/product.d.ts:7](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L7)
+Defined in: [types/product.d.ts:7](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L7)
 
 #### Inherited from
 
@@ -84,7 +84,7 @@ Defined in: [types/product.d.ts:7](https://github.com/maliccstore/malicc-store/b
 
 > **images**: `string`[]
 
-Defined in: [types/product.d.ts:8](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L8)
+Defined in: [types/product.d.ts:8](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L8)
 
 #### Inherited from
 
@@ -96,7 +96,7 @@ Defined in: [types/product.d.ts:8](https://github.com/maliccstore/malicc-store/b
 
 > **inStock**: `boolean`
 
-Defined in: [types/product.d.ts:12](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L12)
+Defined in: [types/product.d.ts:12](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L12)
 
 #### Inherited from
 
@@ -108,7 +108,7 @@ Defined in: [types/product.d.ts:12](https://github.com/maliccstore/malicc-store/
 
 > **isActive**: `boolean`
 
-Defined in: [types/product.d.ts:14](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L14)
+Defined in: [types/product.d.ts:14](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L14)
 
 #### Inherited from
 
@@ -120,7 +120,7 @@ Defined in: [types/product.d.ts:14](https://github.com/maliccstore/malicc-store/
 
 > **name**: `string`
 
-Defined in: [types/product.d.ts:5](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L5)
+Defined in: [types/product.d.ts:5](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L5)
 
 #### Inherited from
 
@@ -132,7 +132,7 @@ Defined in: [types/product.d.ts:5](https://github.com/maliccstore/malicc-store/b
 
 > **price**: `number`
 
-Defined in: [types/product.d.ts:9](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L9)
+Defined in: [types/product.d.ts:9](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L9)
 
 #### Inherited from
 
@@ -144,7 +144,7 @@ Defined in: [types/product.d.ts:9](https://github.com/maliccstore/malicc-store/b
 
 > **quantity**: `number`
 
-Defined in: [store/slices/cartSlice.ts:8](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/store/slices/cartSlice.ts#L8)
+Defined in: [store/slices/cartSlice.ts:11](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/store/slices/cartSlice.ts#L11)
 
 ***
 
@@ -152,7 +152,7 @@ Defined in: [store/slices/cartSlice.ts:8](https://github.com/maliccstore/malicc-
 
 > **rating**: [`Rating`](../../../../types/rating/type-aliases/Rating.md)
 
-Defined in: [types/product.d.ts:10](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/product.d.ts#L10)
+Defined in: [types/product.d.ts:10](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/product.d.ts#L10)
 
 #### Inherited from
 

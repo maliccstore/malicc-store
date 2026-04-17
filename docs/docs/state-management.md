@@ -24,6 +24,7 @@ The store is organized into logical slices and services:
 - `checkoutSlice` — checkout progress and errors
 - `orderSlice` — order history and current order state
 - `productSlice` — product list and filters
+- `dashboardSlice` — real-time analytics and visitor statistics for administrative use
 
 ## Data flow
 

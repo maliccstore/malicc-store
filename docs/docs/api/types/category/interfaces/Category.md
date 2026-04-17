@@ -1,6 +1,6 @@
 # Interface: Category
 
-Defined in: [types/category.d.ts:1](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L1)
+Defined in: [types/category.d.ts:1](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L1)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [types/category.d.ts:1](https://github.com/maliccstore/malicc-store/
 
 > `optional` **children?**: `Category`[]
 
-Defined in: [types/category.d.ts:8](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L8)
+Defined in: [types/category.d.ts:8](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L8)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: [types/category.d.ts:8](https://github.com/maliccstore/malicc-store/
 
 > `optional` **description?**: `string`
 
-Defined in: [types/category.d.ts:5](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L5)
+Defined in: [types/category.d.ts:5](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L5)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [types/category.d.ts:5](https://github.com/maliccstore/malicc-store/
 
 > **id**: `string`
 
-Defined in: [types/category.d.ts:2](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L2)
+Defined in: [types/category.d.ts:2](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L2)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [types/category.d.ts:2](https://github.com/maliccstore/malicc-store/
 
 > **isActive**: `boolean`
 
-Defined in: [types/category.d.ts:6](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L6)
+Defined in: [types/category.d.ts:6](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L6)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [types/category.d.ts:6](https://github.com/maliccstore/malicc-store/
 
 > **name**: `string`
 
-Defined in: [types/category.d.ts:3](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L3)
+Defined in: [types/category.d.ts:3](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L3)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [types/category.d.ts:3](https://github.com/maliccstore/malicc-store/
 
 > `optional` **parentId?**: `string`
 
-Defined in: [types/category.d.ts:7](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L7)
+Defined in: [types/category.d.ts:7](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L7)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [types/category.d.ts:7](https://github.com/maliccstore/malicc-store/
 
 > **slug**: `string`
 
-Defined in: [types/category.d.ts:4](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L4)
+Defined in: [types/category.d.ts:4](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L4)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [types/category.d.ts:4](https://github.com/maliccstore/malicc-store/
 
 > `optional` **sortOrder?**: `number`
 
-Defined in: [types/category.d.ts:9](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/category.d.ts#L9)
+Defined in: [types/category.d.ts:9](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/category.d.ts#L9)

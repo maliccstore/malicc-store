@@ -2,7 +2,7 @@
 
 > **Rating** = `"1"` \| `"2"` \| `"3"` \| `"4"`
 
-Defined in: [types/rating.d.ts:12](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/rating.d.ts#L12)
+Defined in: [types/rating.d.ts:12](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/rating.d.ts#L12)
 
 Represents a rating value as a string, ranging from "1" to "4".
 - "1": Poor

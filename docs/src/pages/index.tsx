@@ -14,8 +14,10 @@ const sidebarItems = [
 
 export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
-  const handleNavigate = (href: string) => () => {
-    window.location.href = href;
+  const handleNavigate = (href?: string) => () => {
+    if (href) {
+      window.location.href = href;
+    }
   };
 
   return (

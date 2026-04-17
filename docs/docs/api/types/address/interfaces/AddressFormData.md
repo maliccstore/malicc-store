@@ -1,6 +1,6 @@
 # Interface: AddressFormData
 
-Defined in: [types/address.d.ts:38](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L38)
+Defined in: [types/address.d.ts:38](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L38)
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: [types/address.d.ts:38](https://github.com/maliccstore/malicc-store/
 
 > **addressLine1**: `string`
 
-Defined in: [types/address.d.ts:42](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L42)
+Defined in: [types/address.d.ts:42](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L42)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: [types/address.d.ts:42](https://github.com/maliccstore/malicc-store/
 
 > `optional` **addressLine2?**: `string`
 
-Defined in: [types/address.d.ts:43](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L43)
+Defined in: [types/address.d.ts:43](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L43)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [types/address.d.ts:43](https://github.com/maliccstore/malicc-store/
 
 > **city**: `string`
 
-Defined in: [types/address.d.ts:44](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L44)
+Defined in: [types/address.d.ts:44](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L44)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [types/address.d.ts:44](https://github.com/maliccstore/malicc-store/
 
 > **country**: `string`
 
-Defined in: [types/address.d.ts:47](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L47)
+Defined in: [types/address.d.ts:47](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L47)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [types/address.d.ts:47](https://github.com/maliccstore/malicc-store/
 
 > **fullName**: `string`
 
-Defined in: [types/address.d.ts:40](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L40)
+Defined in: [types/address.d.ts:40](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L40)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [types/address.d.ts:40](https://github.com/maliccstore/malicc-store/
 
 > `optional` **id?**: `string`
 
-Defined in: [types/address.d.ts:39](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L39)
+Defined in: [types/address.d.ts:39](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L39)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [types/address.d.ts:39](https://github.com/maliccstore/malicc-store/
 
 > **isDefault**: `boolean`
 
-Defined in: [types/address.d.ts:48](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L48)
+Defined in: [types/address.d.ts:48](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L48)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [types/address.d.ts:48](https://github.com/maliccstore/malicc-store/
 
 > **phoneNumber**: `string`
 
-Defined in: [types/address.d.ts:41](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L41)
+Defined in: [types/address.d.ts:41](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L41)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [types/address.d.ts:41](https://github.com/maliccstore/malicc-store/
 
 > **postalCode**: `string`
 
-Defined in: [types/address.d.ts:46](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L46)
+Defined in: [types/address.d.ts:46](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L46)
 
 ***
 
@@ -80,4 +80,4 @@ Defined in: [types/address.d.ts:46](https://github.com/maliccstore/malicc-store/
 
 > **state**: `string`
 
-Defined in: [types/address.d.ts:45](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/types/address.d.ts#L45)
+Defined in: [types/address.d.ts:45](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/types/address.d.ts#L45)

@@ -2,6 +2,7 @@
 
 ## Modules
 
+- [constants/event-constants](constants/event-constants/index.md)
 - [services/address.service](services/address.service/index.md)
 - [services/admin/category.admin](services/admin/category.admin/index.md)
 - [services/admin/coupon.admin](services/admin/coupon.admin/index.md)

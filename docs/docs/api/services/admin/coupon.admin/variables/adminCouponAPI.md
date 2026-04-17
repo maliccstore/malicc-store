@@ -2,7 +2,7 @@
 
 > `const` **adminCouponAPI**: `object`
 
-Defined in: [services/admin/coupon.admin.ts:4](https://github.com/maliccstore/malicc-store/blob/531024241c1e60c35a681c4c70193c5252119b93/src/services/admin/coupon.admin.ts#L4)
+Defined in: [services/admin/coupon.admin.ts:4](https://github.com/maliccstore/malicc-store/blob/66610a5232f27d4109b9b25550eef36086e83bda/src/services/admin/coupon.admin.ts#L4)
 
 ## Type Declaration
 
