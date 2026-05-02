@@ -1,0 +1,92 @@
+// src/services/payment.service.ts
+import apiClient from './apiClient';
+
+// ── Create Razorpay Order ─────────────────────────────────────────
+export const createPaymentOrderAPI = async (
+  orderId: string
+) => {
+  const response = await apiClient.post('', {
+    query: `
+      mutation CreatePaymentOrder($orderId: String!) {
+        createPaymentOrder(orderId: $orderId) {
+          razorpayOrderId
+          amount
+          currency
+          keyId
+        }
+      }
+    `,
+    variables: { orderId },
+  });
+
+  const result = response.data?.data?.createPaymentOrder;
+  if (!result) throw new Error('Failed to create payment order');
+  return result;
+};
+
+// ── Verify Payment ────────────────────────────────────────────────
+export const verifyPaymentAPI = async (params: {
+  orderId: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}) => {
+  const response = await apiClient.post('', {
+    query: `
+      mutation VerifyPayment(
+        $orderId: String!
+        $razorpayOrderId: String!
+        $razorpayPaymentId: String!
+        $razorpaySignature: String!
+      ) {
+        verifyPayment(
+          orderId: $orderId
+          razorpayOrderId: $razorpayOrderId
+          razorpayPaymentId: $razorpayPaymentId
+          razorpaySignature: $razorpaySignature
+        ) {
+          success
+          orderId
+          message
+        }
+      }
+    `,
+    variables: params,
+  });
+
+  const result = response.data?.data?.verifyPayment;
+  if (!result) throw new Error('Failed to verify payment');
+  return result;
+};
+
+// ── Report Payment Failure ─────────────────────────────────────────
+export const reportPaymentFailureAPI = async (params: {
+  orderId: string;
+  razorpayOrderId?: string;
+  reason?: string;
+}) => {
+  const response = await apiClient.post('', {
+    query: `
+      mutation ReportPaymentFailure(
+        $orderId: String!
+        $razorpayOrderId: String
+        $reason: String
+      ) {
+        reportPaymentFailure(
+          orderId: $orderId
+          razorpayOrderId: $razorpayOrderId
+          reason: $reason
+        ) {
+          success
+          orderId
+          message
+        }
+      }
+    `,
+    variables: params,
+  });
+
+  const result = response.data?.data?.reportPaymentFailure;
+  if (!result) throw new Error('Failed to report payment failure');
+  return result;
+};

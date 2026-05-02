@@ -1,5 +1,6 @@
+// src/services/apiClient.ts
 import axios from 'axios';
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 
 const apiClient = axios.create({
   // baseURL: 'https://api.malicc.store',

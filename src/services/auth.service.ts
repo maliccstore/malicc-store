@@ -70,6 +70,8 @@ export const signupAPI = async (input: SignupInput) => {
         signup(input: $input) {
           user {
             id
+            username
+            email
             phoneNumber
             role
             isAdmin
@@ -144,6 +146,8 @@ export const verifyOTPAPI = async (phoneNumber: string, otp: string) => {
           token
           user {
             id
+            username
+            email
             phoneNumber
             role
             isAdmin
@@ -209,6 +213,8 @@ export const getMeAPI = async () => {
       query Me {
         user {
           id
+          username
+          email
           phoneNumber
           role
           isAdmin
@@ -261,6 +267,107 @@ export const updateUserByPhoneAPI = async (input: { username?: string; email?: s
         validationErrors: graphQLError.extensions?.validationErrors
       };
       throw errorObj;
+    }
+
+    return response;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+/**
+ * Update Admin Credentials
+ */
+export const updateAdminCredentialsAPI = async (input: { username?: string; email?: string }) => {
+  try {
+    const query = `
+      mutation UpdateAdminCredentials($input: UpdateUserInput!) {
+        updateAdminCredentials(input: $input) {
+          id
+          username
+          email
+          phoneNumber
+          role
+          isAdmin
+          isPhoneVerified
+        }
+      }
+    `;
+
+    const response = await apiClient.post("", {
+      query,
+      variables: { input },
+    });
+
+    const graphQLError = response.data?.errors?.[0];
+    if (graphQLError) {
+      const errorObj = {
+        message: graphQLError.message || "Unknown GraphQL Error",
+        validationErrors: graphQLError.extensions?.validationErrors
+      };
+      throw errorObj;
+    }
+
+    return response;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+/**
+ * Request Admin Phone Change OTP
+ */
+export const requestAdminPhoneChangeOTPAPI = async (newPhoneNumber: string) => {
+  try {
+    const query = `
+      mutation RequestAdminPhoneChangeOTP($newPhoneNumber: String!) {
+        requestAdminPhoneChangeOTP(newPhoneNumber: $newPhoneNumber)
+      }
+    `;
+
+    const response = await apiClient.post("", {
+      query,
+      variables: { newPhoneNumber },
+    });
+
+    const graphQLError = response.data?.errors?.[0];
+    if (graphQLError) {
+      throw new Error(graphQLError.message);
+    }
+
+    return response;
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+/**
+ * Verify Admin Phone Change
+ */
+export const verifyAdminPhoneChangeAPI = async (otp: string, newPhoneNumber: string) => {
+  try {
+    const query = `
+      mutation VerifyAdminPhoneChange($otp: String!, $newPhoneNumber: String!) {
+        verifyAdminPhoneChange(otp: $otp, newPhoneNumber: $newPhoneNumber) {
+          id
+          username
+          email
+          phoneNumber
+          role
+          isAdmin
+          isPhoneVerified
+        }
+      }
+    `;
+
+    const response = await apiClient.post("", {
+      query,
+      variables: { otp, newPhoneNumber },
+    });
+
+    const graphQLError = response.data?.errors?.[0];
+    if (graphQLError) {
+      throw new Error(graphQLError.message);
     }
 
     return response;

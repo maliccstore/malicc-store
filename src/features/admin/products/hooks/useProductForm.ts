@@ -25,9 +25,10 @@ export function useProductForm(product?: AdminProduct) {
                 setIsLoadingCategories(true);
                 const response = await adminCategoryAPI.getAll({ isActive: true });
                 setCategories(response.data);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Failed to fetch categories:', error);
-                toast.error('Failed to load categories');
+                const errorMessage = (error as { message?: string })?.message || 'Failed to load categories';
+                toast.error(errorMessage);
             } finally {
                 setIsLoadingCategories(false);
             }
@@ -39,12 +40,13 @@ export function useProductForm(product?: AdminProduct) {
         control,
         handleSubmit,
         watch,
+        setValue,
         formState: { errors, isSubmitting },
     } = useForm<ProductFormValues>({
         values: {
             title: product?.name || '',
             description: product?.description || '',
-            imageUrl: product?.images?.[0] || '',
+            imageUrls: product?.images || [],
             status: product?.status || 'INACTIVE',
             price: product?.price || 0,
             sku: product?.sku || '',
@@ -55,7 +57,7 @@ export function useProductForm(product?: AdminProduct) {
     });
 
     // image url watcher
-    const imageUrl = watch('imageUrl');
+    const imageUrls = watch('imageUrls');
 
     // submit product
     const onSubmit = async (data: ProductFormValues) => {
@@ -71,7 +73,7 @@ export function useProductForm(product?: AdminProduct) {
                 quantity: Number(data.inventoryQuantity),
                 availableQuantity: Number(data.inventoryAvailable),
             },
-            images: data.imageUrl ? [data.imageUrl] : [],
+            images: data.imageUrls || [],
         };
 
         try {
@@ -84,9 +86,10 @@ export function useProductForm(product?: AdminProduct) {
             }
             router.push('/admin/catalog/products');
             router.refresh();
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to save product:', error);
-            toast.error('Failed to save product. Please try again.');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to save product. Please try again.';
+            toast.error(errorMessage);
         }
     };
 
@@ -99,9 +102,10 @@ export function useProductForm(product?: AdminProduct) {
             toast.success('Product deleted successfully');
             router.push('/admin/catalog/products');
             router.refresh();
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to delete product:', error);
-            toast.error('Failed to delete product');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to delete product';
+            toast.error(errorMessage);
         }
     };
 
@@ -111,7 +115,8 @@ export function useProductForm(product?: AdminProduct) {
         errors,
         isSubmitting,
         watch,
-        imageUrl,
+        setValue,
+        imageUrls,
         categories,
         isLoadingCategories,
         onSubmit,

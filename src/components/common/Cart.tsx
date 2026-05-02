@@ -1,20 +1,18 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Cross2Icon } from '@radix-ui/react-icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store';
 import {
-  removeFromCart,
-  removeItemCompletely,
-  clearCart,
   setCartOpen,
-  addToCart,
+  updateCartItemThunk,
+  clearCartThunk,
 } from '../../store/slices/cartSlice';
 import { Button } from '../ui/Button';
 import Image from 'next/image';
 
 const Cart = () => {
-  const dispatch = useDispatch();
-  const { items, totalQuantity, totalAmount, isCartOpen } = useSelector(
+  const dispatch = useAppDispatch();
+  const { items, totalQuantity, totalAmount, isCartOpen } = useAppSelector(
     (state: RootState) => state.cart
   );
 
@@ -61,14 +59,24 @@ const Cart = () => {
                       <p className="text-gray-600">${item.price.toFixed(2)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => dispatch(removeFromCart(item.id))}
+                          onClick={() => {
+                            dispatch(updateCartItemThunk({
+                              productId: String(item.id),
+                              newQuantity: item.quantity - 1
+                            }));
+                          }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
                           -
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={() => dispatch(addToCart(item))}
+                          onClick={() => {
+                            dispatch(updateCartItemThunk({
+                              productId: String(item.id),
+                              newQuantity: item.quantity + 1
+                            }));
+                          }}
                           className="w-8 h-8 flex items-center justify-center border rounded"
                         >
                           +
@@ -76,7 +84,12 @@ const Cart = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => dispatch(removeItemCompletely(item.id))}
+                      onClick={() => {
+                        dispatch(updateCartItemThunk({
+                          productId: String(item.id),
+                          newQuantity: 0
+                        }));
+                      }}
                       className="text-gray-500 hover:text-red-500"
                     >
                       <Cross2Icon className="h-4 w-4" />
@@ -103,7 +116,9 @@ const Cart = () => {
                 Proceed to Checkout
               </Button>
               <button
-                onClick={() => dispatch(clearCart())}
+                onClick={() => {
+                  dispatch(clearCartThunk());
+                }}
                 className="w-full mt-2 text-sm text-gray-500 hover:text-gray-700"
               >
                 Clear Cart

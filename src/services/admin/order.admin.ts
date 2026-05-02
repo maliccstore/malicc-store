@@ -108,6 +108,10 @@ export const getOrderDetails = async (id: string) => {
           shippingFee
           totalAmount
           currency
+          discountAmount
+          coupon {
+            code
+          }
           paymentMethod
           shippingMethod
           createdAt

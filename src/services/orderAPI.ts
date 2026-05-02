@@ -1,10 +1,10 @@
 import apiClient from "./apiClient";
 
 export const orderAPI = {
-  checkout: async (addressId: number, paymentMethod: string = "COD") => {
+  checkout: async (addressId: number, paymentMethod: string = "COD", couponCode?: string) => {
     const query = `
-      mutation Checkout($addressId: Float!, $paymentMethod: String) {
-        checkout(addressId: $addressId, paymentMethod: $paymentMethod) {
+      mutation Checkout($addressId: Float!, $paymentMethod: String, $couponCode: String) {
+        checkout(addressId: $addressId, paymentMethod: $paymentMethod, couponCode: $couponCode) {
           success
           message
           order {
@@ -19,7 +19,7 @@ export const orderAPI = {
     try {
       const response = await apiClient.post("", {
         query,
-        variables: { addressId, paymentMethod },
+        variables: { addressId, paymentMethod, ...(couponCode && { couponCode }) },
       });
 
       if (response.data.errors) {
@@ -45,6 +45,7 @@ export const orderAPI = {
             createdAt
             items {
               id
+              productId
               productName
               quantity
               unitPrice
@@ -94,6 +95,7 @@ export const orderAPI = {
             items {
               id
               productName
+              productImage
               productId
               quantity
               unitPrice
@@ -125,6 +127,34 @@ export const orderAPI = {
       }
 
       return response.data.data.order;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  validateCoupon: async (code: string, subtotal: number) => {
+    const query = `
+      query ValidateCoupon($input: ValidateCouponInput!) {
+        validateCoupon(input: $input) {
+          success
+          message
+          discount
+          finalAmount
+        }
+      }
+    `;
+
+    try {
+      const response = await apiClient.post("", {
+        query,
+        variables: { input: { code, subtotal } },
+      });
+
+      if (response.data.errors) {
+        throw new Error(response.data.errors[0].message);
+      }
+
+      return response.data.data.validateCoupon;
     } catch (error) {
       throw error;
     }
