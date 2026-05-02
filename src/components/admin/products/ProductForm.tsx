@@ -14,6 +14,11 @@ import {
 } from '@radix-ui/themes';
 import { ProductFormProps } from '@/features/admin/products/product.types';
 import { Controller } from 'react-hook-form';
+import { useRef, useState } from 'react';
+import uploadService from '@/services/admin/upload.service';
+import toast from 'react-hot-toast';
+import { UploadIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 
 export default function ProductForm({
   product,
@@ -26,9 +31,42 @@ export default function ProductForm({
   isSubmitting,
   onSubmit,
   handleDelete,
-  imageUrl,
+  imageUrls,
   onDiscard,
+  setValue,
 }: ProductFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadError(null);
+    setIsUploading(true);
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        // Validation per file
+        if (file.size > 5 * 1024 * 1024) throw new Error(`File ${file.name} is larger than 5MB`);
+        if (!file.type.startsWith('image/')) throw new Error(`File ${file.name} is not an image`);
+
+        return await uploadService.uploadProductImage(file);
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setValue('imageUrls', [...(imageUrls || []), ...uploadedUrls], { shouldValidate: true, shouldDirty: true });
+      toast.success('Images uploaded successfully');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to upload image. Please try again.');
+      setUploadError('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <Box height="100%" width="100%" style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 120px)' }}>
@@ -137,20 +175,26 @@ export default function ProductForm({
                               control={control}
                               rules={{ required: 'Category is required' }}
                               render={({ field }) => (
-                                <Select.Root
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  disabled={isLoadingCategories}
-                                >
-                                  <Select.Trigger placeholder="Select category" style={{ width: '100%' }} />
-                                  <Select.Content>
-                                    {categories.map((category) => (
-                                      <Select.Item key={category.id} value={category.id}>
-                                        {category.name}
-                                      </Select.Item>
-                                    ))}
-                                  </Select.Content>
-                                </Select.Root>
+                                isLoadingCategories ? (
+                                  <Select.Root disabled>
+                                    <Select.Trigger placeholder="Loading categories..." style={{ width: '100%' }} />
+                                  </Select.Root>
+                                ) : (
+                                  <Select.Root
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    disabled={isLoadingCategories}
+                                  >
+                                    <Select.Trigger placeholder="Select category" style={{ width: '100%' }} />
+                                    <Select.Content>
+                                      {categories.map((category) => (
+                                        <Select.Item key={category.id} value={category.id}>
+                                          {category.name}
+                                        </Select.Item>
+                                      ))}
+                                    </Select.Content>
+                                  </Select.Root>
+                                )
                               )}
                             />
                           </Form.Control>
@@ -179,29 +223,98 @@ export default function ProductForm({
                   </Form.Field>
                 </Flex>
 
-                {/* Media Block */}
                 <Box mt="4">
                   <Heading size="4" mb="2">Media</Heading>
-                  <Form.Field name="imageUrl">
-                    <Box>
-                      <Form.Label asChild>
-                        <Text as="span" size="2" weight="bold" mb="1" style={{ display: 'block' }}>Image URL</Text>
-                      </Form.Label>
-                      <Form.Control asChild>
-                        <Controller
-                          name="imageUrl"
-                          control={control}
-                          render={({ field }) => (
-                            <TextField.Root placeholder="https://..." size="2" {...field} />
-                          )}
-                        />
-                      </Form.Control>
-                    </Box>
-                  </Form.Field>
-                  {imageUrl && (
-                    <Box mt="2" className="rounded-lg overflow-hidden border border-gray-200">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imageUrl} alt="Preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', background: '#f8f9fa' }} />
+                  <Box>
+                    <Text as="span" size="2" weight="bold" mb="1" style={{ display: 'block' }}>Product Image</Text>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      multiple
+                      style={{ display: 'none' }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="2"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <UploadIcon />
+                      {isUploading ? 'Uploading...' : 'Upload Product Images'}
+                    </Button>
+                    {uploadError && (
+                      <Text color="red" size="1" mt="1" style={{ display: 'block' }}>
+                        {uploadError}
+                      </Text>
+                    )}
+                  </Box>
+                  {imageUrls && imageUrls.length > 0 && (
+                    <Box
+                      mt="4"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: "12px",
+                      }}
+                    >
+                      {imageUrls.map((url, index) => (
+                        <Box
+                          key={index}
+                          style={{
+                            border: "1px solid var(--gray-5)",
+                            borderRadius: "8px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <Image
+                            width={100}
+                            height={100}
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            style={{
+                              width: "100%",
+                              height: "100px",
+                              objectFit: "contain",
+                              background: "var(--gray-2)",
+                            }}
+                          />
+
+                          <Box
+                            p="2"
+                            style={{ borderTop: "1px solid var(--gray-5)" }}
+                          >
+                            <Flex justify="between" align="center">
+                              <Text
+                                size="1"
+                                color="gray"
+                                truncate
+                                style={{ maxWidth: "120px" }}
+                              >
+                                {url}
+                              </Text>
+
+                              <Button
+                                size="1"
+                                color="red"
+                                variant="soft"
+                                type="button"
+                                onClick={() =>
+                                  setValue(
+                                    "imageUrls",
+                                    imageUrls.filter((_, i) => i !== index),
+                                    { shouldValidate: true, shouldDirty: true }
+                                  )
+                                }
+                              >
+                                Remove
+                              </Button>
+                            </Flex>
+                          </Box>
+                        </Box>
+                      ))}
                     </Box>
                   )}
                 </Box>

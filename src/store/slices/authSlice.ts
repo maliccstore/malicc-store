@@ -5,7 +5,7 @@ import {
     verifyOTPAPI,
     getMeAPI,
     resendOTPAPI,
-    // updateUserAPI,
+    updateAdminCredentialsAPI,
 } from "../../services/auth.service";
 import { User, SignupInput } from "../../types/user";
 import Cookies from "js-cookie";
@@ -99,19 +99,19 @@ export const resendOTPThunk = createAsyncThunk(
     }
 );
 
-// TODO: Update User
-// export const updateUserThunk = createAsyncThunk(
-//     "auth/updateUser",
-//     async (input: Partial<User> & { address?: Address }, { rejectWithValue }) => {
-//         try {
-//             const response = await updateUserAPI(input);
-//             return response.data.data.updateUser.user;
-//         } catch (error: any) {
-//             return rejectWithValue(error.message || "Failed to update user");
-//         }
-//     }
-// );
-
+// Update User
+export const updateUserThunk = createAsyncThunk(
+    "auth/updateUser",
+    async (input: { username?: string; email?: string }, { rejectWithValue }) => {
+        try {
+            const response = await updateAdminCredentialsAPI(input);
+            if (!response) throw new Error("No response from server");
+            return response.data.data.updateAdminCredentials;
+        } catch (error: unknown) {
+            return rejectWithValue(error instanceof Error ? error.message : "Failed to update user");
+        }
+    }
+);
 
 const authSlice = createSlice({
     name: "auth",
@@ -201,18 +201,20 @@ const authSlice = createSlice({
         });
 
         // Update User
-        // builder.addCase(updateUserThunk.pending, (state) => {
-        //     state.loading = true;
-        //     state.error = null;
-        // });
-        // builder.addCase(updateUserThunk.fulfilled, (state, action) => {
-        //     state.loading = false;
-        //     state.user = action.payload;
-        // });
-        // builder.addCase(updateUserThunk.rejected, (state, action) => {
-        //     state.loading = false;
-        //     state.error = action.payload as string;
-        // });
+        builder.addCase(updateUserThunk.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(updateUserThunk.fulfilled, (state, action) => {
+            state.loading = false;
+            if (action.payload) {
+                state.user = action.payload;
+            }
+        });
+        builder.addCase(updateUserThunk.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        });
     },
 });
 

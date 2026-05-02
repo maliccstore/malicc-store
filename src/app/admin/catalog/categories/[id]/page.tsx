@@ -8,6 +8,7 @@ import { useEffect, useState, use, useCallback } from 'react';
 import { adminCategoryAPI } from '@/services/admin/category.admin';
 import { CategoryFormValues } from '@/features/admin/categories/category.types';
 import CategoryForm from '@/components/admin/categories/CategoryForm';
+import toast from 'react-hot-toast';
 
 export default function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -27,9 +28,10 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
                 isActive: data.isActive,
                 parentId: data.parentId,
             });
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to load category:', error);
-            alert('Category not found');
+            const errorMessage = (error as { message?: string })?.message || 'Category not found';
+            toast.error(errorMessage);
             router.push('/admin/catalog/categories');
         } finally {
             setLoading(false);
@@ -48,9 +50,10 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
             setIsSubmitting(true);
             await adminCategoryAPI.update(resolvedParams.id, data);
             router.push('/admin/catalog/categories');
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Failed to update category:', error);
-            alert('Failed to update category');
+            const errorMessage = (error as { message?: string })?.message || 'Failed to update category';
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

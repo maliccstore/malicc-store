@@ -1,4 +1,4 @@
-import { Control, UseFormHandleSubmit, FieldErrors } from 'react-hook-form';
+import { Control, UseFormHandleSubmit, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { AdminCategory } from '@/features/admin/categories/category.types';
 
 export type AdminProductStatus = 'ACTIVE' | 'INACTIVE';
@@ -30,7 +30,7 @@ export interface AdminProduct {
 export type ProductFormValues = {
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrls: string[];
   status: AdminProductStatus;
   price: number;
   sku: string;
@@ -48,8 +48,9 @@ export interface ProductFormProps {
   handleSubmit: UseFormHandleSubmit<ProductFormValues>;
   errors: FieldErrors<ProductFormValues>;
   isSubmitting: boolean;
+  setValue: UseFormSetValue<ProductFormValues>;
   onSubmit: (data: ProductFormValues) => void;
   handleDelete: () => void;
-  imageUrl: string;
+  imageUrls: string[];
   onDiscard: () => void;
 }

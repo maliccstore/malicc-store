@@ -123,6 +123,14 @@ export default function OrderDetailPage() {
               <Text color="gray">Subtotal</Text>
               <Text>{formatCurrency(order.subtotal)}</Text>
             </Flex>
+            {!!order.discountAmount && order.discountAmount > 0 && (
+              <Flex justify="between">
+                <Text color="gray">
+                  Discount {order.coupon?.code ? `(${order.coupon.code})` : ''}
+                </Text>
+                <Text>−{formatCurrency(order.discountAmount)}</Text>
+              </Flex>
+            )}
             <Flex justify="between">
               <Text color="gray">Tax</Text>
               <Text>{formatCurrency(order.tax)}</Text>
