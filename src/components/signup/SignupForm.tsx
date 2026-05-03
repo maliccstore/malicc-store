@@ -1,20 +1,34 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Button, TextField, Flex, Card, Heading, Text } from "@radix-ui/themes";
+import {
+  Button,
+  TextField,
+  Flex,
+  Card,
+  Heading,
+  Text,
+} from "@radix-ui/themes";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import { signupThunk } from "@/store/slices/authSlice";
+import {
+  signupThunk,
+  signupWithPasswordThunk,
+} from "@/store/slices/authSlice";
 import { AppDispatch, RootState } from "@/store";
 
 interface SignupFormData {
   phoneNumber: string;
+  password?: string;
 }
 
 export const SignupForm = () => {
+  const [signupMode, setSignupMode] = useState<"OTP" | "PASSWORD">("OTP");
+
   const {
     register,
     handleSubmit,
@@ -28,30 +42,60 @@ export const SignupForm = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      await dispatch(
-        signupThunk({ phoneNumber: data.phoneNumber })
-      ).unwrap();
+      if (signupMode === "OTP") {
+        await dispatch(
+          signupThunk({ phoneNumber: data.phoneNumber })
+        ).unwrap();
 
-      toast.success("Account created successfully!");
-      router.push(
-        `/auth/verify-otp?phone=${encodeURIComponent(data.phoneNumber)}`
-      );
+        toast.success("OTP sent 📲");
+
+        router.push(
+          `/auth/verify-otp?phone=${encodeURIComponent(
+            data.phoneNumber
+          )}`
+        );
+      } else {
+        if (!data.password) {
+          toast.error("Password is required");
+          return;
+        }
+
+        await dispatch(
+          signupWithPasswordThunk({
+            phoneNumber: data.phoneNumber,
+            password: data.password,
+          })
+        ).unwrap();
+
+        toast.success("Account created successfully 🔥");
+
+        router.push("/explore");
+      }
     } catch (err: unknown) {
       const error = err as {
         validationErrors?: Array<{ field: string; message: string }>;
         message?: string;
       };
-      // Handle validation errors
-      if (error?.validationErrors && Array.isArray(error.validationErrors)) {
-        error.validationErrors.forEach((err_item: { field: string; message: string }) => {
-          setError(err_item.field as keyof SignupFormData, { type: "server", message: err_item.message });
+
+      if (error?.validationErrors) {
+        error.validationErrors.forEach((err_item) => {
+          setError(err_item.field as keyof SignupFormData, {
+            type: "server",
+            message: err_item.message,
+          });
         });
         return;
       }
 
-      // Handle general error message
-      const errorMessage = error?.message || (typeof error === "string" ? error : "Signup failed");
-      toast.error(errorMessage);
+      const errorMessage =
+        error?.message ||
+        (typeof error === "string" ? error : "Signup failed");
+
+      if (errorMessage.includes("already exists")) {
+        toast.error("User already exists. Try logging in.");
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -62,9 +106,31 @@ export const SignupForm = () => {
           Create Your Account
         </Heading>
 
+        {/* 🔥 Toggle */}
+        <Flex justify="center" gap="3">
+          <Button
+            variant={signupMode === "OTP" ? "solid" : "soft"}
+            onClick={() => setSignupMode("OTP")}
+          >
+            OTP
+          </Button>
+
+          <Button
+            variant={signupMode === "PASSWORD" ? "solid" : "soft"}
+            onClick={() => setSignupMode("PASSWORD")}
+          >
+            Password
+          </Button>
+        </Flex>
+
+        <Text size="1" align="center" color="gray">
+          {signupMode === "OTP"
+            ? "We’ll verify your phone with OTP"
+            : "Create account with password"}
+        </Text>
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="4">
-
             <TextField.Root
               size="3"
               placeholder="Phone Number"
@@ -77,14 +143,43 @@ export const SignupForm = () => {
                 },
               })}
             />
+
             {errors.phoneNumber && (
               <Text color="red" size="2">
                 {errors.phoneNumber.message}
               </Text>
             )}
 
+            {/* 🔥 Password Field */}
+            {signupMode === "PASSWORD" && (
+              <>
+                <TextField.Root
+                  size="3"
+                  placeholder="Password"
+                  type="password"
+                  {...register("password", {
+                    required: signupMode === "PASSWORD",
+                    minLength: {
+                      value: 6,
+                      message: "Minimum 6 characters",
+                    },
+                  })}
+                />
+
+                {errors.password && (
+                  <Text color="red" size="2">
+                    {errors.password.message}
+                  </Text>
+                )}
+              </>
+            )}
+
             <Button size="3" type="submit" disabled={loading}>
-              {loading ? "Creating account..." : "Sign Up"}
+              {loading
+                ? "Creating account..."
+                : signupMode === "OTP"
+                ? "Send OTP"
+                : "Sign Up"}
             </Button>
           </Flex>
         </form>
