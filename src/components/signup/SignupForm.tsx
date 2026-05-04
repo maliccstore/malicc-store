@@ -16,6 +16,7 @@ import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  loadUserThunk,
   signupThunk,
   signupWithPasswordThunk,
 } from "@/store/slices/authSlice";
@@ -68,8 +69,8 @@ export const SignupForm = () => {
         ).unwrap();
 
         toast.success("Account created successfully 🔥");
-
-        router.push("/explore");
+        await dispatch(loadUserThunk());
+        router.push("/profile");
       }
     } catch (err: unknown) {
       const error = err as {
