@@ -16,6 +16,7 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
+  hydrated: boolean; // To track if we've attempted to load user on app start
   error: string | null;
   otpSent: boolean;
   verificationPhone: string | null; // Phone number to verify
@@ -27,6 +28,7 @@ const initialState: AuthState = {
     typeof window !== 'undefined' ? Cookies.get('auth-token') || null : null,
   isAuthenticated: false,
   loading: false,
+  hydrated: false,
   error: null,
   otpSent: false,
   verificationPhone: null,
@@ -179,7 +181,7 @@ export const loginWithPasswordThunk = createAsyncThunk(
       });
 
       // ✅ update redux properly
-      dispatch(setUser(data.user));
+      dispatch(setUser(data));
 
       return data;
     } catch (err: any) {
@@ -218,7 +220,8 @@ const authSlice = createSlice({
       Cookies.remove('auth-token');
     },
     setUser: (state, action) => {
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
       state.isAuthenticated = true;
     },
     resetError: (state) => {
@@ -284,18 +287,20 @@ const authSlice = createSlice({
     builder.addCase(loadUserThunk.pending, (state) => {
       state.loading = true;
     });
+
     builder.addCase(loadUserThunk.fulfilled, (state, action) => {
       state.loading = false;
       state.user = action.payload;
+      state.token = Cookies.get('auth-token') || null;
       state.isAuthenticated = true;
+      state.hydrated = true;
     });
-    builder.addCase(loadUserThunk.rejected, (state, action) => {
+
+    builder.addCase(loadUserThunk.rejected, (state) => {
       state.loading = false;
-      state.isAuthenticated = false;
+      state.hydrated = true;
       state.user = null;
-      state.token = null;
-      state.error = action.payload as string;
-      Cookies.remove('auth-token');
+      state.isAuthenticated = false;
     });
 
     // Update User
