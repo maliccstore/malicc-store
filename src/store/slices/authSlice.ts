@@ -128,7 +128,12 @@ export const signupWithPasswordThunk = createAsyncThunk(
 
       const data = res.data.data.signupWithPassword;
 
-      Cookies.set('auth-token', data.token, { expires: 7 });
+      Cookies.set('auth-token', data.token, {
+        expires: 7,
+        secure: true,
+        sameSite: 'None',
+        domain: '.rashksastabazaar.com',
+      });
 
       return data;
     } catch (err: any) {
@@ -166,7 +171,12 @@ export const loginWithPasswordThunk = createAsyncThunk(
       const data = res.data.data.loginWithPassword;
 
       // ✅ store token in cookie (same as OTP flow)
-      Cookies.set('auth-token', data.token, { expires: 7 });
+      Cookies.set('auth-token', data.token, {
+        expires: 7,
+        secure: true,
+        sameSite: 'None',
+        domain: '.rashksastabazaar.com',
+      });
 
       // ✅ update redux properly
       dispatch(setUser(data.user));
@@ -258,7 +268,12 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.otpSent = false;
       state.verificationPhone = null;
-      Cookies.set('auth-token', action.payload.token, { expires: 7 });
+      Cookies.set('auth-token', action.payload.token, {
+        expires: 7,
+        secure: true,
+        sameSite: 'None',
+        domain: '.rashksastabazaar.com',
+      });
     });
     builder.addCase(verifyOTPThunk.rejected, (state, action) => {
       state.loading = false;
