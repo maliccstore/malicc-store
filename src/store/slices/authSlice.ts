@@ -16,16 +16,52 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  hydrated: boolean; // To track if we've attempted to load user on app start
+  hydrated: boolean;
   error: string | null;
   otpSent: boolean;
-  verificationPhone: string | null; // Phone number to verify
+  verificationPhone: string | null;
 }
+
+const COOKIE_NAME = 'auth-token';
+
+const getCookieOptions = () => {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  return {
+    expires: 7,
+    secure: isProd,
+    sameSite: 'Lax' as const,
+    ...(isProd && {
+      domain: '.rashksastabazaar.com',
+    }),
+  };
+};
+
+const setAuthCookie = (token: string) => {
+  Cookies.set(COOKIE_NAME, token, getCookieOptions());
+};
+
+const removeAuthCookie = () => {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  if (isProd) {
+    Cookies.remove(COOKIE_NAME, {
+      domain: '.rashksastabazaar.com',
+    });
+  }
+
+  Cookies.remove(COOKIE_NAME);
+};
+
+const getStoredToken = () => {
+  if (typeof window === 'undefined') return null;
+
+  return Cookies.get(COOKIE_NAME) || null;
+};
 
 const initialState: AuthState = {
   user: null,
-  token:
-    typeof window !== 'undefined' ? Cookies.get('auth-token') || null : null,
+  token: getStoredToken(),
   isAuthenticated: false,
   loading: false,
   hydrated: false,
@@ -34,16 +70,28 @@ const initialState: AuthState = {
   verificationPhone: null,
 };
 
-// Async Thunks
+// ========================
+// AUTH THUNKS
+// ========================
+
 export const signupThunk = createAsyncThunk(
   'auth/signup',
   async (input: SignupInput, { rejectWithValue }) => {
     try {
       const response = await signupAPI(input);
-      if (!response) throw new Error('No response from server');
-      return { user: response.data.data.signup.user, input };
-    } catch (error) {
-      return rejectWithValue(error);
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      return {
+        user: response.data.data.signup.user,
+        input,
+      };
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || error?.message || 'Signup failed'
+      );
     }
   }
 );
@@ -53,10 +101,16 @@ export const loginStartThunk = createAsyncThunk(
   async (phoneNumber: string, { rejectWithValue }) => {
     try {
       const response = await requestLoginOTPAPI(phoneNumber);
-      if (!response) throw new Error('No response from server');
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
       return phoneNumber;
-    } catch (error) {
-      return rejectWithValue((error as Error).message || 'Login failed');
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || error?.message || 'Login failed'
+      );
     }
   }
 );
@@ -69,10 +123,22 @@ export const verifyOTPThunk = createAsyncThunk(
   ) => {
     try {
       const response = await verifyOTPAPI(phoneNumber, otp);
-      if (!response) throw new Error('No response from server');
-      return response.data.data.verifyOTP;
-    } catch (error) {
-      return rejectWithValue((error as Error).message || 'Verification failed');
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      const data = response.data.data.verifyOTP;
+
+      setAuthCookie(data.token);
+
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message ||
+          error?.message ||
+          'Verification failed'
+      );
     }
   }
 );
@@ -81,11 +147,30 @@ export const loadUserThunk = createAsyncThunk(
   'auth/loadUser',
   async (_, { rejectWithValue }) => {
     try {
+      const token = getStoredToken();
+
+      if (!token) {
+        throw new Error('No auth token found');
+      }
+
       const response = await getMeAPI();
-      if (!response) throw new Error('No response from server');
-      return response.data.data.user;
-    } catch (error) {
-      return rejectWithValue((error as Error).message || 'Failed to load user');
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
+      return {
+        user: response.data.data.user,
+        token,
+      };
+    } catch (error: any) {
+      removeAuthCookie();
+
+      return rejectWithValue(
+        error?.response?.data?.message ||
+          error?.message ||
+          'Failed to load user'
+      );
     }
   }
 );
@@ -95,10 +180,13 @@ export const resendOTPThunk = createAsyncThunk(
   async (phoneNumber: string, { rejectWithValue }) => {
     try {
       await resendOTPAPI(phoneNumber);
+
       return phoneNumber;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(
-        (error as Error).message || 'Failed to resend OTP'
+        error?.response?.data?.message ||
+          error?.message ||
+          'Failed to resend OTP'
       );
     }
   }
@@ -130,26 +218,22 @@ export const signupWithPasswordThunk = createAsyncThunk(
 
       const data = res.data.data.signupWithPassword;
 
-      Cookies.set('auth-token', data.token, {
-        expires: 7,
-        secure: true,
-        sameSite: 'None',
-        domain: '.rashksastabazaar.com',
-      });
+      setAuthCookie(data.token);
 
       return data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.errors?.[0]?.message || 'Signup failed'
+        err?.response?.data?.errors?.[0]?.message || 'Signup failed'
       );
     }
   }
 );
+
 export const loginWithPasswordThunk = createAsyncThunk(
   'auth/loginWithPassword',
   async (
     { phoneNumber, password }: { phoneNumber: string; password: string },
-    { rejectWithValue, dispatch }
+    { rejectWithValue }
   ) => {
     try {
       const res = await apiClient.post('/graphql', {
@@ -172,148 +256,260 @@ export const loginWithPasswordThunk = createAsyncThunk(
 
       const data = res.data.data.loginWithPassword;
 
-      // ✅ store token in cookie (same as OTP flow)
-      Cookies.set('auth-token', data.token, {
-        expires: 7,
-        secure: true,
-        sameSite: 'None',
-        domain: '.rashksastabazaar.com',
-      });
-
-      // ✅ update redux properly
-      dispatch(setUser(data));
+      setAuthCookie(data.token);
 
       return data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.errors?.[0]?.message || 'Login failed'
+        err?.response?.data?.errors?.[0]?.message || 'Login failed'
       );
     }
   }
 );
-// Update User
+
 export const updateUserThunk = createAsyncThunk(
   'auth/updateUser',
   async (input: { username?: string; email?: string }, { rejectWithValue }) => {
     try {
       const response = await updateAdminCredentialsAPI(input);
-      if (!response) throw new Error('No response from server');
+
+      if (!response) {
+        throw new Error('No response from server');
+      }
+
       return response.data.data.updateAdminCredentials;
-    } catch (error: unknown) {
+    } catch (error: any) {
       return rejectWithValue(
-        error instanceof Error ? error.message : 'Failed to update user'
+        error?.response?.data?.message ||
+          error?.message ||
+          'Failed to update user'
       );
     }
   }
 );
 
+// ========================
+// SLICE
+// ========================
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
+
   reducers: {
     logout: (state) => {
+      removeAuthCookie();
+
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
       state.otpSent = false;
       state.verificationPhone = null;
-      Cookies.remove('auth-token');
+      state.hydrated = true;
     },
+
     setUser: (state, action) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.loading = false;
+      state.hydrated = true;
+      state.error = null;
     },
+
     resetError: (state) => {
       state.error = null;
     },
+
+    resetAuthState: (state) => {
+      state.loading = false;
+      state.error = null;
+      state.otpSent = false;
+    },
+    markHydrated: (state) => {
+      state.hydrated = true;
+    },
   },
+
   extraReducers: (builder) => {
-    // Signup
+    // ========================
+    // SIGNUP
+    // ========================
+
     builder.addCase(signupThunk.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
+
     builder.addCase(signupThunk.fulfilled, (state, action) => {
       state.loading = false;
       state.otpSent = true;
       state.verificationPhone = action.payload.input.phoneNumber;
     });
+
     builder.addCase(signupThunk.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
 
-    // Login Start
+    // ========================
+    // LOGIN START
+    // ========================
+
     builder.addCase(loginStartThunk.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
+
     builder.addCase(loginStartThunk.fulfilled, (state, action) => {
       state.loading = false;
       state.otpSent = true;
       state.verificationPhone = action.payload;
     });
+
     builder.addCase(loginStartThunk.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
 
-    // Verify OTP
+    // ========================
+    // VERIFY OTP
+    // ========================
+
     builder.addCase(verifyOTPThunk.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
+
     builder.addCase(verifyOTPThunk.fulfilled, (state, action) => {
       state.loading = false;
-      state.isAuthenticated = true;
-      state.token = action.payload.token;
       state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+      state.hydrated = true;
+      state.error = null;
       state.otpSent = false;
       state.verificationPhone = null;
-      Cookies.set('auth-token', action.payload.token, {
-        expires: 7,
-        secure: true,
-        sameSite: 'None',
-        domain: '.rashksastabazaar.com',
-      });
     });
+
     builder.addCase(verifyOTPThunk.rejected, (state, action) => {
       state.loading = false;
+      state.isAuthenticated = false;
       state.error = action.payload as string;
     });
 
-    // Load User
+    // ========================
+    // LOAD USER
+    // ========================
+
     builder.addCase(loadUserThunk.pending, (state) => {
       state.loading = true;
+      state.error = null;
     });
 
     builder.addCase(loadUserThunk.fulfilled, (state, action) => {
       state.loading = false;
-      state.user = action.payload;
-      state.token = Cookies.get('auth-token') || null;
+      state.hydrated = true;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+      state.error = null;
+    });
+
+    builder.addCase(loadUserThunk.rejected, (state, action) => {
+      removeAuthCookie();
+
+      state.loading = false;
+      state.hydrated = true;
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.error = action.payload as string;
+    });
+
+    // ========================
+    // RESEND OTP
+    // ========================
+
+    builder.addCase(resendOTPThunk.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+
+    builder.addCase(resendOTPThunk.fulfilled, (state) => {
+      state.loading = false;
+    });
+
+    builder.addCase(resendOTPThunk.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // ========================
+    // SIGNUP WITH PASSWORD
+    // ========================
+
+    builder.addCase(signupWithPasswordThunk.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+
+    builder.addCase(signupWithPasswordThunk.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
       state.isAuthenticated = true;
       state.hydrated = true;
     });
 
-    builder.addCase(loadUserThunk.rejected, (state) => {
+    builder.addCase(signupWithPasswordThunk.rejected, (state, action) => {
       state.loading = false;
-      state.hydrated = true;
-      state.user = null;
-      state.isAuthenticated = false;
+      state.error = action.payload as string;
     });
 
-    // Update User
+    // ========================
+    // LOGIN WITH PASSWORD
+    // ========================
+
+    builder.addCase(loginWithPasswordThunk.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+
+    builder.addCase(loginWithPasswordThunk.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+      state.hydrated = true;
+      state.error = null;
+    });
+
+    builder.addCase(loginWithPasswordThunk.rejected, (state, action) => {
+      state.loading = false;
+      state.isAuthenticated = false;
+      state.error = action.payload as string;
+    });
+
+    // ========================
+    // UPDATE USER
+    // ========================
+
     builder.addCase(updateUserThunk.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
+
     builder.addCase(updateUserThunk.fulfilled, (state, action) => {
       state.loading = false;
+
       if (action.payload) {
         state.user = action.payload;
       }
     });
+
     builder.addCase(updateUserThunk.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
@@ -321,5 +517,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, resetError, setUser } = authSlice.actions;
+export const { logout, resetError, setUser, resetAuthState, markHydrated } =
+  authSlice.actions;
+
 export default authSlice.reducer;
