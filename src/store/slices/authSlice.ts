@@ -30,7 +30,7 @@ const getCookieOptions = () => {
   return {
     expires: 7,
     secure: isProd,
-    sameSite: 'Lax' as const,
+    sameSite: 'None' as const,
     ...(isProd && {
       domain: '.rashksastabazaar.com',
     }),
