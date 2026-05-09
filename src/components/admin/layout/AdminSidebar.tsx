@@ -11,6 +11,7 @@ import {
   HamburgerMenuIcon,
   Cross1Icon,
   PieChartIcon,
+  ChatBubbleIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 
@@ -115,6 +116,18 @@ export default function AdminSidebar() {
           id: "product-analytics",
           label: "Product Analytics",
           link: "/admin/analytics/products",
+        },
+      ]
+    },
+    {
+      id: "marketing",
+      label: "Marketing",
+      icon: <ChatBubbleIcon />,
+      items: [
+        {
+          id: "whatsapp-campaigns",
+          label: "WhatsApp Campaigns",
+          link: "/admin/marketing/whatsapp",
         },
       ]
     },
