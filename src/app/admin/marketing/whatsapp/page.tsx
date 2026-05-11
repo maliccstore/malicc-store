@@ -31,7 +31,7 @@ export default function WhatsAppCampaignsPage() {
   }, [sendStatus, error, dispatch]);
 
   return (
-    <Container size="4" p="4">
+    <Container size="2" >
       <Toaster position="top-right" />
       
       <Flex direction={{ initial: 'column', sm: 'row' }} justify="between" align={{ initial: 'start', sm: 'center' }} mb="6" gap="4">

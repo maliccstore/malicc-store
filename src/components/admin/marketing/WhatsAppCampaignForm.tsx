@@ -1,11 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchAdminUsers } from '@/store/admin/users/userThunks';
-import { fetchAdminProducts } from '@/store/admin/product/productThunks';
-import { sendPromotionalWhatsApp, sendProductAnnouncement } from '@/store/admin/marketing/marketingThunks';
-import { Box, Flex, Grid, Text, Heading, Button, TextField, Select, Checkbox, TextArea, Card, ScrollArea } from '@radix-ui/themes';
+import React, { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchAdminUsers } from "@/store/admin/users/userThunks";
+import { fetchAdminProducts } from "@/store/admin/product/productThunks";
+import {
+  sendPromotionalWhatsApp,
+  sendProductAnnouncement,
+} from "@/store/admin/marketing/marketingThunks";
+import {
+  Box,
+  Flex,
+  Grid,
+  Text,
+  Heading,
+  Button,
+  TextField,
+  Select,
+  TextArea,
+  Card,
+  Badge,
+  Spinner,
+  Callout,
+} from "@radix-ui/themes";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { marketingAdminAPI } from "@/services/admin/marketing.admin";
+import { CampaignFilters } from "@/features/admin/marketing/marketing.types";
 
 export default function WhatsAppCampaignForm() {
   const dispatch = useAppDispatch();
@@ -13,69 +33,122 @@ export default function WhatsAppCampaignForm() {
   const { list: products } = useAppSelector((state) => state.adminProducts);
   const { sendStatus } = useAppSelector((state) => state.adminMarketing);
 
-  const [campaignType, setCampaignType] = useState('PROMOTIONAL');
-  const [title, setTitle] = useState('');
-  const [templateName, setTemplateName] = useState('hello_world');
-  const [targetAll, setTargetAll] = useState<boolean | 'indeterminate'>(true);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [campaignType, setCampaignType] = useState("PROMOTIONAL");
+  const [title, setTitle] = useState("");
+  const [templateName, setTemplateName] = useState("hello_world");
 
   // Promotional Fields
-  const [headline, setHeadline] = useState('');
-  const [offerMessage, setOfferMessage] = useState('');
+  const [headline, setHeadline] = useState("");
+  const [offerMessage, setOfferMessage] = useState("");
 
   // Product Fields
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState("");
+
+  // Filtering State
+  const [customerType, setCustomerType] = useState<string>("ALL");
+  const [purchasedWithinDays, setPurchasedWithinDays] = useState<string>("0");
+  const [minSpent, setMinSpent] = useState<string>("0");
+  const [estimatedRecipients, setEstimatedRecipients] = useState<number | null>(
+    null,
+  );
+  const [isEstimating, setIsEstimating] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAdminUsers());
     dispatch(fetchAdminProducts());
   }, [dispatch]);
 
+  // Audience Estimation Logic
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      setIsEstimating(true);
+      try {
+        const filters: CampaignFilters = {
+          customerType: customerType as CampaignFilters["customerType"],
+          purchasedWithinDays:
+            purchasedWithinDays !== "0"
+              ? parseInt(purchasedWithinDays)
+              : undefined,
+          minSpent: minSpent !== "0" ? parseInt(minSpent) : undefined,
+        };
+        const result = await marketingAdminAPI.estimateAudience(filters);
+        setEstimatedRecipients(result.estimatedRecipients);
+      } catch (error) {
+        console.error("Estimation failed", error);
+      } finally {
+        setIsEstimating(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [customerType, purchasedWithinDays, minSpent, users]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (campaignType === 'PROMOTIONAL') {
-      dispatch(sendPromotionalWhatsApp({
-        title,
-        templateName,
-        targetAll: targetAll === true,
-        customerIds: targetAll === true ? undefined : selectedUsers,
-      }));
+    const filters: CampaignFilters = {
+      customerType: customerType as CampaignFilters["customerType"],
+      purchasedWithinDays:
+        purchasedWithinDays !== "0" ? parseInt(purchasedWithinDays) : undefined,
+      minSpent: minSpent !== "0" ? parseInt(minSpent) : undefined,
+    };
+
+    if (campaignType === "PROMOTIONAL") {
+      dispatch(
+        sendPromotionalWhatsApp({
+          title,
+          templateName,
+          targetAll: false,
+          customerIds: undefined,
+          filters: filters,
+        }),
+      );
     } else {
-      if (!selectedProduct) return alert('Please select a product');
-      dispatch(sendProductAnnouncement({
-        title,
-        templateName,
-        productId: selectedProduct,
-        headline,
-        targetAll: targetAll === true,
-        customerIds: targetAll === true ? undefined : selectedUsers,
-      }));
+      if (!selectedProduct) return alert("Please select a product");
+      dispatch(
+        sendProductAnnouncement({
+          title,
+          templateName,
+          productId: selectedProduct,
+          headline,
+          targetAll: false,
+          customerIds: undefined,
+          filters: filters,
+        }),
+      );
     }
   };
 
   return (
-    <Card size="4" className="bg-white">
+    <Card className="bg-white">
       <form onSubmit={handleSubmit}>
         <Box mb="6">
           <Heading size="5">Create WhatsApp Campaign</Heading>
-          <Text color="gray" size="2">Configure your bulk message targeting and content.</Text>
+          <Text color="gray" size="2">
+            Configure your bulk message targeting and content.
+          </Text>
         </Box>
 
-        <Grid columns={{ initial: '1', sm: '2' }} gap="4">
+        <Grid columns={{ initial: "1", sm: "2" }} gap="4">
           <Box className="sm:col-span-2">
-            <Text as="label" size="2" weight="bold" mb="1" className="block">Campaign Type</Text>
+            <Text as="label" size="2" weight="bold" mb="1" className="block">
+              Campaign Type
+            </Text>
             <Select.Root value={campaignType} onValueChange={setCampaignType}>
               <Select.Trigger className="w-full" />
               <Select.Content>
                 <Select.Item value="PROMOTIONAL">Promotional Offer</Select.Item>
-                <Select.Item value="NEW_PRODUCT">New Product Announcement</Select.Item>
+                <Select.Item value="NEW_PRODUCT">
+                  New Product Announcement
+                </Select.Item>
               </Select.Content>
             </Select.Root>
           </Box>
 
           <Box>
-            <Text as="label" size="2" weight="bold" mb="1" className="block">Campaign Title</Text>
+            <Text as="label" size="2" weight="bold" mb="1" className="block">
+              Campaign Title
+            </Text>
             <TextField.Root
               required
               value={title}
@@ -85,7 +158,9 @@ export default function WhatsAppCampaignForm() {
           </Box>
 
           <Box>
-            <Text as="label" size="2" weight="bold" mb="1" className="block">Meta Template Name</Text>
+            <Text as="label" size="2" weight="bold" mb="1" className="block">
+              Meta Template Name
+            </Text>
             <TextField.Root
               required
               value={templateName}
@@ -95,10 +170,18 @@ export default function WhatsAppCampaignForm() {
           </Box>
 
           {/* Dynamic Fields */}
-          {campaignType === 'PROMOTIONAL' ? (
+          {campaignType === "PROMOTIONAL" ? (
             <>
               <Box className="sm:col-span-2">
-                <Text as="label" size="2" weight="bold" mb="1" className="block">Headline</Text>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Headline
+                </Text>
                 <TextField.Root
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
@@ -106,7 +189,15 @@ export default function WhatsAppCampaignForm() {
                 />
               </Box>
               <Box className="sm:col-span-2">
-                <Text as="label" size="2" weight="bold" mb="1" className="block">Offer Message</Text>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Offer Message
+                </Text>
                 <TextArea
                   rows={3}
                   value={offerMessage}
@@ -118,18 +209,42 @@ export default function WhatsAppCampaignForm() {
           ) : (
             <>
               <Box>
-                <Text as="label" size="2" weight="bold" mb="1" className="block">Select Product</Text>
-                <Select.Root value={selectedProduct || undefined} onValueChange={setSelectedProduct}>
-                  <Select.Trigger className="w-full" placeholder="-- Choose Product --" />
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Select Product
+                </Text>
+                <Select.Root
+                  value={selectedProduct || undefined}
+                  onValueChange={setSelectedProduct}
+                >
+                  <Select.Trigger
+                    className="w-full"
+                    placeholder="-- Choose Product --"
+                  />
                   <Select.Content>
                     {products.map((p) => (
-                      <Select.Item key={p.id} value={p.id}>{p.name}</Select.Item>
+                      <Select.Item key={p.id} value={p.id}>
+                        {p.name}
+                      </Select.Item>
                     ))}
                   </Select.Content>
                 </Select.Root>
               </Box>
               <Box>
-                <Text as="label" size="2" weight="bold" mb="1" className="block">Headline</Text>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Headline
+                </Text>
                 <TextField.Root
                   required
                   value={headline}
@@ -140,71 +255,191 @@ export default function WhatsAppCampaignForm() {
             </>
           )}
 
-          <Box className="sm:col-span-2" mt="4" pt="4" style={{ borderTop: '1px solid var(--gray-5)' }}>
-            <Text as="label" size="2" weight="bold" mb="2" className="block">Target Audience</Text>
-            <Flex align="center" gap="2" mb="4">
-              <Checkbox
-                checked={targetAll}
-                onCheckedChange={setTargetAll}
-              />
-              <Text size="2">Send to ALL customers</Text>
-            </Flex>
+          <Box
+            className="sm:col-span-2"
+            mt="4"
+            pt="4"
+            style={{ borderTop: "1px solid var(--gray-5)" }}
+          >
+            <Text as="label" size="2" weight="bold" mb="2" className="block">
+              Target Audience
+            </Text>
 
-            {targetAll !== true && (
-              <Box mt="4">
-                <Text as="label" size="2" weight="bold" mb="2" className="block">Select Specific Customers</Text>
-                <Card variant="surface" className="p-2">
-                  <ScrollArea type="always" scrollbars="vertical" style={{ height: 180 }}>
-                    <Flex direction="column" gap="1">
-                      {users.map((u) => {
-                        const userId = Number(u.id);
-                        const isChecked = selectedUsers.includes(userId);
-                        return (
-                          <Flex key={u.id} align="center" gap="2" p="1" className="hover:bg-gray-50 rounded">
-                            <Checkbox
-                              checked={isChecked}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedUsers([...selectedUsers, userId]);
-                                } else {
-                                  setSelectedUsers(selectedUsers.filter(id => id !== userId));
-                                }
-                              }}
-                            />
-                            <Text size="2" style={{ cursor: 'pointer', flex: 1 }}>
-                              {u.username || 'Unknown User'} <Text color="gray" size="1" ml="1">({u.phoneNumber})</Text>
-                            </Text>
-                          </Flex>
-                        );
-                      })}
-                      {users.length === 0 && (
-                        <Text size="2" color="gray" align="center" className="p-2">No customers found.</Text>
-                      )}
-                    </Flex>
-                  </ScrollArea>
-                </Card>
+            <Grid columns={{ initial: "1", md: "3" }} gap="4" mt="4">
+              <Box>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Customer Type
+                </Text>
+                <Select.Root
+                  value={customerType}
+                  onValueChange={setCustomerType}
+                >
+                  <Select.Trigger className="w-full" />
+                  <Select.Content>
+                    <Select.Item value="ALL">All Customers</Select.Item>
+                    <Select.Item value="NEW">New Customers</Select.Item>
+                    <Select.Item value="REPEAT">Repeat Customers</Select.Item>
+                    <Select.Item value="INACTIVE">
+                      Inactive Customers
+                    </Select.Item>
+                  </Select.Content>
+                </Select.Root>
               </Box>
-            )}
+
+              <Box>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Purchase Activity
+                </Text>
+                <Select.Root
+                  value={purchasedWithinDays}
+                  onValueChange={setPurchasedWithinDays}
+                >
+                  <Select.Trigger className="w-full" />
+                  <Select.Content>
+                    <Select.Item value="0">Any Time</Select.Item>
+                    <Select.Item value="30">Last 30 Days</Select.Item>
+                    <Select.Item value="60">Last 60 Days</Select.Item>
+                    <Select.Item value="90">Last 90 Days</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </Box>
+
+              <Box>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Minimum Spend
+                </Text>
+                <Select.Root
+                  value={minSpent}
+                  onValueChange={setMinSpent}
+                >
+                  <Select.Trigger className="w-full" />
+                  <Select.Content>
+                    <Select.Item value="0">No Minimum</Select.Item>
+                    <Select.Item value="500">₹500+</Select.Item>
+                    <Select.Item value="1000">₹1000+</Select.Item>
+                    <Select.Item value="5000">₹5000+</Select.Item>
+                  </Select.Content>
+                </Select.Root>
+              </Box>
+
+              <Box className="col-span-3">
+                <Card
+                  variant="classic"
+                  style={{ backgroundColor: "var(--gray-2)" }}
+                >
+                  <Flex justify="between" align="center" p="2">
+                    <Flex align="center" gap="2">
+                      <InfoCircledIcon color="var(--gray-9)" />
+                      <Text size="2" weight="bold">
+                        Estimated Audience
+                      </Text>
+                      {isEstimating && <Spinner size="1" />}
+                    </Flex>
+                    <Flex align="center" gap="2">
+                      <Badge
+                        color={estimatedRecipients === 0 ? "red" : "green"}
+                        size="2"
+                      >
+                        {estimatedRecipients !== null
+                          ? `${estimatedRecipients} recipients`
+                          : "--"}
+                      </Badge>
+                    </Flex>
+                  </Flex>
+                </Card>
+
+                {estimatedRecipients === 0 && !isEstimating && (
+                  <Callout.Root color="red" size="1" mt="2">
+                    <Callout.Icon>
+                      <InfoCircledIcon />
+                    </Callout.Icon>
+                    <Callout.Text>
+                      No customers match these filters. Try broadening your
+                      criteria.
+                    </Callout.Text>
+                  </Callout.Root>
+                )}
+              </Box>
+
+              <Box className="col-span-3">
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Summary
+                </Text>
+                <Flex gap="2" wrap="wrap">
+                  <Badge variant="soft">
+                    {customerType.replace("_", " ")}
+                  </Badge>
+                  {purchasedWithinDays !== "0" && (
+                    <Badge variant="soft">
+                      Ordered in {purchasedWithinDays}d
+                    </Badge>
+                  )}
+                  {minSpent !== "0" && (
+                    <Badge variant="soft">Spent ₹{minSpent}+</Badge>
+                  )}
+                </Flex>
+              </Box>
+            </Grid>
           </Box>
         </Grid>
 
         {/* Campaign Preview Box */}
         <Box mt="6">
-          <Text as="div" size="2" weight="bold" mb="2">Campaign Preview</Text>
+          <Text as="div" size="2" weight="bold" mb="2">
+            Campaign Preview
+          </Text>
           <Card variant="surface" className="bg-white">
             <Box p="3">
-              <Text size="2" style={{ whiteSpace: 'pre-wrap', fontFamily: 'sans-serif' }}>
-                {campaignType === 'PROMOTIONAL' ? (
+              <Text
+                size="2"
+                style={{ whiteSpace: "pre-wrap", fontFamily: "sans-serif" }}
+              >
+                {campaignType === "PROMOTIONAL" ? (
                   <>
-                    <strong>{headline || '[Headline]'}</strong><br /><br />
-                    {offerMessage || '[Your offer message will appear here.]'}<br /><br />
-                    <em style={{ color: 'var(--gray-9)', fontSize: '0.75rem' }}>To unsubscribe, reply STOP</em>
+                    <strong>{title || "[Campaign Title]"}</strong>
+                    <br />
+                    <strong>{headline || "[Headline]"}</strong>
+                    <br />
+                    {offerMessage || "[Your offer message will appear here.]"}
+                    <br />
+                    <br />
                   </>
                 ) : (
                   <>
-                    <strong>{headline || '[New Product Headline]'}</strong><br /><br />
-                    Check out our new product: <strong>{products.find(p => p.id === selectedProduct)?.name || '[Product Name]'}</strong>!<br /><br />
-                    <em style={{ color: 'var(--gray-9)', fontSize: '0.75rem' }}>To unsubscribe, reply STOP</em>
+                    <strong>{headline || "[New Product Headline]"}</strong>
+                    <br />
+                    <br />
+                    Check out our new product:{" "}
+                    <strong>
+                      {products.find((p) => p.id === selectedProduct)?.name ||
+                        "[Product Name]"}
+                    </strong>
+                    !<br />
+                    <br />
                   </>
                 )}
               </Text>
@@ -215,12 +450,12 @@ export default function WhatsAppCampaignForm() {
         <Flex justify="end" mt="5">
           <Button
             type="submit"
-            disabled={sendStatus === 'loading'}
+            disabled={sendStatus === "loading"}
             variant="solid"
             color="gray"
             highContrast
           >
-            {sendStatus === 'loading' ? 'Sending...' : 'Send Campaign'}
+            {sendStatus === "loading" ? "Sending..." : "Send Campaign"}
           </Button>
         </Flex>
       </form>
