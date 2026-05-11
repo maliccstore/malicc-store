@@ -12,12 +12,19 @@ export interface WhatsAppCampaign {
   updatedAt: string;
 }
 
+export interface CampaignFilters {
+  customerType?: "ALL" | "NEW" | "REPEAT" | "INACTIVE";
+  purchasedWithinDays?: number;
+  minSpent?: number;
+}
+
 export interface SendWhatsAppCampaignInput {
   title: string;
   templateName: string;
   templateLanguage?: string;
   customerIds?: number[];
   targetAll?: boolean;
+  filters?: CampaignFilters;
 }
 
 export interface SendProductAnnouncementInput {
@@ -28,6 +35,7 @@ export interface SendProductAnnouncementInput {
   ctaUrl?: string;
   customerIds?: number[];
   targetAll?: boolean;
+  filters?: CampaignFilters;
 }
 
 export interface WhatsAppCampaignResponse {
@@ -41,4 +49,10 @@ export interface WhatsAppCampaignsResponse {
   message?: string;
   campaigns: WhatsAppCampaign[];
   totalCount: number;
+}
+
+export interface AudienceEstimateResponse {
+  success: boolean;
+  estimatedRecipients: number;
+  filters: CampaignFilters;
 }

@@ -4,6 +4,8 @@ import {
   SendProductAnnouncementInput,
   WhatsAppCampaignsResponse,
   WhatsAppCampaignResponse,
+  AudienceEstimateResponse,
+  CampaignFilters,
 } from '@/features/admin/marketing/marketing.types';
 
 export const marketingAdminAPI = {
@@ -112,5 +114,15 @@ export const marketingAdminAPI = {
     }
 
     return response.data.data.adminGetWhatsAppCampaigns;
+  },
+
+  estimateAudience: async (filters: CampaignFilters): Promise<AudienceEstimateResponse> => {
+    // Construct the REST URL. apiClient might be configured for /graphql, 
+    // so we use the NEXT_PUBLIC_REST_API_URL or remove /graphql from current baseURL
+    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || '';
+    const endpoint = `${restBaseUrl}/api/whatsapp/campaigns/audience/estimate`;
+
+    const response = await apiClient.post(endpoint, filters);
+    return response.data;
   },
 };
