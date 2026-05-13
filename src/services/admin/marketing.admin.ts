@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from "@/services/apiClient";
 import {
   SendWhatsAppCampaignInput,
   SendProductAnnouncementInput,
@@ -6,11 +6,11 @@ import {
   WhatsAppCampaignResponse,
   AudienceEstimateResponse,
   CampaignFilters,
-} from '@/features/admin/marketing/marketing.types';
+} from "@/features/admin/marketing/marketing.types";
 
 export const marketingAdminAPI = {
   sendPromotionalWhatsApp: async (
-    input: SendWhatsAppCampaignInput
+    input: SendWhatsAppCampaignInput,
   ): Promise<WhatsAppCampaignResponse> => {
     const mutation = `
       mutation AdminSendPromotionalWhatsApp($input: SendWhatsAppCampaignInput!) {
@@ -31,6 +31,7 @@ export const marketingAdminAPI = {
             headline
             offerMessage
             ctaUrl
+            couponCode
             createdAt
             updatedAt
           }
@@ -38,7 +39,7 @@ export const marketingAdminAPI = {
       }
     `;
 
-    const response = await apiClient.post('', {
+    const response = await apiClient.post("", {
       query: mutation,
       variables: { input },
     });
@@ -51,7 +52,7 @@ export const marketingAdminAPI = {
   },
 
   sendProductAnnouncement: async (
-    input: SendProductAnnouncementInput
+    input: SendProductAnnouncementInput,
   ): Promise<WhatsAppCampaignResponse> => {
     const mutation = `
       mutation AdminSendProductAnnouncement($input: SendProductAnnouncementInput!) {
@@ -69,9 +70,6 @@ export const marketingAdminAPI = {
             failedCount
             productId
             bannerImageUrl
-            headline
-            offerMessage
-            ctaUrl
             createdAt
             updatedAt
           }
@@ -79,7 +77,7 @@ export const marketingAdminAPI = {
       }
     `;
 
-    const response = await apiClient.post('', {
+    const response = await apiClient.post("", {
       query: mutation,
       variables: { input },
     });
@@ -91,7 +89,9 @@ export const marketingAdminAPI = {
     return response.data.data.adminSendProductAnnouncement;
   },
 
-  fetchWhatsAppCampaigns: async (status?: string): Promise<WhatsAppCampaignsResponse> => {
+  fetchWhatsAppCampaigns: async (
+    status?: string,
+  ): Promise<WhatsAppCampaignsResponse> => {
     const query = `
       query AdminGetWhatsAppCampaigns($filter: CampaignFilterInput) {
         adminGetWhatsAppCampaigns(filter: $filter) {
@@ -112,6 +112,7 @@ export const marketingAdminAPI = {
             headline
             offerMessage
             ctaUrl
+            couponCode
             createdAt
             updatedAt
           }
@@ -119,7 +120,7 @@ export const marketingAdminAPI = {
       }
     `;
 
-    const response = await apiClient.post('', {
+    const response = await apiClient.post("", {
       query,
       variables: { filter: { status } },
     });
@@ -131,29 +132,37 @@ export const marketingAdminAPI = {
     return response.data.data.adminGetWhatsAppCampaigns;
   },
 
-  estimateAudience: async (filters: CampaignFilters): Promise<AudienceEstimateResponse> => {
-    // Construct the REST URL. apiClient might be configured for /graphql, 
+  estimateAudience: async (
+    filters: CampaignFilters,
+  ): Promise<AudienceEstimateResponse> => {
+    // Construct the REST URL. apiClient might be configured for /graphql,
     // so we use the NEXT_PUBLIC_REST_API_URL or remove /graphql from current baseURL
-    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || '';
+    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || "";
     const endpoint = `${restBaseUrl}/api/whatsapp/campaigns/audience/estimate`;
 
-     const response = await apiClient.post(endpoint, filters);
-     return response.data;
-   },
- 
-   uploadCampaignBanner: async (file: File): Promise<{ success: boolean; data?: { url: string; filename: string }; message?: string }> => {
-     const formData = new FormData();
-     formData.append('file', file);
- 
-    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || '';
+    const response = await apiClient.post(endpoint, filters);
+    return response.data;
+  },
+
+  uploadCampaignBanner: async (
+    file: File,
+  ): Promise<{
+    success: boolean;
+    data?: { url: string; filename: string };
+    message?: string;
+  }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || "";
     const endpoint = `${restBaseUrl}/admin/uploads/campaign-banner`;
- 
-     const response = await apiClient.post(endpoint, formData, {
-       headers: {
-         'Content-Type': 'multipart/form-data',
-       },
-     });
- 
-     return response.data;
-   },
- };
+
+    const response = await apiClient.post(endpoint, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  },
+};

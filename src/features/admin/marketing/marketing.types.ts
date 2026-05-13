@@ -10,6 +10,12 @@ export interface WhatsAppCampaign {
   createdBy: number;
   createdAt: string;
   updatedAt: string;
+  productId?: string;
+  bannerImageUrl?: string;
+  headline?: string;
+  offerMessage?: string;
+  ctaUrl?: string;
+  couponCode?: string;
 }
 
 export interface CampaignFilters {
@@ -30,6 +36,7 @@ export interface SendWhatsAppCampaignInput {
   headline?: string;
   offerMessage?: string;
   ctaUrl?: string;
+  couponCode?: string;
 }
 
 export interface SendProductAnnouncementInput {

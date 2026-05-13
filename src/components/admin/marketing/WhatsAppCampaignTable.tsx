@@ -22,6 +22,7 @@ export default function WhatsAppCampaignTable({ campaigns }: Props) {
         <Table.Row>
           <Table.ColumnHeaderCell>Campaign Name</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Type</Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>Coupon</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Recipients</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Success</Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell>Failed</Table.ColumnHeaderCell>
@@ -37,6 +38,11 @@ export default function WhatsAppCampaignTable({ campaigns }: Props) {
             </Table.RowHeaderCell>
             <Table.Cell>
               <Text color="gray">{campaign.messageType}</Text>
+            </Table.Cell>
+            <Table.Cell>
+              <Text weight="bold" color="blue">
+                {campaign.couponCode || "--"}
+              </Text>
             </Table.Cell>
             <Table.Cell>
               <Text color="gray">{campaign.totalRecipients}</Text>

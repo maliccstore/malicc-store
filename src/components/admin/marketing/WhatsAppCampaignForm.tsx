@@ -41,7 +41,7 @@ export default function WhatsAppCampaignForm() {
   // Promotional Fields
   const [headline, setHeadline] = useState("");
   const [offerMessage, setOfferMessage] = useState("");
-  const [ctaUrl, setCtaUrl] = useState("");
+  const [couponCode, setCouponCode] = useState("");
 
   // Product Fields
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -129,7 +129,7 @@ export default function WhatsAppCampaignForm() {
           bannerImageUrl: bannerImageUrl || undefined,
           headline: headline || undefined,
           offerMessage: offerMessage || undefined,
-          ctaUrl: ctaUrl || undefined,
+          couponCode: couponCode || undefined,
         }),
       );
     } else {
@@ -140,7 +140,6 @@ export default function WhatsAppCampaignForm() {
           templateName,
           productId: selectedProduct,
           headline,
-          ctaUrl: ctaUrl || undefined,
           targetAll: false,
           customerIds: undefined,
           filters: filters,
@@ -244,12 +243,12 @@ export default function WhatsAppCampaignForm() {
                   mb="1"
                   className="block"
                 >
-                  CTA URL (Optional)
+                  Coupon Code
                 </Text>
                 <TextField.Root
-                  value={ctaUrl}
-                  onChange={(e) => setCtaUrl(e.target.value)}
-                  placeholder="e.g. products/summer-sale"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="e.g. WELCOME100"
                 />
               </Box>
 
