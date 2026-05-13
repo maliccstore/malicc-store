@@ -26,6 +26,8 @@ export const marketingAdminAPI = {
             totalRecipients
             successfulCount
             failedCount
+            productId
+            bannerImage
             createdAt
             updatedAt
           }
@@ -62,6 +64,8 @@ export const marketingAdminAPI = {
             totalRecipients
             successfulCount
             failedCount
+            productId
+            bannerImage
             createdAt
             updatedAt
           }
@@ -97,6 +101,8 @@ export const marketingAdminAPI = {
             totalRecipients
             successfulCount
             failedCount
+            productId
+            bannerImage
             createdAt
             updatedAt
           }
@@ -122,7 +128,23 @@ export const marketingAdminAPI = {
     const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || '';
     const endpoint = `${restBaseUrl}/api/whatsapp/campaigns/audience/estimate`;
 
-    const response = await apiClient.post(endpoint, filters);
-    return response.data;
-  },
-};
+     const response = await apiClient.post(endpoint, filters);
+     return response.data;
+   },
+ 
+   uploadCampaignBanner: async (file: File): Promise<{ success: boolean; data?: { url: string; filename: string }; message?: string }> => {
+     const formData = new FormData();
+     formData.append('file', file);
+ 
+    const restBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || '';
+    const endpoint = `${restBaseUrl}/admin/uploads/campaign-banner`;
+ 
+     const response = await apiClient.post(endpoint, formData, {
+       headers: {
+         'Content-Type': 'multipart/form-data',
+       },
+     });
+ 
+     return response.data;
+   },
+ };
