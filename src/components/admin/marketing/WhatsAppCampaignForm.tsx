@@ -26,6 +26,7 @@ import {
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { marketingAdminAPI } from "@/services/admin/marketing.admin";
 import { CampaignFilters } from "@/features/admin/marketing/marketing.types";
+import Image from "next/image";
 
 export default function WhatsAppCampaignForm() {
   const dispatch = useAppDispatch();
@@ -52,6 +53,8 @@ export default function WhatsAppCampaignForm() {
     null,
   );
   const [isEstimating, setIsEstimating] = useState(false);
+  const [bannerImageUrl, setBannerImageUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAdminUsers());
@@ -83,6 +86,26 @@ export default function WhatsAppCampaignForm() {
     return () => clearTimeout(timer);
   }, [customerType, purchasedWithinDays, minSpent, users]);
 
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const response = await marketingAdminAPI.uploadCampaignBanner(file);
+      if (response.success && response.data) {
+        setBannerImageUrl(response.data.url);
+      } else {
+        alert(response.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("An error occurred during upload");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -101,6 +124,8 @@ export default function WhatsAppCampaignForm() {
           targetAll: false,
           customerIds: undefined,
           filters: filters,
+          productId: selectedProduct || undefined,
+          bannerImage: bannerImageUrl || undefined,
         }),
       );
     } else {
@@ -204,6 +229,73 @@ export default function WhatsAppCampaignForm() {
                   onChange={(e) => setOfferMessage(e.target.value)}
                   placeholder="Details of your promotion"
                 />
+              </Box>
+
+              <Box>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Link to Product (Optional)
+                </Text>
+                <Select.Root
+                  value={selectedProduct || "NONE"}
+                  onValueChange={(val) =>
+                    setSelectedProduct(val === "NONE" ? "" : val)
+                  }
+                >
+                  <Select.Trigger
+                    className="w-full"
+                    placeholder="-- No Product --"
+                  />
+                  <Select.Content>
+                    <Select.Item value="NONE">-- No Product --</Select.Item>
+                    {products.map((p) => (
+                      <Select.Item key={p.id} value={p.id}>
+                        {p.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </Box>
+
+              <Box>
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  Banner Image
+                </Text>
+                <Flex gap="3" align="center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerUpload}
+                    style={{ display: "none" }}
+                    id="banner-upload"
+                  />
+                  <label htmlFor="banner-upload">
+                    <Button
+                      asChild
+                      variant="soft"
+                      color="gray"
+                      disabled={isUploading}
+                    >
+                      <span>
+                        {isUploading ? "Uploading..." : "Select Image"}
+                      </span>
+                    </Button>
+                  </label>
+                  {bannerImageUrl && (
+                    <Badge color="green">Image Selected</Badge>
+                  )}
+                </Flex>
               </Box>
             </>
           ) : (
@@ -326,10 +418,7 @@ export default function WhatsAppCampaignForm() {
                 >
                   Minimum Spend
                 </Text>
-                <Select.Root
-                  value={minSpent}
-                  onValueChange={setMinSpent}
-                >
+                <Select.Root value={minSpent} onValueChange={setMinSpent}>
                   <Select.Trigger className="w-full" />
                   <Select.Content>
                     <Select.Item value="0">No Minimum</Select.Item>
@@ -390,9 +479,7 @@ export default function WhatsAppCampaignForm() {
                   Summary
                 </Text>
                 <Flex gap="2" wrap="wrap">
-                  <Badge variant="soft">
-                    {customerType.replace("_", " ")}
-                  </Badge>
+                  <Badge variant="soft">{customerType.replace("_", " ")}</Badge>
                   {purchasedWithinDays !== "0" && (
                     <Badge variant="soft">
                       Ordered in {purchasedWithinDays}d
@@ -414,6 +501,33 @@ export default function WhatsAppCampaignForm() {
           </Text>
           <Card variant="surface" className="bg-white">
             <Box p="3">
+              <Box mb="3">
+                {bannerImageUrl ? (
+                  <Image
+                    src={bannerImageUrl}
+                    alt="Campaign Banner"
+                    width={400}
+                    height={120}
+                  />
+                ) : (
+                  <Box
+                    style={{
+                      width: "100%",
+                      height: "120px",
+                      backgroundColor: "var(--gray-3)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "4px",
+                      border: "1px dashed var(--gray-6)",
+                    }}
+                  >
+                    <Text size="1" color="gray">
+                      [No Banner Image Selected]
+                    </Text>
+                  </Box>
+                )}
+              </Box>
               <Text
                 size="2"
                 style={{ whiteSpace: "pre-wrap", fontFamily: "sans-serif" }}
