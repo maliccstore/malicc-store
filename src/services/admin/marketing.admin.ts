@@ -27,7 +27,10 @@ export const marketingAdminAPI = {
             successfulCount
             failedCount
             productId
-            bannerImage
+            bannerImageUrl
+            headline
+            offerMessage
+            ctaUrl
             createdAt
             updatedAt
           }
@@ -65,7 +68,10 @@ export const marketingAdminAPI = {
             successfulCount
             failedCount
             productId
-            bannerImage
+            bannerImageUrl
+            headline
+            offerMessage
+            ctaUrl
             createdAt
             updatedAt
           }
@@ -102,7 +108,10 @@ export const marketingAdminAPI = {
             successfulCount
             failedCount
             productId
-            bannerImage
+            bannerImageUrl
+            headline
+            offerMessage
+            ctaUrl
             createdAt
             updatedAt
           }

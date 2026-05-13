@@ -41,6 +41,7 @@ export default function WhatsAppCampaignForm() {
   // Promotional Fields
   const [headline, setHeadline] = useState("");
   const [offerMessage, setOfferMessage] = useState("");
+  const [ctaUrl, setCtaUrl] = useState("");
 
   // Product Fields
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -125,7 +126,10 @@ export default function WhatsAppCampaignForm() {
           customerIds: undefined,
           filters: filters,
           productId: selectedProduct || undefined,
-          bannerImage: bannerImageUrl || undefined,
+          bannerImageUrl: bannerImageUrl || undefined,
+          headline: headline || undefined,
+          offerMessage: offerMessage || undefined,
+          ctaUrl: ctaUrl || undefined,
         }),
       );
     } else {
@@ -136,6 +140,7 @@ export default function WhatsAppCampaignForm() {
           templateName,
           productId: selectedProduct,
           headline,
+          ctaUrl: ctaUrl || undefined,
           targetAll: false,
           customerIds: undefined,
           filters: filters,
@@ -188,7 +193,7 @@ export default function WhatsAppCampaignForm() {
             </Text>
             <TextField.Root
               required
-              value={templateName}
+              value={"hello_world"} // For now, we can keep this fixed or auto-generated based on title
               onChange={(e) => setTemplateName(e.target.value)}
               placeholder="e.g. hello_world"
             />
@@ -228,6 +233,23 @@ export default function WhatsAppCampaignForm() {
                   value={offerMessage}
                   onChange={(e) => setOfferMessage(e.target.value)}
                   placeholder="Details of your promotion"
+                />
+              </Box>
+
+              <Box className="sm:col-span-2">
+                <Text
+                  as="label"
+                  size="2"
+                  weight="bold"
+                  mb="1"
+                  className="block"
+                >
+                  CTA URL (Optional)
+                </Text>
+                <TextField.Root
+                  value={ctaUrl}
+                  onChange={(e) => setCtaUrl(e.target.value)}
+                  placeholder="e.g. products/summer-sale"
                 />
               </Box>
 

@@ -26,7 +26,10 @@ export interface SendWhatsAppCampaignInput {
   targetAll?: boolean;
   filters?: CampaignFilters;
   productId?: string;
-  bannerImage?: string;
+  bannerImageUrl?: string;
+  headline?: string;
+  offerMessage?: string;
+  ctaUrl?: string;
 }
 
 export interface SendProductAnnouncementInput {
