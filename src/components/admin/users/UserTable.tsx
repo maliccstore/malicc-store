@@ -59,7 +59,7 @@ export default function UserTable({ roleFilter }: UserTableProps) {
                             </Flex>
                         </Table.Cell>
                         <Table.Cell>
-                            <Badge color={user.role === 'ADMIN' ? 'ruby' : user.role === 'SUPERADMIN' ? 'gold' : 'blue'}>
+                            <Badge color={user.role === UserRole.ADMIN ? 'ruby' : user.role === UserRole.SUPERADMIN ? 'gold' : 'blue'}>
                                 {user.role}
                             </Badge>
                         </Table.Cell>

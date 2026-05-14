@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   signupAPI,
@@ -30,11 +31,11 @@ const getCookieOptions = () => {
   return {
     expires: 7,
     secure: isProd,
-    sameSite: 'None' as const,
+    sameSite: isProd ? 'None' : 'Lax',
     ...(isProd && {
       domain: '.rashksastabazaar.com',
     }),
-  };
+  } as const;
 };
 
 const setAuthCookie = (token: string) => {
