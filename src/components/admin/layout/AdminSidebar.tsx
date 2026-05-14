@@ -12,8 +12,10 @@ import {
   Cross1Icon,
   PieChartIcon,
   ChatBubbleIcon,
+  BarChartIcon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
+
 
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -130,6 +132,23 @@ export default function AdminSidebar() {
           link: "/admin/marketing/whatsapp",
         },
       ]
+    },
+    {
+      id: "billing",
+      label: "Billing & Usage",
+      icon: <BarChartIcon />,
+      items: [
+        {
+          id: "billing-overview",
+          label: "Overview",
+          link: "/admin/billing",
+        },
+        {
+          id: "billing-usage",
+          label: "Usage Details",
+          link: "/admin/billing/usage",
+        },
+      ],
     },
     {
       id: "settings",
