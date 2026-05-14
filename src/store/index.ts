@@ -12,6 +12,7 @@ import wishlistReducer from './slices/wishlistSlice';
 import orderReducer from './slices/orderSlice';
 import checkoutReducer from './slices/checkoutSlice';
 import adminDashboard from './admin/dashboard/dashboardSlice';
+import adminMarketing from './admin/marketing/marketingSlice';
 import { loadState, saveState } from './cartPersist';
 
 export const makeStore = () => {
@@ -40,6 +41,7 @@ export const makeStore = () => {
       orders: orderReducer,
       checkout: checkoutReducer,
       adminDashboard: adminDashboard,
+      adminMarketing: adminMarketing,
       // Add other reducers here
     },
     // Cast to undefined so TS doesn't constrain the reducer shape to the partial persisted state
