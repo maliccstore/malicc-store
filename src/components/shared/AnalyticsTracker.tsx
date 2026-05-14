@@ -34,7 +34,10 @@ export function AnalyticsTracker() {
         }
       },
       (error) => {
-        console.error("Live analytics error:", error);
+        console.error("Live analytics subscription error:", {
+          message: error instanceof Error ? error.message : "Unknown error",
+          details: error,
+        });
       },
     );
 

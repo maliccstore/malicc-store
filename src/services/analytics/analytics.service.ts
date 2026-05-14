@@ -8,7 +8,7 @@ import { createClient } from "graphql-ws";
 import Cookies from "js-cookie";
 
 const wsUrl =
-  process.env.NEXT_PUBLIC_WS_API_URL || "ws://localhost:4000/graphql";
+  process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/graphql";
 
 export const wsClient =
   typeof window !== "undefined"
