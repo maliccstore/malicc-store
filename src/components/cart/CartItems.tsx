@@ -6,6 +6,7 @@ import {
 import { RootState } from "../../store";
 import Image from "next/image";
 import { Image as ImageIcon } from "lucide-react";
+import { formatCurrency } from "../../utils/format";
 
 const CartItems = () => {
   const dispatch = useAppDispatch();
@@ -44,7 +45,7 @@ const CartItems = () => {
             <div className="ml-4 flex-1 flex flex-col">
               <div className="flex justify-between">
                 <h3 className="text-sm font-medium">{item.name}</h3>
-                <p className="text-sm font-medium">${item.price.toFixed(2)}</p>
+                <p className="text-sm font-medium">{formatCurrency(item.price)}</p>
               </div>
 
               <div className="flex-1 flex items-end justify-between">

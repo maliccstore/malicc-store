@@ -21,6 +21,7 @@ import { Card, Heading, Text, Badge } from "@radix-ui/themes";
 import { MapPin, Truck, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { fetchOrderDetails } from "@/store/slices/orderSlice";
+import { formatCurrency } from "@/utils/format";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -288,7 +289,7 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                       <Text weight="medium">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatCurrency(item.price * item.quantity)}
                       </Text>
                     </div>
                   ))}
@@ -308,12 +309,12 @@ export default function CheckoutPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${safeTotal.toFixed(2)}</span>
+                <span>{formatCurrency(safeTotal)}</span>
               </div>
               {safeDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount {couponCode ? `(${couponCode})` : ""}</span>
-                  <span>-${safeDiscount.toFixed(2)}</span>
+                  <span>-{formatCurrency(safeDiscount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-gray-600">
@@ -322,12 +323,12 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Tax</span>
-                <span>$0.00</span>
+                <span>{formatCurrency(0)}</span>
               </div>
               <div className="h-px bg-gray-200 my-4"></div>
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${finalTotal.toFixed(2)}</span>
+                <span>{formatCurrency(finalTotal)}</span>
               </div>
             </div>
 
