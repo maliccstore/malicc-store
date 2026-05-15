@@ -58,8 +58,8 @@ export default function DashboardPage() {
           Admin Dashboard
         </Text>
 
-        <Flex direction="column" gap="3">
-          <Card>
+        <Flex gap="3" direction={{ initial: "column", sm: "row" }} wrap="wrap">
+          <Card style={{ flex: 1, minWidth: "200px" }}>
             <Flex direction="column" gap="2">
               <Text size="2" color="gray">
                 Total Revenue
@@ -70,7 +70,7 @@ export default function DashboardPage() {
             </Flex>
           </Card>
 
-          <Card>
+          <Card style={{ flex: 1, minWidth: "200px" }}>
             <Flex direction="column" gap="2">
               <Text size="2" color="gray">
                 Total Orders
@@ -81,10 +81,32 @@ export default function DashboardPage() {
             </Flex>
           </Card>
 
-          <Card>
+          <Card style={{ flex: 1, minWidth: "200px" }}>
             <Flex direction="column" gap="2">
               <Text size="2" color="gray">
                 Total Customers
+              </Text>
+              <Text size="6" weight="bold">
+                Loading...
+              </Text>
+            </Flex>
+          </Card>
+
+          <Card style={{ flex: 1, minWidth: "200px" }}>
+            <Flex direction="column" gap="2">
+              <Text size="2" color="gray">
+                Total Products
+              </Text>
+              <Text size="6" weight="bold">
+                Loading...
+              </Text>
+            </Flex>
+          </Card>
+
+          <Card style={{ flex: 1, minWidth: "200px" }}>
+            <Flex direction="column" gap="2">
+              <Text size="2" color="gray">
+                Active Coupons
               </Text>
               <Text size="6" weight="bold">
                 Loading...
@@ -144,8 +166,8 @@ export default function DashboardPage() {
       <Text size="4" weight="bold" mt="4">
         General Stats
       </Text>
-      <Flex gap="3" direction="column">
-        <Card>
+      <Flex gap="3" direction={{ initial: "column", sm: "row" }} wrap="wrap">
+        <Card style={{ flex: 1, minWidth: "200px" }}>
           <Flex direction="column" gap="2">
             <Text size="2" color="gray">
               Total Revenue
@@ -156,7 +178,7 @@ export default function DashboardPage() {
           </Flex>
         </Card>
 
-        <Card>
+        <Card style={{ flex: 1, minWidth: "200px" }}>
           <Flex direction="column" gap="2">
             <Text size="2" color="gray">
               Total Orders
@@ -167,13 +189,35 @@ export default function DashboardPage() {
           </Flex>
         </Card>
 
-        <Card>
+        <Card style={{ flex: 1, minWidth: "200px" }}>
           <Flex direction="column" gap="2">
             <Text size="2" color="gray">
               Total Customers
             </Text>
             <Text size="6" weight="bold">
               {stats?.totalCustomers || 0}
+            </Text>
+          </Flex>
+        </Card>
+
+        <Card style={{ flex: 1, minWidth: "200px" }}>
+          <Flex direction="column" gap="2">
+            <Text size="2" color="gray">
+              Total Products
+            </Text>
+            <Text size="6" weight="bold">
+              {stats?.totalProducts || 0}
+            </Text>
+          </Flex>
+        </Card>
+
+        <Card style={{ flex: 1, minWidth: "200px" }}>
+          <Flex direction="column" gap="2">
+            <Text size="2" color="gray">
+              Active Coupons
+            </Text>
+            <Text size="6" weight="bold">
+              {stats?.activeCoupons || 0}
             </Text>
           </Flex>
         </Card>

@@ -14,7 +14,6 @@ import { InfoCircledIcon, UpdateIcon } from "@radix-ui/react-icons";
 import {
   getUsageSummary,
   getUsageSnapshots,
-  DEFAULT_PLAN_LIMITS,
   UsageSummary,
   UsageSnapshot,
 } from "@/services/admin/billing.admin";
