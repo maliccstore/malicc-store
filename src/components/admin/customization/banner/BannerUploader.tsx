@@ -3,6 +3,7 @@ import { Flex, Box, Button, Text } from '@radix-ui/themes';
 import { UploadIcon } from '@radix-ui/react-icons';
 import toast from 'react-hot-toast';
 import { homepageAdminAPI } from '@/services/admin/homepage.admin';
+import axios from 'axios';
 
 interface BannerUploaderProps {
   imageUrl: string;
@@ -24,7 +25,11 @@ export default function BannerUploader({ imageUrl, onUpload }: BannerUploaderPro
       toast.success('Image uploaded successfully!');
     } catch (err: unknown) {
       console.error(err);
-      toast.error('Failed to upload image');
+      let message = 'Failed to upload image';
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+      toast.error(message);
     } finally {
       setUploading(false);
     }
