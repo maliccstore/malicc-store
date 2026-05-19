@@ -1,5 +1,6 @@
 // src/services/admin/billing.admin.ts
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const hqClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_HQ_API_URL,
@@ -67,10 +68,27 @@ export async function getUsageSnapshots(
   storeId: string,
   days = 30
 ): Promise<SnapshotsResponse> {
-  const res = await hqClient.get(
-    `/api/admin/usage/snapshots?storeId=${encodeURIComponent(storeId)}&days=${days}&t=${Date.now()}`
-  );
-  return res.data;
+  try {
+    const res = await hqClient.get(
+      `/api/admin/usage/snapshots?storeId=${encodeURIComponent(storeId)}&days=${days}&t=${Date.now()}`
+    );
+    return res.data;
+  } catch (error) {
+    console.warn("Malicc HQ connection failed, falling back to local backend for snapshots...", error);
+    const token = Cookies.get("auth-token");
+    const localBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || "http://localhost:8000/api";
+    const res = await axios.get(
+      `${localBaseUrl}/admin/usage/snapshots?storeId=${encodeURIComponent(storeId)}&days=${days}&t=${Date.now()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  }
 }
 
 /**
@@ -92,10 +110,27 @@ export async function getUsageSummary(
       .toISOString()
       .split("T")[0];
 
-  const res = await hqClient.get(
-    `/api/admin/usage/summary?storeId=${encodeURIComponent(storeId)}&from=${fromDate}&to=${toDate}&t=${Date.now()}`
-  );
-  return res.data;
+  try {
+    const res = await hqClient.get(
+      `/api/admin/usage/summary?storeId=${encodeURIComponent(storeId)}&from=${fromDate}&to=${toDate}&t=${Date.now()}`
+    );
+    return res.data;
+  } catch (error) {
+    console.warn("Malicc HQ connection failed, falling back to local backend for summary...", error);
+    const token = Cookies.get("auth-token");
+    const localBaseUrl = process.env.NEXT_PUBLIC_REST_API_URL || "http://localhost:8000/api";
+    const res = await axios.get(
+      `${localBaseUrl}/admin/usage/summary?storeId=${encodeURIComponent(storeId)}&from=${fromDate}&to=${toDate}&t=${Date.now()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
