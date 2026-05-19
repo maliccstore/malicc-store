@@ -27,7 +27,7 @@ import HomepageSectionToggle from './HomepageSectionToggle';
 // Subcomponents split by concern
 import HeroBannerManager from './banner/HeroBannerManager';
 import FeaturedProductsManager from './featured/FeaturedProductsManager';
-import TopSellingCustomizer from './TopSellingCustomizer';
+import TopSellingManager from './top-selling/TopSellingManager';
 import PromotionalBannersCustomizer from './PromotionalBannersCustomizer';
 import NewArrivalsCustomizer from './NewArrivalsCustomizer';
 
@@ -268,7 +268,7 @@ export default function HomepageCustomizer() {
                     )}
 
                     {sectionId === 'topSelling' && (
-                      <TopSellingCustomizer config={config} onChange={setConfig} products={products} />
+                      <TopSellingManager config={config} onChange={setConfig} products={products} />
                     )}
 
                     {sectionId === 'promotional' && (
