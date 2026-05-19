@@ -10,6 +10,7 @@ import {
   Text,
   Separator,
   IconButton,
+  Grid,
 } from '@radix-ui/themes';
 import {
   ArrowUpIcon,
@@ -30,6 +31,7 @@ import FeaturedProductsManager from './featured/FeaturedProductsManager';
 import TopSellingManager from './top-selling/TopSellingManager';
 import PromotionalBannerManager from './promotional/PromotionalBannerManager';
 import NewArrivalsManager from './new-arrivals/NewArrivalsManager';
+import HomepagePreview from './HomepagePreview';
 
 export default function HomepageCustomizer() {
   const [config, setConfig] = useState<HomepageConfig | null>(null);
@@ -165,9 +167,9 @@ export default function HomepageCustomizer() {
   ];
 
   return (
-    <Box className="w-full max-w-4xl mx-auto">
+    <Box className="w-full">
       {/* Header */}
-      <Flex justify="between" align="center" mb="6">
+      <Flex justify="between" align="center" mb="6" className="max-w-4xl mx-auto lg:max-w-none">
         <Box>
           <Heading size="6" className="font-bold mb-1">Homepage Customization</Heading>
           <Text size="2" color="gray">
@@ -188,103 +190,110 @@ export default function HomepageCustomizer() {
         </Flex>
       </Flex>
 
-      {/* Main List */}
-      <Flex direction="column" gap="4">
-        {orderedSectionKeys.map((sectionId) => {
-          const enabled = isSectionEnabled(sectionId);
-          const isEditing = activeSection === sectionId;
-          const label = sectionNames[sectionId] || sectionId;
-          const orderIndex = config.sectionOrder.indexOf(sectionId);
+      <Grid gap="4" className="w-full">
+        {/* Storefront Live Preview */}
+        <Box className="w-full self-start">
+          <HomepagePreview config={config} products={products} />
+        </Box>
+        {/* Customizer Settings Panel */}
+        <Box className="w-full flex flex-col gap-4">
+          <Heading size="5" className="font-bold mb-1">Customizer Settings</Heading>
+          {orderedSectionKeys.map((sectionId) => {
+            const enabled = isSectionEnabled(sectionId);
+            const isEditing = activeSection === sectionId;
+            const label = sectionNames[sectionId] || sectionId;
+            const orderIndex = config.sectionOrder.indexOf(sectionId);
 
-          return (
-            <Card key={sectionId} size="2" className={`transition-all duration-200 ${enabled ? 'border-indigo-100 shadow-sm' : 'opacity-70 bg-gray-50'}`}>
-              <Flex direction="column" gap="3">
-                {/* Header Row */}
-                <Flex align="center" justify="between">
-                  <Flex align="center" gap="3">
-                    {/* Reordering Controls */}
-                    {orderIndex !== -1 && (
-                      <Flex direction="column" gap="1">
-                        <IconButton
-                          size="1"
-                          variant="ghost"
-                          color="gray"
-                          onClick={() => moveSection(orderIndex, 'UP')}
-                          disabled={orderIndex === 0}
-                          className="cursor-pointer"
-                        >
-                          <ArrowUpIcon width="14" height="14" />
-                        </IconButton>
-                        <IconButton
-                          size="1"
-                          variant="ghost"
-                          color="gray"
-                          onClick={() => moveSection(orderIndex, 'DOWN')}
-                          disabled={orderIndex === config.sectionOrder.length - 1}
-                          className="cursor-pointer"
-                        >
-                          <ArrowDownIcon width="14" height="14" />
-                        </IconButton>
-                      </Flex>
-                    )}
-                    <Box>
-                      <Heading size="4" className="font-semibold">{label}</Heading>
+            return (
+              <Card key={sectionId} size="2" className={`transition-all duration-200 mb-2 ${enabled ? 'border-indigo-100 shadow-sm' : 'opacity-70 bg-gray-50'}`}>
+                <Flex direction="column" gap="3">
+                  {/* Header Row */}
+                  <Flex align="center" justify="between">
+                    <Flex align="center" gap="3">
+                      {/* Reordering Controls */}
                       {orderIndex !== -1 && (
-                        <Text size="1" color="indigo" weight="medium">
-                          Position #{orderIndex + 1}
-                        </Text>
+                        <Flex direction="column" gap="3">
+                          <IconButton
+                            size="3"
+                            variant="ghost"
+                            color="gray"
+                            onClick={() => moveSection(orderIndex, 'UP')}
+                            disabled={orderIndex === 0}
+                            className="cursor-pointer"
+                          >
+                            <ArrowUpIcon width="20" height="20" />
+                          </IconButton>
+                          <IconButton
+                            size="3"
+                            variant="ghost"
+                            color="gray"
+                            onClick={() => moveSection(orderIndex, 'DOWN')}
+                            disabled={orderIndex === config.sectionOrder.length - 1}
+                            className="cursor-pointer"
+                          >
+                            <ArrowDownIcon width="20" height="20" />
+                          </IconButton>
+                        </Flex>
+                      )}
+                      <Box>
+                        <Heading size="4" className="font-semibold">{label}</Heading>
+                        {orderIndex !== -1 && (
+                          <Text size="1" color="indigo" weight="medium">
+                            Position #{orderIndex + 1}
+                          </Text>
+                        )}
+                      </Box>
+                    </Flex>
+
+                    <Flex align="center" gap="4">
+                      <HomepageSectionToggle
+                        label={enabled ? 'Active' : 'Disabled'}
+                        checked={enabled}
+                        onChange={() => toggleSection(sectionId)}
+                      />
+                      <Button
+                        size="2"
+                        variant="soft"
+                        color="gray"
+                        className="cursor-pointer"
+                        onClick={() => setActiveSection(isEditing ? null : sectionId)}
+                      >
+                        {isEditing ? 'Collapse' : 'Edit'}
+                        {isEditing ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                      </Button>
+                    </Flex>
+                  </Flex>
+
+                  {/* Expanded editing area */}
+                  {isEditing && (
+                    <Box className="mt-2 pt-4 border-t border-gray-100">
+                      {sectionId === 'hero' && (
+                        <HeroBannerManager config={config} onChange={setConfig} />
+                      )}
+
+                      {sectionId === 'featured' && (
+                        <FeaturedProductsManager config={config} onChange={setConfig} products={products} />
+                      )}
+
+                      {sectionId === 'topSelling' && (
+                        <TopSellingManager config={config} onChange={setConfig} products={products} />
+                      )}
+
+                      {sectionId === 'promotional' && (
+                        <PromotionalBannerManager config={config} onChange={setConfig} />
+                      )}
+
+                      {sectionId === 'newArrivals' && (
+                        <NewArrivalsManager config={config} onChange={setConfig} products={products} />
                       )}
                     </Box>
-                  </Flex>
-
-                  <Flex align="center" gap="4">
-                    <HomepageSectionToggle
-                      label={enabled ? 'Active' : 'Disabled'}
-                      checked={enabled}
-                      onChange={() => toggleSection(sectionId)}
-                    />
-                    <Button
-                      size="2"
-                      variant="soft"
-                      color="gray"
-                      className="cursor-pointer"
-                      onClick={() => setActiveSection(isEditing ? null : sectionId)}
-                    >
-                      {isEditing ? 'Collapse' : 'Edit'}
-                      {isEditing ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                    </Button>
-                  </Flex>
+                  )}
                 </Flex>
-
-                {/* Expanded editing area */}
-                {isEditing && (
-                  <Box className="mt-2 pt-4 border-t border-gray-100">
-                    {sectionId === 'hero' && (
-                      <HeroBannerManager config={config} onChange={setConfig} />
-                    )}
-
-                    {sectionId === 'featured' && (
-                      <FeaturedProductsManager config={config} onChange={setConfig} products={products} />
-                    )}
-
-                    {sectionId === 'topSelling' && (
-                      <TopSellingManager config={config} onChange={setConfig} products={products} />
-                    )}
-
-                    {sectionId === 'promotional' && (
-                      <PromotionalBannerManager config={config} onChange={setConfig} />
-                    )}
-
-                    {sectionId === 'newArrivals' && (
-                      <NewArrivalsManager config={config} onChange={setConfig} products={products} />
-                    )}
-                  </Box>
-                )}
-              </Flex>
-            </Card>
-          );
-        })}
-      </Flex>
+              </Card>
+            );
+          })}
+        </Box>
+      </Grid>
     </Box>
   );
 }
