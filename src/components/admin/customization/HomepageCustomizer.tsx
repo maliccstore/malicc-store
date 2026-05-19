@@ -25,7 +25,7 @@ import { AdminProduct } from '@/features/admin/products/product.types';
 import HomepageSectionToggle from './HomepageSectionToggle';
 
 // Subcomponents split by concern
-import HeroBannersCustomizer from './HeroBannersCustomizer';
+import HeroBannerManager from './banner/HeroBannerManager';
 import FeaturedProductsCustomizer from './FeaturedProductsCustomizer';
 import TopSellingCustomizer from './TopSellingCustomizer';
 import PromotionalBannersCustomizer from './PromotionalBannersCustomizer';
@@ -260,7 +260,7 @@ export default function HomepageCustomizer() {
                 {isEditing && (
                   <Box className="mt-2 pt-4 border-t border-gray-100">
                     {sectionId === 'hero' && (
-                      <HeroBannersCustomizer config={config} onChange={setConfig} />
+                      <HeroBannerManager config={config} onChange={setConfig} />
                     )}
 
                     {sectionId === 'featured' && (
