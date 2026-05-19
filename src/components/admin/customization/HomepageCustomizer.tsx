@@ -29,7 +29,7 @@ import HeroBannerManager from './banner/HeroBannerManager';
 import FeaturedProductsManager from './featured/FeaturedProductsManager';
 import TopSellingManager from './top-selling/TopSellingManager';
 import PromotionalBannerManager from './promotional/PromotionalBannerManager';
-import NewArrivalsCustomizer from './NewArrivalsCustomizer';
+import NewArrivalsManager from './new-arrivals/NewArrivalsManager';
 
 export default function HomepageCustomizer() {
   const [config, setConfig] = useState<HomepageConfig | null>(null);
@@ -276,7 +276,7 @@ export default function HomepageCustomizer() {
                     )}
 
                     {sectionId === 'newArrivals' && (
-                      <NewArrivalsCustomizer config={config} onChange={setConfig} />
+                      <NewArrivalsManager config={config} onChange={setConfig} products={products} />
                     )}
                   </Box>
                 )}

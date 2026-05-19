@@ -59,7 +59,7 @@ export default function FeaturedProductPicker({
         Select Products
       </Button>
 
-      <Dialog.Content style={{ maxWidth: 500 }}>
+      <Dialog.Content style={{ maxWidth: 350 }}>
         <Dialog.Title>Select Featured Products</Dialog.Title>
         <Dialog.Description size="2" mb="4">
           Select products to display in the Featured section on the homepage (Max {maxLimit}).
