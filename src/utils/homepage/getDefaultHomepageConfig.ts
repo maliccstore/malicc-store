@@ -14,6 +14,8 @@ export const getDefaultHomepageConfig = (): StorefrontHomepagePayload => {
         mode: "AUTO",
         limit: 10,
         enabled: true,
+        productIds: [],
+        minimumThreshold: 5,
       },
       newArrivals: {
         enabled: true,

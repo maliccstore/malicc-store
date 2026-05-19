@@ -151,6 +151,18 @@ export default function AdminSidebar() {
       ],
     },
     {
+      id: "customization",
+      label: "Customization",
+      icon: <GearIcon />,
+      items: [
+        {
+          id: "homepage-customizer",
+          label: "Homepage",
+          link: "/admin/customization/homepage",
+        },
+      ],
+    },
+    {
       id: "settings",
       label: "Settings",
       icon: <GearIcon />,
