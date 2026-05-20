@@ -3,9 +3,15 @@ import Image from 'next/image';
 
 import { useSelector } from 'react-redux';
 
-export default function AdaptiveLogo() {
+interface AdaptiveLogoProps {
+  previewWidth?: number;
+  previewUrl?: string;
+}
+
+export default function AdaptiveLogo({ previewWidth, previewUrl }: AdaptiveLogoProps = {}) {
   // Dark Mode
   const theme = useSelector((state: RootState) => state.app.theme);
+  const appearance = useSelector((state: RootState) => state.adminAppearance?.settings);
 
   const isThemeDark = () => {
     if (theme == 'light') {
@@ -15,27 +21,20 @@ export default function AdaptiveLogo() {
     }
   };
 
+  const defaultLogo = isThemeDark() ? '/assets/images/maliccwhite.png' : '/assets/images/malicc.svg';
+  const logoUrl = previewUrl || appearance?.logo_url || defaultLogo;
+  const logoWidth = previewWidth || appearance?.logo_width || 100;
+
   return (
     <>
-      {
-        //Conditional logo based on theme
-      }
-      {isThemeDark() ? (
-        <Image
-          src={'/assets/images/maliccwhite.png'}
-          priority={true}
-          alt="malicc.store"
-          width={100}
-          height={100}
-        />
-      ) : (
-        <Image
-          src={'/assets/images/malicc.svg'}
-          alt="malicc.store"
-          width={100}
-          height={100}
-        />
-      )}
+      <Image
+        src={logoUrl}
+        priority={true}
+        alt={appearance?.store_name || "malicc.store"}
+        width={logoWidth}
+        height={logoWidth}
+        style={{ objectFit: 'contain' }}
+      />
     </>
   );
 }

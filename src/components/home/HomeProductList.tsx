@@ -1,82 +1,76 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchProducts } from '@/store/slices/productSlice';
-import ProductCard from '@/components/products/ProductCard';
-import ProductCardSkeleton from '@/components/products/ProductCardSkeleton';
-import { Grid, Box, Heading, Flex, Text, Button } from '@radix-ui/themes';
-import { Frown } from 'lucide-react';
+import React from "react";
+import ProductCard from "@/components/products/ProductCard";
+import ProductCardSkeleton from "@/components/products/ProductCardSkeleton";
+import { Box, Heading, Flex, Container } from "@radix-ui/themes";
+import { Product } from "@/types/product";
 
-export default function HomeProductList() {
-    const dispatch = useAppDispatch();
-    const { products, loading, error } = useAppSelector((state) => state.products);
-
-    useEffect(() => {
-        // Fetch all products (no filters)
-        dispatch(fetchProducts({}));
-    }, [dispatch]);
-
-    if (loading) {
-        return (
-            <Box className="w-full">
-                <Grid gap="4">
-                    {Array.from({ length: 8 }).map((_, i) => (
-                        <ProductCardSkeleton key={i} />
-                    ))}
-                </Grid>
-            </Box>
-        );
-    }
-
-    if (error) {
-        return (
-            <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                py="9"
-                gap="4"
-                className="bg-red-50 rounded-lg border border-dashed border-red-300"
-            >
-                <Frown size={48} className="text-red-400" />
-                <Heading size="4" color="red">
-                    Failed to load products
-                </Heading>
-                <Text color="red" align="center">
-                    {error}
-                </Text>
-                <Button onClick={() => dispatch(fetchProducts({}))} variant="soft" color="red">
-                    Try Again
-                </Button>
-            </Flex>
-        );
-    }
-
-    if (products.length === 0) {
-        return (
-            <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                py="9"
-                gap="4"
-                className="bg-gray-50 rounded-lg border border-dashed border-gray-300"
-            >
-                <Heading size="4" color="gray">
-                    No products found
-                </Heading>
-            </Flex>
-        )
-    }
-
-    return (
-        <Box className="w-full">
-            <Grid gap="4">
-                {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </Grid>
-        </Box>
-    );
+interface HomeProductListProps {
+  title: string;
+  products: Product[];
+  loading?: boolean;
 }
+
+const HomeProductList: React.FC<HomeProductListProps> = ({
+  title,
+  products,
+  loading = false,
+}) => {
+  if (loading) {
+    return (
+      <Container size="4" className="py-6 px-4">
+        <Heading
+          size="6"
+          className="font-semibold tracking-tight mb-5 text-gray-900"
+        >
+          {title}
+        </Heading>
+
+        <Box className="w-full overflow-x-auto pb-2 scrollbar-hide">
+          <Flex gap="4" className="w-max">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Box key={i} className="w-[240px] sm:w-[280px] flex-shrink-0">
+                <ProductCardSkeleton />
+              </Box>
+            ))}
+          </Flex>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!products || products.length === 0) {
+    return null;
+  }
+
+  return (
+    <Container size="4" className="py-6 px-4">
+      <Heading
+        size="6"
+        className="font-semibold tracking-tight mb-5 text-gray-900"
+      >
+        {title}
+      </Heading>
+
+      <Box
+        className="w-full overflow-x-auto pb-2 scroll-smooth scrollbar-hide"
+        style={{ scrollSnapType: "x mandatory" }}
+      >
+        <Flex gap="4" className="w-max">
+          {products.map((product) => (
+            <Box
+              key={product.id}
+              className="w-[240px] sm:w-[280px] flex-shrink-0"
+              style={{ scrollSnapAlign: "start" }}
+            >
+              <ProductCard product={product} />
+            </Box>
+          ))}
+        </Flex>
+      </Box>
+    </Container>
+  );
+};
+
+export default React.memo(HomeProductList);

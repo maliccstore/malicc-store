@@ -53,7 +53,7 @@ export default function StoreAnalyticsPage() {
             <Spinner size="3" />
           </Flex>
         ) : (
-          <Grid columns={{ initial: "1", md: "2" }} gap="6">
+          <Grid gap="6">
             {/* Funnel Column */}
             <Box>
               <AnalyticsFunnel data={funnelData} />

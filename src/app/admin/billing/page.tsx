@@ -56,8 +56,8 @@ export default function BillingPage() {
               Billing & Usage
             </Heading>
             <Text size="3" style={{ opacity: 0.85, maxWidth: 480 }}>
-              Monitor your store's resource consumption. Usage is tracked
-              automatically — billing calculations are handled by Malicc HQ.
+              Monitor your store&apos;s resource consumption. Usage is tracked
+              automatically
             </Text>
             <Box mt="4">
               <Link href="/admin/billing/usage">

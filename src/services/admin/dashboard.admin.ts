@@ -26,9 +26,30 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       }
     `;
 
-    const [ordersRes, usersRes] = await Promise.all([
+    const couponsQuery = `
+      query ListCoupons($isActive: Boolean) {
+        listCoupons(isActive: $isActive) {
+          totalCount
+        }
+      }
+    `;
+
+    const productsQuery = `
+      query GetAllProducts {
+        products {
+          totalCount
+        }
+      }
+    `;
+
+    const [ordersRes, usersRes, couponsRes, productsRes] = await Promise.all([
       apiClient.post("", { query: ordersQuery }),
       apiClient.post("", { query: usersQuery }),
+      apiClient.post("", {
+        query: couponsQuery,
+        variables: { isActive: true },
+      }),
+      apiClient.post("", { query: productsQuery }),
     ]);
 
     if (ordersRes.data.errors) {
@@ -39,8 +60,18 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       throw new Error(usersRes.data.errors[0].message);
     }
 
+    if (couponsRes.data.errors) {
+      throw new Error(couponsRes.data.errors[0].message);
+    }
+
+    if (productsRes.data.errors) {
+      throw new Error(productsRes.data.errors[0].message);
+    }
+
     const ordersData = ordersRes.data.data.adminOrders;
     const usersData = usersRes.data.data.users;
+    const couponsData = couponsRes.data.data.listCoupons;
+    const productsData = productsRes.data.data.products;
 
     const totalOrders = ordersData.totalCount || 0;
 
@@ -52,11 +83,15 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       ) || 0;
 
     const totalCustomers = usersData?.length || 0;
+    const activeCoupons = couponsData?.totalCount || 0;
+    const totalProducts = productsData?.totalCount || 0;
 
     return {
       totalRevenue,
       totalOrders,
       totalCustomers,
+      activeCoupons,
+      totalProducts,
     };
   } catch (error) {
     console.error("Dashboard stats error:", error);
@@ -64,6 +99,8 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
       totalRevenue: 0,
       totalOrders: 0,
       totalCustomers: 0,
+      activeCoupons: 0,
+      totalProducts: 0,
     };
   }
 };

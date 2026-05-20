@@ -20,6 +20,8 @@ export interface DashboardStats {
   totalRevenue: number;
   totalOrders: number;
   totalCustomers: number;
+  totalProducts: number;
+  activeCoupons: number;
 }
 
 export interface ProductPerformance {

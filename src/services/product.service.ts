@@ -1,6 +1,7 @@
 import apiClient from './apiClient';
 import { Product, ProductFilterInput } from '@/types/product';
 import { Review, ProductRatingSummary, CreateReviewInput, UpdateReviewInput } from '@/types/review';
+import { StorefrontHomepagePayload } from '@/types/homepage';
 
 import axios from 'axios';
 
@@ -244,4 +245,122 @@ export const productService = {
         }
     },
 
+    getStorefrontHomepage: async (): Promise<StorefrontHomepagePayload> => {
+        try {
+            const query = `
+                query GetStorefrontHomepage {
+                  getStorefrontHomepage {
+                    config {
+                      sectionOrder
+                      featuredProducts {
+                        enabled
+                        productIds
+                      }
+                      topSelling {
+                        enabled
+                        mode
+                        limit
+                        minimumThreshold
+                      }
+                      newArrivals {
+                        enabled
+                        limit
+                      }
+                      heroBanners {
+                        id
+                        image
+                        title
+                        subtitle
+                        ctaText
+                        redirectUrl
+                        active
+                        order
+                      }
+                      promotionalBanners {
+                        id
+                        image
+                        title
+                        subtitle
+                        ctaText
+                        redirectUrl
+                        active
+                        order
+                      }
+                    }
+                    featuredProducts {
+                      id
+                      name
+                      description
+                      imageUrl
+                      price
+                      category
+                      createdAt
+                    }
+                    topSellingProducts {
+                      id
+                      name
+                      description
+                      imageUrl
+                      price
+                      category
+                      createdAt
+                    }
+                    newArrivals {
+                      id
+                      name
+                      description
+                      imageUrl
+                      price
+                      category
+                      createdAt
+                    }
+                  }
+                }
+            `;
+
+            const response = await apiClient.post('', { query });
+
+            if (response.data.errors) {
+                throw new Error(response.data.errors[0].message);
+            }
+
+            const payload = response.data.data.getStorefrontHomepage;
+
+            interface StorefrontProductResponseItem {
+                id: string;
+                name: string;
+                description: string;
+                imageUrl?: string[];
+                price: number;
+                category: string;
+                createdAt: string;
+            }
+
+            // Map product images for standard storefront usage
+            const mapProduct = (item: StorefrontProductResponseItem): Product => ({
+                id: item.id,
+                name: item.name,
+                description: item.description,
+                image: item.imageUrl && item.imageUrl.length > 0 ? item.imageUrl[0] : '',
+                images: item.imageUrl || [],
+                price: item.price,
+                rating: '4',
+                category: item.category,
+                inStock: true, // Default to true or check if backend returns stock status
+                availableQuantity: 99,
+                isActive: true,
+                createdAt: item.createdAt,
+            });
+
+            return {
+                config: payload.config,
+                featuredProducts: (payload.featuredProducts || []).map(mapProduct),
+                topSellingProducts: (payload.topSellingProducts || []).map(mapProduct),
+                newArrivals: (payload.newArrivals || []).map(mapProduct),
+            };
+        } catch (error) {
+            console.error('Error fetching storefront homepage payload:', error);
+            throw error;
+        }
+    }
 };
