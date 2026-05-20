@@ -23,6 +23,7 @@ import {
   Callout
 } from "@radix-ui/themes";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
+import AppearanceForm from "@/components/admin/settings/AppearanceForm";
 
 export default function SettingsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -142,6 +143,17 @@ export default function SettingsPage() {
       </Box>
 
       <Card size="3" variant="surface">
+        <Box mb="6" pb="4" className="border-b border-gray-200">
+          <Heading size="4">Appearance & Identity</Heading>
+          <Text color="gray" size="2" mt="1" as="p">
+            Customize your store logo, name, and tagline.
+          </Text>
+        </Box>
+
+        <Box className="space-y-8 mb-12">
+          <AppearanceForm />
+        </Box>
+
         <Box mb="6" pb="4" className="border-b border-gray-200">
           <Heading size="4">Security & Account</Heading>
           <Text color="gray" size="2" mt="1" as="p">

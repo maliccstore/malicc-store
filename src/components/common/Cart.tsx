@@ -9,6 +9,7 @@ import {
 } from '../../store/slices/cartSlice';
 import { Button } from '../ui/Button';
 import Image from 'next/image';
+import { formatCurrency } from '../../utils/format';
 
 const Cart = () => {
   const dispatch = useAppDispatch();
@@ -56,7 +57,7 @@ const Cart = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium">{item.name}</h3>
-                      <p className="text-gray-600">${item.price.toFixed(2)}</p>
+                      <p className="text-gray-600">{formatCurrency(item.price)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
                           onClick={() => {
@@ -104,7 +105,7 @@ const Cart = () => {
             <div className="border-t p-4">
               <div className="flex justify-between mb-4">
                 <span className="font-medium">Subtotal</span>
-                <span className="font-bold">${totalAmount.toFixed(2)}</span>
+                <span className="font-bold">{formatCurrency(totalAmount)}</span>
               </div>
               <Button
                 className="w-full"

@@ -151,6 +151,18 @@ export default function AdminSidebar() {
       ],
     },
     {
+      id: "customization",
+      label: "Customization",
+      icon: <GearIcon />,
+      items: [
+        {
+          id: "homepage-customizer",
+          label: "Homepage",
+          link: "/admin/customization/homepage",
+        },
+      ],
+    },
+    {
       id: "settings",
       label: "Settings",
       icon: <GearIcon />,
@@ -183,8 +195,8 @@ export default function AdminSidebar() {
       {/* Sidebar */}
       <div
         className={`
-        fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50
-        transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 h-screen w-64 bg-white shadow-xl z-50
+        transform transition-transform duration-300 ease-in-out flex flex-col
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
@@ -200,7 +212,7 @@ export default function AdminSidebar() {
         </div>
 
         {/* Menu Items */}
-        <nav className="p-2">
+        <nav className="p-2 flex-1 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
             <div key={item.id} className="mb-1">
               {item.items ? (
