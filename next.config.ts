@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
       'm.media-amazon.com',
       'images.unsplash.com',
       'localhost',
+      // Production store domains
+      'rashksastabazaar.com',
+      'www.rashksastabazaar.com',
     ],
   },
 };
