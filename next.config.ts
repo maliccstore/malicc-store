@@ -4,15 +4,35 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: [process.env.DOMAIN_NAME || 'http://localhost:3000'],
   // Use images.domains in development
   images: {
-    domains: [
-      'picsum.photos',
-      'ecom.myitworld.com',
-      'm.media-amazon.com',
-      'images.unsplash.com',
-      'localhost',
-      // Production store domains
-      'rashksastabazaar.com',
-      'www.rashksastabazaar.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rashksastabazaar.com',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.rashksastabazaar.com',
+        pathname: '/uploads/**',
+      },
+
+      // Existing sources
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ecom.myitworld.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'm.media-amazon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
 };
