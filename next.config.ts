@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       'images.unsplash.com',
       'localhost',
     ],
+    qualities: [25, 50, 75, 100],
   },
 };
 
