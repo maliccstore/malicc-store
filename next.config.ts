@@ -6,19 +6,24 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'rashksastabazaar.com',
-        pathname: '/api/uploads/**', // adjust if your path differs
+        pathname: '/uploads/**',
       },
       {
         protocol: 'https',
         hostname: 'www.rashksastabazaar.com',
-        pathname: '/api/uploads/**',
+        pathname: '/uploads/**',
       },
       // keep your other sources
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'm.media-amazon.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'ecom.myitworld.com' },
-      { protocol: 'http', hostname: 'localhost' },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/uploads/**',
+      },
     ],
     qualities: [25, 50, 75, 100],
   },
