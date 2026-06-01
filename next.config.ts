@@ -1,17 +1,24 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  //allowedDevOrigins: [process.env.DOMAIN_NAME || 'http://localhost:3000'],
-
   images: {
-    domains: [
-      'rashksastabazaar.com',
-      'www.rashksastabazaar.com',
-      'picsum.photos',
-      'ecom.myitworld.com',
-      'm.media-amazon.com',
-      'images.unsplash.com',
-      'localhost',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rashksastabazaar.com',
+        pathname: '/api/uploads/**', // adjust if your path differs
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.rashksastabazaar.com',
+        pathname: '/api/uploads/**',
+      },
+      // keep your other sources
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'm.media-amazon.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'ecom.myitworld.com' },
+      { protocol: 'http', hostname: 'localhost' },
     ],
     qualities: [25, 50, 75, 100],
   },
